@@ -1,0 +1,71 @@
+{
+  "checked_utc": "2026-10-23T20:53:33.844469+00:00",
+  "plantvillage_revision": "9e97599868962bd0079b8db4b7f1efa9185fa1e7",
+  "plantdoc_revision": "5467f6012d78d1c446145d5f582da6096f852ae8",
+  "sources": [
+    {
+      "url": "https://huggingface.co/datasets/mohanty/PlantVillage/resolve/9e97599868962bd0079b8db4b7f1efa9185fa1e7/data.zip",
+      "path": "archives/plantvillage.zip",
+      "bytes": 2184723441,
+      "sha256": "fba30c6a7965e49be94b47a62f8aff6cfb1c35c27f475f22092b56db41745e84"
+    },
+    {
+      "url": "https://codeload.github.com/pratikkayal/PlantDoc-Dataset/zip/5467f6012d78d1c446145d5f582da6096f852ae8",
+      "path": "archives/plantdoc.zip",
+      "bytes": 984592720,
+      "sha256": "94e2b99a500a63efbd48923ed48588fbb01f9b1db66a2d3b5c24eed6466da20f"
+    },
+    {
+      "url": "https://huggingface.co/datasets/mohanty/PlantVillage/resolve/9e97599868962bd0079b8db4b7f1efa9185fa1e7/README.md",
+      "path": "plantvillage/README.md",
+      "bytes": 6471,
+      "sha256": "9fbe34695a3f05583f47345e5174383226ecee9e7af9e21d979307771b2362fb"
+    },
+    {
+      "url": "https://huggingface.co/datasets/mohanty/PlantVillage/resolve/9e97599868962bd0079b8db4b7f1efa9185fa1e7/leaf_grouping/leaf-map.json",
+      "path": "plantvillage/leaf_grouping/leaf-map.json",
+      "bytes": 2429879,
+      "sha256": "3b4b253683c6911744959a3870a92509b1faa1ee34e9f8585e21d0fe6337a25b"
+    },
+    {
+      "url": "https://huggingface.co/datasets/mohanty/PlantVillage/resolve/9e97599868962bd0079b8db4b7f1efa9185fa1e7/splits/color_train.txt",
+      "path": "plantvillage/splits/color_train.txt",
+      "bytes": 4151500,
+      "sha256": "c43e0205b321d1c929116f5df1842348ac1e5c4861306e081416785d3c439dbd"
+    },
+    {
+      "url": "https://huggingface.co/datasets/mohanty/PlantVillage/resolve/9e97599868962bd0079b8db4b7f1efa9185fa1e7/splits/color_test.txt",
+      "path": "plantvillage/splits/color_test.txt",
+      "bytes": 1018650,
+      "sha256": "7a7257dcb5f9456feae6ae81248d29c28f45dc4cd41a00c13a5c5c198c5f2f8b"
+    },
+    {
+      "url": "https://download.pytorch.org/models/mobilenet_v3_small-047dcff4.pth",
+      "path": "weights/mobilenet_v3_small-047dcff4.pth",
+      "bytes": 10306551,
+      "sha256": "047dcff4addef86ea5bc2eff13c9614dc11f47ab1160d0a71a25e7db994f4e1f"
+    }
+  ],
+  "image_checks": {
+    "plantvillage_color": {
+      "image_files": 54305,
+      "image_bytes": 850785369,
+      "readable_images": 54305,
+      "decode_failures": []
+    },
+    "plantdoc_train": {
+      "image_files": 2342,
+      "image_bytes": 922855605,
+      "readable_images": 2342,
+      "decode_failures": []
+    },
+    "plantdoc_test": {
+      "image_files": 236,
+      "image_bytes": 73466894,
+      "readable_images": 236,
+      "decode_failures": []
+    }
+  },
+  "weights_loaded": true,
+  "training_performed": false
+}

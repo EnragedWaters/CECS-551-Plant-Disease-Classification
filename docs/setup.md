@@ -78,13 +78,26 @@ Python interpreter does not use packages installed in this Linux environment.
 
 The dataset sources are [PlantVillage](https://github.com/spMohanty/PlantVillage-Dataset)
 and [cropped PlantDoc](https://github.com/pratikkayal/PlantDoc-Dataset).
-No datasets are downloaded by these setup commands. A later download should
-record the source/version, preserve existing splits and same-leaf information,
-and keep raw files under ignored `data/` or another local storage location.
-The pretrained ImageNet weights are another later download, separate from the
-Python packages. The first real timing trial can use PlantVillage alone; PlantDoc
+No datasets are downloaded by the environment setup commands above. The
+separate authorized data download is now complete; see [the data guide](data-downloads.md)
+for locations, source versions, image counts, and the preparation script.
+The datasets and ImageNet weights are stored outside Git and OneDrive at
+`~/datasets/cecs551-plant-disease`. The original split and leaf-grouping metadata
+are preserved. The first real timing trial can use PlantVillage alone; PlantDoc
 test scores should not guide setup or model selection.
 
-The installed environment occupies about 6.6 GiB. Windows C: had about 16 GiB
-free after installation. Dataset download size and extracted size still need
-checking before fetching full copies.
+The installed environment occupies about 6.6 GiB. After disk cleanup on
+October 23, Windows C: had about 117 GiB free before downloading the data.
+
+Remote GitHub file-size metadata totals about 0.79 GiB for PlantVillage's
+`raw/color` files and 0.93 GiB for the cropped PlantDoc repository: about
+1.72 GiB together, before filesystem overhead. These are remote file sizes,
+not a downloaded or quality-checked inventory. PlantVillage's author-hosted
+[Hugging Face archive](https://huggingface.co/datasets/mohanty/PlantVillage/tree/main)
+is 2.18 GB (2.03 GiB) and serves multiple image variants; its download size is
+larger than the color files we need. The downloaded PlantDoc ZIP is
+984,592,720 bytes (0.92 GiB). Keep roughly 10–15 GiB available as a planning allowance
+for archives, extracted files, metadata, and initial outputs, rather than
+treating 1.72 GiB as the peak storage requirement. Avoid full Git-history clones
+and duplicate dataset caches. The completed downloads, extracted files, and
+weights occupy about 4.9 GiB; about 111 GiB remained free after verification.

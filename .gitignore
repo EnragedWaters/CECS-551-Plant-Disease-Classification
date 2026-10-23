@@ -1,5 +1,6 @@
 # Local assistant context; course documents live in the sibling coursework folder.
 /AGENTS.md
+/WALKTHROUGH.md
 
 # Local data and generated experiment artifacts
 /data/

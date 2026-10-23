@@ -1,0 +1,8 @@
+# Analysis and notebook packages verified with Python 3.12.3.
+# Install the PyTorch pair separately using requirements-gpu.txt.
+numpy==2.5.2
+pillow==12.3.0
+pandas==3.1.0
+matplotlib==3.11.2
+scikit-learn==1.9.1
+ipykernel==7.4.0

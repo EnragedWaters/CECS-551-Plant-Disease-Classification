@@ -11,3 +11,7 @@ Troy's Phase 3 portion:
 - Combine the team's sections into the Phase 3 report when available.
 
 Model implementation and training come later.
+
+The proposed comparison and computing checks are in [the model plan](docs/model-plan.md).
+The [setup guide](docs/setup.md) covers the Python environment, GPU check, and
+when dataset downloads are needed.

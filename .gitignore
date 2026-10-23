@@ -1,0 +1,29 @@
+# Local assistant context; course documents live in the sibling coursework folder.
+/AGENTS.md
+
+# Local data and generated experiment artifacts
+/data/
+/datasets/
+/checkpoints/
+/outputs/
+*.pt
+*.pth
+*.ckpt
+*.onnx
+
+# Python environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.pytest_cache/
+
+# Local environment settings
+.env
+.env.*
+!.env.example
+
+# Operating system metadata
+.DS_Store
+Thumbs.db

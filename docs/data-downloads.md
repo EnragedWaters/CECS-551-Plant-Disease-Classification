@@ -79,3 +79,12 @@ leaves or duplicate content across the lists.
 PlantDoc training images remain unused in the main source-only experiment;
 PlantDoc test images must not guide training settings. A successful file check
 does not establish correct labels or replace the team's data analysis.
+
+## Preliminary image analysis
+
+After preparing the data, run `python scripts/analyze_data.py` from the project
+root, then open [`notebooks/data_analysis.ipynb`](../notebooks/data_analysis.ipynb).
+The [analysis guide](data-analysis.md) documents the generated CSVs, class-balance
+figures, seeded visual samples, duplicate checks, and manual inspection notes.
+These are measured locally and should not be confused with the download-time
+integrity totals above. The analysis does not rewrite the source partitions.

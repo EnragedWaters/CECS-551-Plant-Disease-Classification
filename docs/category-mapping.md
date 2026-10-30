@@ -92,6 +92,21 @@ scores to decide which annotations to change.
 - Check related leaves, duplicate content, image eligibility, and test coverage separately. Matching category names does not resolve those issues.
 - Keep the spider-mite pair out of the current proposed external comparison: this cropped PlantDoc version has two training images and zero test images in that folder. The lack of target test examples is the relevant reason; PlantDoc training counts do not determine whether we can train on PlantVillage.
 
+## Test coverage for these proposed pairs
+
+The notebook now shows PlantDoc train and test counts separately. Across all
+27 proposed pairs, there are 2,340 train images and 236 test images, with only
+4–12 test images per category. The two remaining downloaded PlantDoc images
+belong to the excluded spider-mite training folder. The chart compares total
+dataset sizes; its PlantDoc bars include both train and test images.
+
+Our main experiment trains on PlantVillage, so PlantDoc training counts do not
+determine whether a category can be trained. The small PlantDoc test counts do
+limit how confidently we can interpret results for individual categories:
+a single mistake can noticeably change a category's score. These are observed
+folder counts, before final category decisions and duplicate checks, not a
+final approved test set or measured model results.
+
 ## Replacement paragraph for the report
 
 We identified 27 proposed category pairs for exploratory comparison. The PlantDoc paper supports the interpretation of ten healthy categories, and twelve other pairs use corresponding condition names. Five pairs involving apple rust, corn rust, corn leaf blight, bell-pepper leaf spot, and tomato yellow virus still require review. The collection method supports Northern Leaf Blight as the intended corn-blight match, but some files in that folder have names referring to other diseases, including in the test partition. These are label-quality clues, not confirmed mislabeling. Counts and example pictures remain visible for inspection, while final inclusion is pending the documented review. Pairs that cannot be supported will be excluded from the main comparison. Category matching does not by itself establish image-label accuracy or rule out duplicates.

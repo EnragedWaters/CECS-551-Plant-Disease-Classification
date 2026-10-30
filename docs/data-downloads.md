@@ -62,7 +62,10 @@ Sources are pinned to these revisions:
 
 - [PlantVillage author-hosted distribution](https://huggingface.co/datasets/mohanty/PlantVillage/tree/9e97599868962bd0079b8db4b7f1efa9185fa1e7).
   Its README records CC BY-SA 3.0; retain attribution and consult those terms
-  before redistributing images or adaptations.
+  before redistributing images or adaptations. The notebook reads this declaration
+  from the local README because this download has no separate root license
+  file. A missing standalone license file does not mean the source declares
+  no license.
 - [Cropped PlantDoc](https://github.com/pratikkayal/PlantDoc-Dataset/tree/5467f6012d78d1c446145d5f582da6096f852ae8).
   Its included license is CC BY 4.0.
 - [MobileNetV3-Small `IMAGENET1K_V1`](https://docs.pytorch.org/vision/stable/models/generated/torchvision.models.mobilenet_v3_small.html).

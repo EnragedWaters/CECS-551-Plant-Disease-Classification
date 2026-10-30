@@ -17,11 +17,11 @@ model weights. Counts describe this downloaded version, not paper headline
 totals or final eligible experiment counts.
 
 The local data folder is `~/datasets/cecs551-plant-disease` in WSL. It is outside
-Git and OneDrive. On this machine, paste this into Windows File Explorer's
-address bar to view it:
+Git and OneDrive. For Ubuntu in WSL, the Windows File Explorer address looks
+like this; replace `<your-linux-username>` with your WSL username:
 
 ```text
-\\wsl.localhost\Ubuntu\home\troy\datasets\cecs551-plant-disease
+\\wsl.localhost\Ubuntu\home\<your-linux-username>\datasets\cecs551-plant-disease
 ```
 
 | Folder or file | Contents |
@@ -45,6 +45,18 @@ The script downloads roughly 3 GB and extracts only PlantVillage's color
 variant. It checks readability of the images and loads the pretrained weights
 without training. Running it again reuses completed downloads, re-extracts the
 original files, and repeats the checks. Keep manual edits out of these raw folders.
+
+`scripts/CECS551DatasetsResearch.ipynb` reads these existing folders without
+downloading another copy. Use the project Python environment as its notebook
+kernel. For data stored elsewhere, edit `DATA_ROOT` in the first cell or set
+`PLANT_DISEASE_DATA_DIR` before starting Jupyter. The selected folder should
+contain `plantvillage/raw/color`, `plantdoc/train`, and `plantdoc/test`.
+Missing folders produce a setup message rather than an automatic download.
+The first notebook cell writes the full paths to `dataset-paths.local.txt` in
+the notebook's working folder (usually `scripts/` or the repository root).
+That file is ignored by Git. It is a local location report, not a configuration
+file; change `DATA_ROOT` or the environment variable to choose another location.
+The saved notebook output only reports whether the folders were found.
 
 Sources are pinned to these revisions:
 

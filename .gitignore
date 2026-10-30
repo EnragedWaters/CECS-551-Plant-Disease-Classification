@@ -21,6 +21,7 @@ __pycache__/
 .pytest_cache/
 
 # Local environment settings
+dataset-paths.local.txt
 .env
 .env.*
 !.env.example

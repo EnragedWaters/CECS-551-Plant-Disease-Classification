@@ -57,8 +57,9 @@ AI/chat plugins are needed for this work.
 
 1. In the Command Palette, choose **WSL: Reopen Folder in WSL** to use the Linux
    environment from the editor.
-2. Choose **Python: Select Interpreter**, then the environment's Python. On this
-   machine it is `/home/troy/.venvs/cecs551-plant-disease/bin/python`.
+2. Choose **Python: Select Interpreter**, then the environment's Python at
+   `~/.venvs/cecs551-plant-disease/bin/python`. Run `which python` in the
+   activated WSL terminal if the picker needs the full path for your machine.
 3. For a notebook, choose **Select Kernel** and the **Plant Disease (WSL)** kernel
    or that same Python environment.
 

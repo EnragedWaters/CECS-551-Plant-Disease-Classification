@@ -52,13 +52,14 @@ class DataAnalysisTests(unittest.TestCase):
 
     def test_audit_flags_counts_and_reproducible_samples(self):
         result = analyze(self.data, self.output, samples_per_category=2, seed=13)
-        self.assertEqual(result["images_by_dataset"], {"PlantDoc": 2, "PlantVillage": 3})
+        self.assertEqual(result["images_by_dataset"], {"plantdoc": 2, "plantvillage": 3})
         self.assertEqual(result["unreadable_images"], 1)
         self.assertEqual(result["exact_duplicate_hash_groups"], 1)
         self.assertEqual(result["exact_duplicate_cross_partition_groups"], 1)
         self.assertEqual(result["same_leaf_cross_split_groups"], 1)
         self.assertEqual(result["missing_source_images"], 0)
-        self.assertEqual(result["source_revisions"]["PlantVillage"], "sample-revision")
+        self.assertEqual(result["plantvillage_revision"], "sample-revision")
+        self.assertEqual(result["plantdoc_revision"], "another-revision")
         with (self.output / "quality_flags.csv").open(newline="") as stream:
             flags = list(csv.DictReader(stream))
         self.assertEqual(sum(f["flag"] == "exact_duplicate" for f in flags), 2)
@@ -67,9 +68,11 @@ class DataAnalysisTests(unittest.TestCase):
         with (self.output / "class_counts.csv").open(newline="") as stream:
             counts = list(csv.DictReader(stream))
         self.assertEqual(sum(int(c["file_count"]) for c in counts), 5)
+        self.assertEqual({c["dataset"] for c in counts}, {"plantvillage", "plantdoc"})
         with (self.output / "sample_manifest.csv").open(newline="") as stream:
             samples = list(csv.DictReader(stream))
         self.assertEqual(len(samples), 4)
+        self.assertEqual({s["dataset"] for s in samples}, {"plantvillage", "plantdoc"})
         first_paths = [r["relative_path"] for r in samples]
         analyze(self.data, self.output, samples_per_category=2, seed=13)
         with (self.output / "sample_manifest.csv").open(newline="") as stream:

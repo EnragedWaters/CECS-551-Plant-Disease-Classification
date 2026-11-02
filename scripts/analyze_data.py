@@ -102,13 +102,13 @@ def source_images(root, split_map, leaf_map):
         key = path.relative_to(root / "plantvillage" / "raw" / "color").as_posix()
         if len(Path(key).parts) != 2:
             raise ValueError(f"Unexpected PlantVillage category structure: {path}")
-        yield path, "PlantVillage", path.parent.name, split_map.get(key, "unassigned"), leaf_identifier(path.name, path.parent.name, leaf_map)
+        yield path, "plantvillage", path.parent.name, split_map.get(key, "unassigned"), leaf_identifier(path.name, path.parent.name, leaf_map)
     for split in ("train", "test"):
         for path in image_files(root / "plantdoc" / split):
             key = path.relative_to(root / "plantdoc" / split)
             if len(key.parts) != 2:
                 raise ValueError(f"Unexpected PlantDoc category structure: {path}")
-            yield path, "PlantDoc", path.parent.name, split, ""
+            yield path, "plantdoc", path.parent.name, split, ""
 
 
 def edge_variance(image):
@@ -151,7 +151,7 @@ def analyze(data_root, output_dir, samples_per_category=4, seed=551):
     seen_split_entries = set()
     for index, (path, dataset, category, split, leaf_id) in enumerate(sources, 1):
         relative_path = path.relative_to(data_root).as_posix()
-        if dataset == "PlantVillage":
+        if dataset == "plantvillage":
             seen_split_entries.add(path.relative_to(pv_dir / "raw" / "color").as_posix())
         record = {"dataset": dataset, "category": category, "split": split,
                   "relative_path": relative_path, "leaf_id": leaf_id,
@@ -181,7 +181,7 @@ def analyze(data_root, output_dir, samples_per_category=4, seed=551):
 
     missing_paths = sorted(set(split_map) - seen_split_entries)
     for key in missing_paths:
-        flags.append({"flag": "missing_split_file", "dataset": "PlantVillage",
+        flags.append({"flag": "missing_split_file", "dataset": "plantvillage",
                       "category": key.split("/")[0], "split": split_map[key],
                       "relative_path": f"plantvillage/raw/color/{key}",
                       "details": "Listed in source split but image not found"})
@@ -219,13 +219,13 @@ def analyze(data_root, output_dir, samples_per_category=4, seed=551):
     metadata = json.loads(manifest_path.read_text(encoding="utf-8")) if manifest_path.exists() else {}
     summary = {"analyzed_utc": datetime.now(timezone.utc).isoformat(),
                "data_root": str(data_root),
-               "source_revisions": {"PlantVillage": metadata.get("plantvillage_revision", "unknown"),
-                                    "PlantDoc": metadata.get("plantdoc_revision", "unknown")},
+               "plantvillage_revision": metadata.get("plantvillage_revision", "unknown"),
+               "plantdoc_revision": metadata.get("plantdoc_revision", "unknown"),
                "images_by_dataset": dict(sorted(Counter(r["dataset"] for r in inventory).items())),
                "unreadable_images": sum(not r["readable"] for r in inventory),
                "unassigned_source_images": sum(r["split"] == "unassigned" for r in inventory),
                "missing_source_images": len(missing_paths),
-               "resolved_plantvillage_leaf_ids": sum(r["dataset"] == "PlantVillage" and bool(r["leaf_id"]) for r in inventory),
+               "resolved_plantvillage_leaf_ids": sum(r["dataset"] == "plantvillage" and bool(r["leaf_id"]) for r in inventory),
                "exact_duplicate_hash_groups": duplicate_groups,
                "exact_duplicate_cross_partition_groups": cross_split_hash_groups,
                "same_leaf_cross_split_groups": cross_split_leaf_groups,

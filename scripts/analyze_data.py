@@ -40,27 +40,16 @@ EXPERIMENT_ROLES = {
     ("plantdoc", "test"): "evaluation",
 }
 IMPACT_PRIORITY = {
-    "training_leakage": 0,
-    "duplicate_evaluation": 1,
+    "training_test_overlap": 0,
+    "duplicate_test": 1,
     "duplicate_training": 2,
     "no_direct_impact": 3,
 }
 RECOMMENDED_ACTIONS = {
-    "training_leakage": (
-        "Resolve training/evaluation overlap before modeling; prevent identical images "
-        "from appearing on both sides of the training/evaluation boundary."
-    ),
-    "duplicate_evaluation": (
-        "Deduplicate evaluation images or explicitly account for repeated images "
-        "when reporting metrics and comparing test datasets."
-    ),
-    "duplicate_training": (
-        "Deduplicate training images before fitting; keep identical copies together "
-        "when constructing the final train/validation split."
-    ),
-    "no_direct_impact": (
-        "No duplicate-related change needed under the current data-use plan; reassess if the plan changes."
-    ),
+    "training_test_overlap": "Resolve training/test overlap.",
+    "duplicate_test": "Deduplicate test images.",
+    "duplicate_training": "Deduplicate training images.",
+    "no_direct_impact": "No duplicate-related change needed under the current data-use plan.",
 }
 
 
@@ -194,9 +183,9 @@ def classify_duplicate_groups(hashes):
 
         # Mutually exclusive, ordered by the most important experiment impact.
         if roles["training"] and roles["evaluation"]:
-            impact = "training_leakage"
+            impact = "training_test_overlap"
         elif roles["evaluation"] > 1:
-            impact = "duplicate_evaluation"
+            impact = "duplicate_test"
         elif roles["training"] > 1:
             impact = "duplicate_training"
         else:
@@ -207,7 +196,7 @@ def classify_duplicate_groups(hashes):
             {"train", "test"}.issubset(splits) for splits in source_splits.values()
         )
         action = RECOMMENDED_ACTIONS[impact]
-        if label_conflict:
+        if label_conflict and impact != "no_direct_impact":
             action += " Review conflicting original labels within each affected dataset before using the images."
         group_rows.append({
             "sha256": digest,

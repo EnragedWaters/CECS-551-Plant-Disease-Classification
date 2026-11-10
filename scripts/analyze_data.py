@@ -46,7 +46,7 @@ IMPACT_PRIORITY = {
     "no_direct_impact": 3,
 }
 RECOMMENDED_ACTIONS = {
-    "training_test_overlap": "Resolve training/test overlap.",
+    "training_test_overlap": "Exclude image from training; include image in testing.",
     "duplicate_test": "Deduplicate test images.",
     "duplicate_training": "Deduplicate training images.",
     "no_direct_impact": "No duplicate-related change needed under the current data-use plan.",

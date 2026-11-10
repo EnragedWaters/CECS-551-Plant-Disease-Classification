@@ -10,6 +10,7 @@ split lists and leaf-group metadata are used as provided, not rewritten.
 import argparse
 import csv
 import hashlib
+import heapq
 import json
 import random
 from collections import Counter, defaultdict
@@ -33,6 +34,11 @@ DUPLICATE_GROUP_COLUMNS = [
 ]
 DUPLICATE_MEMBER_COLUMNS = [
     "sha256", "dataset", "category", "split", "relative_path", "experiment_role",
+]
+VISUAL_SIMILARITY_COLUMNS = [
+    "hamming_distance", "training_evaluation_overlap", "cross_dataset",
+    "cross_source_split", "dataset_a", "split_a", "category_a", "relative_path_a",
+    "dataset_b", "split_b", "category_b", "relative_path_b",
 ]
 EXPERIMENT_ROLES = {
     ("plantvillage", "train"): "training",
@@ -143,6 +149,68 @@ def edge_variance(image):
     return round(ImageStat.Stat(thumbnail.filter(ImageFilter.FIND_EDGES)).var[0], 3)
 
 
+def difference_hash(image):
+    """Compute a 64-bit horizontal difference hash, honoring EXIF orientation."""
+    pixels = list(ImageOps.exif_transpose(image).convert("L").resize(
+        (9, 8), Image.Resampling.LANCZOS
+    ).get_flattened_data())
+    result = 0
+    for y in range(8):
+        for x in range(8):
+            result = (result << 1) | (pixels[y * 9 + x] > pixels[y * 9 + x + 1])
+    return result
+
+
+def training_evaluation_overlap(first, second):
+    """Check the planned experiment roles, not just original split names."""
+    return {
+        EXPERIMENT_ROLES.get((item["dataset"], item["split"]), "unused")
+        for item in (first, second)
+    } == {"training", "evaluation"}
+
+
+class HashNode:
+    """A BK-tree node for images with the same perceptual hash."""
+
+    def __init__(self, value, record):
+        self.value = value
+        self.records = [record]
+        self.children = {}
+
+
+def nearby_hash_records(root, value, max_distance):
+    """Yield earlier images within the Hamming radius without all-pairs search."""
+    if root is None:
+        return
+    stack = [root]
+    while stack:
+        node = stack.pop()
+        distance = (node.value ^ value).bit_count()
+        if distance <= max_distance:
+            for record in node.records:
+                yield distance, record
+        lower, upper = distance - max_distance, distance + max_distance
+        stack.extend(child for edge, child in node.children.items()
+                     if lower <= edge <= upper)
+
+
+def insert_hash(root, value, record):
+    """Add the current image to the BK-tree after checking prior images."""
+    if root is None:
+        return HashNode(value, record)
+    node = root
+    while True:
+        distance = (node.value ^ value).bit_count()
+        if distance == 0:
+            node.records.append(record)
+            break
+        if distance not in node.children:
+            node.children[distance] = HashNode(value, record)
+            break
+        node = node.children[distance]
+    return root
+
+
 def write_csv(path, columns, rows):
     with path.open("w", encoding="utf-8", newline="") as stream:
         writer = csv.DictWriter(stream, fieldnames=columns)
@@ -230,10 +298,15 @@ def classify_duplicate_groups(hashes):
     return group_rows, member_rows
 
 
-def analyze(data_root, output_dir, samples_per_category=4, seed=551):
+def analyze(data_root, output_dir, samples_per_category=4, seed=551,
+            similarity_max_distance=5, similarity_matches_per_image=3):
     """Scan images, report evidence and flag *candidates* for manual review."""
     if samples_per_category < 1:
         raise ValueError("--samples-per-category must be positive")
+    if not 0 <= similarity_max_distance <= 64:
+        raise ValueError("--similarity-max-distance must be between 0 and 64")
+    if similarity_matches_per_image < 1:
+        raise ValueError("--similarity-matches-per-image must be positive")
     pv_dir = data_root / "plantvillage"
     split_map = read_splits(pv_dir)
     leaf_map = read_leaf_map(pv_dir)
@@ -253,6 +326,9 @@ def analyze(data_root, output_dir, samples_per_category=4, seed=551):
     flags = []
     hashes = defaultdict(list)
     groups = defaultdict(list)
+    similarity_root = None
+    similarity_rows = []
+    similarity_images_hashed = 0
     seen_split_entries = set()
     for index, (path, dataset, category, split, leaf_id) in enumerate(sources, 1):
         relative_path = path.relative_to(data_root).as_posix()
@@ -263,6 +339,7 @@ def analyze(data_root, output_dir, samples_per_category=4, seed=551):
                   "bytes": path.stat().st_size, "sha256": "", "readable": False,
                   "decode_error": "", "width": "", "height": "", "mode": "",
                   "edge_variance": "", "sampled": path in sampled_paths}
+        image_hash = None
         # A byte-wise hash detects exact copies, not re-encoded or cropped variants.
         with path.open("rb") as stream:
             record["sha256"] = hashlib.file_digest(stream, "sha256").hexdigest()
@@ -272,11 +349,44 @@ def analyze(data_root, output_dir, samples_per_category=4, seed=551):
                 record.update(readable=True, width=image.width, height=image.height, mode=image.mode)
                 if path in sampled_paths:
                     record["edge_variance"] = edge_variance(image)
+                # The image is already decoded: no second pass over the source files.
+                try:
+                    image_hash = difference_hash(image)
+                except (OSError, ValueError, SyntaxError) as error:
+                    flags.append({**record, "flag": "visual_hash_error",
+                                  "details": f"{type(error).__name__}: {error}"})
         except (OSError, ValueError, SyntaxError) as error:
             record["decode_error"] = f"{type(error).__name__}: {error}"
             flags.append({**record, "flag": "unreadable", "details": record["decode_error"]})
         if split == "unassigned":
             flags.append({**record, "flag": "unassigned_split", "details": "Absent from both source split lists"})
+        if image_hash is not None:
+            # Keep only a bounded number of earlier, non-byte-identical matches.
+            # Training/evaluation overlaps take priority over other pairs.
+            matches = heapq.nsmallest(
+                similarity_matches_per_image,
+                ((distance, previous) for distance, previous in nearby_hash_records(
+                    similarity_root, image_hash, similarity_max_distance
+                ) if previous["sha256"] != record["sha256"]),
+                key=lambda item: (
+                    not training_evaluation_overlap(item[1], record),
+                    item[0], item[1]["relative_path"]
+                ),
+            )
+            for distance, previous in matches:
+                similarity_rows.append({
+                    "hamming_distance": distance,
+                    "training_evaluation_overlap": training_evaluation_overlap(previous, record),
+                    "cross_dataset": previous["dataset"] != dataset,
+                    "cross_source_split": previous["dataset"] == dataset
+                                          and previous["split"] != split,
+                    **{f"{key}_a": previous[key] for key in (
+                        "dataset", "split", "category", "relative_path")},
+                    **{f"{key}_b": record[key] for key in (
+                        "dataset", "split", "category", "relative_path")},
+                })
+            similarity_root = insert_hash(similarity_root, image_hash, record)
+            similarity_images_hashed += 1
         inventory.append(record)
         hashes[record["sha256"]].append(record)
         if leaf_id:
@@ -366,6 +476,16 @@ def analyze(data_root, output_dir, samples_per_category=4, seed=551):
                ),
                "same_leaf_cross_split_groups": cross_split_leaf_groups,
                "case_insensitive_filename_collision_groups": len(filename_collisions),
+               "visual_similarity": {
+                   "method": "64-bit dHash / Hamming distance (manual-review candidates)",
+                   "max_distance": similarity_max_distance,
+                   "matches_per_image": similarity_matches_per_image,
+                   "images_hashed": similarity_images_hashed,
+                   "candidate_pairs": len(similarity_rows),
+                   "training_evaluation_candidate_pairs": sum(
+                       row["training_evaluation_overlap"] for row in similarity_rows
+                   ),
+               },
                "sample": {"selection": "seeded uniform random sample per dataset/category, ignoring split",
                           "seed": seed, "requested_per_category": samples_per_category,
                           "selected_images": len(samples),
@@ -381,6 +501,8 @@ def analyze(data_root, output_dir, samples_per_category=4, seed=551):
               ["casefolded_path", "relative_paths"], filename_collisions)
     write_csv(output_dir / "duplicate_groups.csv", DUPLICATE_GROUP_COLUMNS, duplicate_rows)
     write_csv(output_dir / "duplicate_group_members.csv", DUPLICATE_MEMBER_COLUMNS, duplicate_members)
+    write_csv(output_dir / "visual_similarity_candidates.csv",
+              VISUAL_SIMILARITY_COLUMNS, similarity_rows)
     (output_dir / "summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(summary, indent=2), flush=True)
     return summary
@@ -392,8 +514,11 @@ def main():
     parser.add_argument("--output-dir", type=Path, default=OUTPUT)
     parser.add_argument("--samples-per-category", type=int, default=4)
     parser.add_argument("--seed", type=int, default=551)
+    parser.add_argument("--similarity-max-distance", type=int, default=5)
+    parser.add_argument("--similarity-matches-per-image", type=int, default=3)
     args = parser.parse_args()
-    analyze(args.data_root.expanduser(), args.output_dir, args.samples_per_category, args.seed)
+    analyze(args.data_root.expanduser(), args.output_dir, args.samples_per_category, args.seed,
+            args.similarity_max_distance, args.similarity_matches_per_image)
 
 
 if __name__ == "__main__":

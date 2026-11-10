@@ -310,6 +310,22 @@ def analyze(data_root, output_dir, samples_per_category=4, seed=551):
             flags.append({**record, "flag": "same_leaf_across_splits",
                           "details": f"{dataset} leaf_id={leaf_id}; splits={','.join(sorted({r['split'] for r in records}))}"})
 
+    # Use full relative paths so names reused in different folders are not collisions.
+    paths_by_casefold = defaultdict(list)
+    for record in inventory:
+        paths_by_casefold[record["relative_path"].casefold()].append(record)
+    filename_collisions = []
+    for casefolded_path, records in sorted(paths_by_casefold.items()):
+        if len(records) < 2:
+            continue
+        paths = sorted(record["relative_path"] for record in records)
+        filename_collisions.append({"casefolded_path": casefolded_path,
+                                    "relative_paths": json.dumps(paths, ensure_ascii=False)})
+        for record in records:
+            flags.append({**record, "flag": "case_insensitive_filename_collision",
+                          "details": "Collides with: " + "; ".join(
+                              path for path in paths if path != record["relative_path"])})
+
     counts = Counter((r["dataset"], r["category"], r["split"]) for r in inventory)
     readable_counts = Counter((r["dataset"], r["category"], r["split"])
                               for r in inventory if r["readable"])
@@ -349,6 +365,7 @@ def analyze(data_root, output_dir, samples_per_category=4, seed=551):
                    row["cross_source_split"] for row in duplicate_rows
                ),
                "same_leaf_cross_split_groups": cross_split_leaf_groups,
+               "case_insensitive_filename_collision_groups": len(filename_collisions),
                "sample": {"selection": "seeded uniform random sample per dataset/category, ignoring split",
                           "seed": seed, "requested_per_category": samples_per_category,
                           "selected_images": len(samples),
@@ -360,6 +377,8 @@ def analyze(data_root, output_dir, samples_per_category=4, seed=551):
     write_csv(output_dir / "image_dimensions.csv", ["dataset", "category", "split", "relative_path", "width", "height", "mode"], dimensions)
     write_csv(output_dir / "sample_manifest.csv", INVENTORY_COLUMNS, samples)
     write_csv(output_dir / "quality_flags.csv", FLAG_COLUMNS, flags)
+    write_csv(output_dir / "case_insensitive_filename_collisions.csv",
+              ["casefolded_path", "relative_paths"], filename_collisions)
     write_csv(output_dir / "duplicate_groups.csv", DUPLICATE_GROUP_COLUMNS, duplicate_rows)
     write_csv(output_dir / "duplicate_group_members.csv", DUPLICATE_MEMBER_COLUMNS, duplicate_members)
     (output_dir / "summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")

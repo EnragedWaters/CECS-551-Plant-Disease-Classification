@@ -28,11 +28,40 @@ INVENTORY_COLUMNS = ["dataset", "category", "split", "relative_path", "leaf_id",
 FLAG_COLUMNS = ["flag", "dataset", "category", "split", "relative_path", "details"]
 DUPLICATE_GROUP_COLUMNS = [
     "sha256", "copy_count", "datasets", "source_partitions", "categories_by_dataset",
-    "cross_partition", "cross_split_within_dataset", "label_conflict",
-    "training_evaluation_overlap", "shared_evaluation_images",
-    "classifications", "recommended_actions",
+    "training_copies", "evaluation_copies", "unused_copies", "experiment_impact",
+    "label_conflict", "cross_dataset", "cross_source_split", "recommended_action",
 ]
-DUPLICATE_MEMBER_COLUMNS = ["sha256", "dataset", "category", "split", "relative_path"]
+DUPLICATE_MEMBER_COLUMNS = [
+    "sha256", "dataset", "category", "split", "relative_path", "experiment_role",
+]
+EXPERIMENT_ROLES = {
+    ("plantvillage", "train"): "training",
+    ("plantvillage", "test"): "evaluation",
+    ("plantdoc", "test"): "evaluation",
+}
+IMPACT_PRIORITY = {
+    "training_leakage": 0,
+    "duplicate_evaluation": 1,
+    "duplicate_training": 2,
+    "no_direct_impact": 3,
+}
+RECOMMENDED_ACTIONS = {
+    "training_leakage": (
+        "Resolve training/evaluation overlap before modeling; prevent identical images "
+        "from appearing on both sides of the training/evaluation boundary."
+    ),
+    "duplicate_evaluation": (
+        "Deduplicate evaluation images or explicitly account for repeated images "
+        "when reporting metrics and comparing test datasets."
+    ),
+    "duplicate_training": (
+        "Deduplicate training images before fitting; keep identical copies together "
+        "when constructing the final train/validation split."
+    ),
+    "no_direct_impact": (
+        "No duplicate-related change needed under the current data-use plan; reassess if the plan changes."
+    ),
+}
 
 
 def image_key(value):
@@ -133,12 +162,12 @@ def write_csv(path, columns, rows):
 
 
 def classify_duplicate_groups(hashes):
-    """Classify byte-identical files using source labels and the planned experiment.
+    """Give each exact-image group one impact based on the planned experiment.
 
-    The proposed experiment trains only on PlantVillage train and evaluates on
-    PlantVillage test and PlantDoc test. PlantDoc train is *not* training data.
-    Original categories are compared only within a dataset; cross-dataset
-    category matching is a separate research task.
+    PlantVillage train is training data; PlantVillage test and PlantDoc test are
+    evaluation data. PlantDoc train and unassigned files are unused. Source
+    labels are compared only *within* a dataset: the category-matching table
+    is responsible for determining whether cross-dataset labels are equivalent.
     """
     group_rows = []
     member_rows = []
@@ -146,71 +175,65 @@ def classify_duplicate_groups(hashes):
         if len(records) < 2:
             continue
 
-        partitions = {(r["dataset"], r["split"]) for r in records}
         categories = defaultdict(set)
-        splits = defaultdict(set)
+        source_splits = defaultdict(set)
+        partitions = set()
+        roles = Counter()
         for record in records:
-            categories[record["dataset"]].add(record["category"])
-            splits[record["dataset"]].add(record["split"])
+            dataset, split = record["dataset"], record["split"]
+            role = EXPERIMENT_ROLES.get((dataset, split), "unused")
+            roles[role] += 1
+            partitions.add((dataset, split))
+            categories[dataset].add(record["category"])
+            source_splits[dataset].add(split)
             member_rows.append({
                 "sha256": digest,
                 **{key: record[key] for key in ("dataset", "category", "split", "relative_path")},
+                "experiment_role": role,
             })
 
-        cross_partition = len(partitions) > 1
-        cross_source_split = any(len(values) > 1 for values in splits.values())
+        # Mutually exclusive, ordered by the most important experiment impact.
+        if roles["training"] and roles["evaluation"]:
+            impact = "training_leakage"
+        elif roles["evaluation"] > 1:
+            impact = "duplicate_evaluation"
+        elif roles["training"] > 1:
+            impact = "duplicate_training"
+        else:
+            impact = "no_direct_impact"
+
         label_conflict = any(len(values) > 1 for values in categories.values())
-        pv_train = ("plantvillage", "train") in partitions
-        pv_test = ("plantvillage", "test") in partitions
-        pd_test = ("plantdoc", "test") in partitions
-        training_evaluation_overlap = pv_train and (pv_test or pd_test)
-        shared_evaluation_images = pv_test and pd_test
-
-        classifications = []
-        actions = []
+        cross_source_split = any(
+            {"train", "test"}.issubset(splits) for splits in source_splits.values()
+        )
+        action = RECOMMENDED_ACTIONS[impact]
         if label_conflict:
-            classifications.append("label_conflict")
-            actions.append("Review conflicting original labels within a dataset; correct or exclude before modeling.")
-        if training_evaluation_overlap:
-            classifications.append("training_evaluation_overlap")
-            actions.append("Keep copies out of both PlantVillage training and evaluation; reassign or exclude the group before training.")
-        if shared_evaluation_images:
-            classifications.append("shared_evaluation_images")
-            actions.append("Report image overlap between internal and external tests; avoid counting the image as independent evidence in both.")
-        if cross_source_split:
-            classifications.append("source_split_overlap")
-            if not training_evaluation_overlap:
-                actions.append("Review source split assignments; PlantDoc train is unused under the current experiment plan.")
-        if len(categories) > 1:
-            classifications.append("cross_dataset_duplicate")
-            actions.append("Check category correspondence across datasets separately; different names are not proof of conflicting labels.")
-        if not cross_partition:
-            classifications.append("within_partition_duplicate")
-            actions.append("Deduplicate or keep copies grouped when creating train/validation/test partitions; leave source files unchanged.")
-
+            action += " Review conflicting original labels within each affected dataset before using the images."
         group_rows.append({
             "sha256": digest,
             "copy_count": len(records),
             "datasets": "; ".join(sorted(categories)),
-            "source_partitions": "; ".join(f"{dataset}/{split}" for dataset, split in sorted(partitions)),
-            "categories_by_dataset": "; ".join(
-                f"{dataset}: {', '.join(sorted(values))}" for dataset, values in sorted(categories.items())
+            "source_partitions": "; ".join(
+                f"{dataset}/{split}" for dataset, split in sorted(partitions)
             ),
-            "cross_partition": cross_partition,
-            "cross_split_within_dataset": cross_source_split,
+            "categories_by_dataset": "; ".join(
+                f"{dataset}: {', '.join(sorted(values))}"
+                for dataset, values in sorted(categories.items())
+            ),
+            "training_copies": roles["training"],
+            "evaluation_copies": roles["evaluation"],
+            "unused_copies": roles["unused"],
+            "experiment_impact": impact,
             "label_conflict": label_conflict,
-            "training_evaluation_overlap": training_evaluation_overlap,
-            "shared_evaluation_images": shared_evaluation_images,
-            "classifications": "; ".join(classifications),
-            "recommended_actions": " ".join(actions),
+            "cross_dataset": len(categories) > 1,
+            "cross_source_split": cross_source_split,
+            "recommended_action": action,
+            # Used to preserve the existing source-partition summary metric.
+            "cross_partition": len(partitions) > 1,
         })
 
-    # Surface the highest-risk groups first, without assuming different datasets'
-    # category names describe equivalent diseases.
     group_rows.sort(key=lambda row: (
-        -int(row["training_evaluation_overlap"]), -int(row["label_conflict"]),
-        -int(row["shared_evaluation_images"]), -int(row["cross_split_within_dataset"]),
-        row["sha256"],
+        IMPACT_PRIORITY[row["experiment_impact"]], not row["label_conflict"], row["sha256"]
     ))
     member_rows.sort(key=lambda row: (
         row["sha256"], row["dataset"], row["split"], row["category"], row["relative_path"]
@@ -279,15 +302,16 @@ def analyze(data_root, output_dir, samples_per_category=4, seed=551):
                       "relative_path": f"plantvillage/raw/color/{key}",
                       "details": "Listed in source split but image not found"})
     duplicate_rows, duplicate_members = classify_duplicate_groups(hashes)
-    duplicate_lookup = {row["sha256"]: row for row in duplicate_rows}
+    duplicate_by_hash = {row["sha256"]: row for row in duplicate_rows}
     for digest, records in hashes.items():
-        if digest not in duplicate_lookup:
+        if digest not in duplicate_by_hash:
             continue
-        group = duplicate_lookup[digest]
+        group = duplicate_by_hash[digest]
         for record in records:
             flags.append({**record, "flag": "exact_duplicate",
                           "details": f"SHA-256 {digest}; {len(records)} copies; "
-                                     f"classifications={group['classifications']}"})
+                                     f"impact={group['experiment_impact']}; "
+                                     f"label_conflict={group['label_conflict']}"})
     cross_split_leaf_groups = 0
     for (dataset, leaf_id), records in groups.items():
         if len({r["split"] for r in records}) < 2:
@@ -319,11 +343,22 @@ def analyze(data_root, output_dir, samples_per_category=4, seed=551):
                "missing_source_images": len(missing_paths),
                "resolved_plantvillage_leaf_ids": sum(r["dataset"] == "plantvillage" and bool(r["leaf_id"]) for r in inventory),
                "exact_duplicate_hash_groups": len(duplicate_rows),
-               "exact_duplicate_cross_partition_groups": sum(r["cross_partition"] for r in duplicate_rows),
-               "exact_duplicate_cross_source_split_groups": sum(r["cross_split_within_dataset"] for r in duplicate_rows),
-               "exact_duplicate_label_conflict_groups": sum(r["label_conflict"] for r in duplicate_rows),
-               "exact_duplicate_training_evaluation_overlap_groups": sum(r["training_evaluation_overlap"] for r in duplicate_rows),
-               "exact_duplicate_shared_evaluation_groups": sum(r["shared_evaluation_images"] for r in duplicate_rows),
+               "exact_duplicate_cross_partition_groups": sum(
+                   row["cross_partition"] for row in duplicate_rows
+               ),
+               "exact_duplicate_groups_by_experiment_impact": {
+                   impact: sum(row["experiment_impact"] == impact for row in duplicate_rows)
+                   for impact in IMPACT_PRIORITY
+               },
+               "exact_duplicate_label_conflict_groups": sum(
+                   row["label_conflict"] for row in duplicate_rows
+               ),
+               "exact_duplicate_cross_dataset_groups": sum(
+                   row["cross_dataset"] for row in duplicate_rows
+               ),
+               "exact_duplicate_cross_source_split_groups": sum(
+                   row["cross_source_split"] for row in duplicate_rows
+               ),
                "same_leaf_cross_split_groups": cross_split_leaf_groups,
                "sample": {"selection": "seeded uniform random sample per dataset/category, ignoring split",
                           "seed": seed, "requested_per_category": samples_per_category,

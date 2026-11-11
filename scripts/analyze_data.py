@@ -16,6 +16,7 @@ import random
 from collections import Counter, defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
+from statistics import median
 
 from PIL import Image, ImageFilter, ImageOps, ImageStat
 
@@ -216,6 +217,40 @@ def write_csv(path, columns, rows):
         writer = csv.DictWriter(stream, fieldnames=columns)
         writer.writeheader()
         writer.writerows({key: row.get(key, "") for key in columns} for row in rows)
+
+
+def summarize_image_statistics(inventory):
+    """Measure decoded-image dimensions and modes per dataset and source split."""
+    groups = defaultdict(list)
+    for record in inventory:
+        groups[(record["dataset"], "all")].append(record)
+        groups[(record["dataset"], record["split"])].append(record)
+
+    partitions = []
+    for (dataset, split), records in sorted(groups.items()):
+        decoded = [record for record in records if record["readable"]]
+        widths = [record["width"] for record in decoded]
+        heights = [record["height"] for record in decoded]
+        category_counts = Counter(record["category"] for record in decoded)
+        partitions.append({
+            "dataset": dataset,
+            "split": split,
+            "files_found": len(records),
+            "decoded_images": len(decoded),
+            "unreadable_images": len(records) - len(decoded),
+            "categories": len(category_counts),
+            "width_min": min(widths) if widths else None,
+            "width_median": float(median(widths)) if widths else None,
+            "width_max": max(widths) if widths else None,
+            "height_min": min(heights) if heights else None,
+            "height_median": float(median(heights)) if heights else None,
+            "height_max": max(heights) if heights else None,
+            "nonsquare": sum(record["width"] != record["height"] for record in decoded),
+            "modes": dict(sorted(Counter(record["mode"] for record in decoded).items())),
+            "category_min": min(category_counts.values()) if category_counts else None,
+            "category_max": max(category_counts.values()) if category_counts else None,
+        })
+    return partitions
 
 
 def classify_duplicate_groups(hashes):
@@ -446,6 +481,7 @@ def analyze(data_root, output_dir, samples_per_category=4, seed=551,
     samples = [r for r in inventory if r["sampled"]]
     dimensions = [{key: r[key] for key in ("dataset", "category", "split", "relative_path", "width", "height", "mode")}
                   for r in inventory if r["readable"]]
+    image_statistics = summarize_image_statistics(inventory)
     manifest_path = data_root / "download-manifest.json"
     metadata = json.loads(manifest_path.read_text(encoding="utf-8")) if manifest_path.exists() else {}
     summary = {"analyzed_utc": datetime.now(timezone.utc).isoformat(),
@@ -503,6 +539,8 @@ def analyze(data_root, output_dir, samples_per_category=4, seed=551,
     write_csv(output_dir / "duplicate_group_members.csv", DUPLICATE_MEMBER_COLUMNS, duplicate_members)
     write_csv(output_dir / "visual_similarity_candidates.csv",
               VISUAL_SIMILARITY_COLUMNS, similarity_rows)
+    (output_dir / "image_statistics.json").write_text(
+        json.dumps({"partitions": image_statistics}, indent=2) + "\n", encoding="utf-8")
     (output_dir / "summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(summary, indent=2), flush=True)
     return summary

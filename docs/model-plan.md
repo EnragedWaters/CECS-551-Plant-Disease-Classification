@@ -1,8 +1,9 @@
 # Model and computing plan
 
 Status: implementation, GPU trial, and all three full-source training pairs are
-complete. All six selected models passed reload checks. Final test evaluation
-and the final report remain. See the
+complete. All six selected models passed reload checks and final test evaluation.
+The [final results](evaluation/final-results.md) show a large PlantVillage-to-PlantDoc
+gap. The IEEE report remains. See the
 [training guide](training.md) for commands, measured costs, and current settings.
 
 ## Model choice
@@ -84,8 +85,11 @@ budget was three matched pairs (training seeds 551, 552, 553) on the same fixed
 splits and settings. All are complete and reported in the
 [combined comparison](training-runs/repeated-training.md). Mean validation
 accuracy is 97.54% frozen and 98.98% fine-tuned. These are checkpoint-selection
-scores on one validation set; final tests remain reserved. All six selected
-checkpoint fingerprints are recorded before testing.
+scores on one validation set. All six selected checkpoint fingerprints were
+recorded before the final test evaluation, which is now complete. Mean final
+accuracy was 97.59% / 21.68% on PlantVillage / PlantDoc for frozen features and
+99.07% / 25.87% for fine-tuning. The [evaluation guide](evaluation.md) describes
+reproduction, metrics, and limits.
 
 | Possible problem | Planned response |
 | --- | --- |
@@ -101,9 +105,11 @@ The initial category selection and image lists are recorded in the experiment
 data guide. Known byte duplicates and resolved leaf groups are kept from crossing
 splits; incomplete metadata and remaining label uncertainty are limitations.
 Image preparation and both training modes are implemented and checked in the
-trial and three full-source pairs. Final evaluation remains. Use all six
-recorded checkpoints and the fixed settings; do not select a seed or retune
-using final test performance. The evaluation
+trial, three full-source pairs, and final evaluation of all six selected models.
+The remaining work is interpretation and the IEEE report. The fixed experiment
+shows weak transfer to PlantDoc despite high PlantVillage accuracy. Preserve
+these measurements and the selected checkpoints; do not select seeds or retune
+the reported models using final test performance. The evaluation
 plan will report accuracy, macro-F1,
 per-category results, counts, and confusion matrices, alongside measured costs.
 Cross-dataset differences cannot identify weather or photography skill as causes.

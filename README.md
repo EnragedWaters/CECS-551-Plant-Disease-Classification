@@ -5,9 +5,10 @@ A semester project exploring plant disease classification across PlantVillage an
 ## Current focus
 
 Phase 4: compare frozen-feature and fine-tuned MobileNetV3-Small models.
-All three planned training comparisons are complete. See the
-[combined results](docs/training-runs/repeated-training.md). These are PlantVillage
-validation scores; final testing on reserved PlantVillage and PlantDoc images is next.
+Training and final testing are complete. See the [final test results](docs/evaluation/final-results.md):
+accuracy was high on PlantVillage and much lower on PlantDoc. The IEEE report
+is next. The [evaluation guide](docs/evaluation.md) explains how to reproduce
+the tests and regenerate tables and plots.
 
 After following the setup guide and downloading the data, run from this folder:
 

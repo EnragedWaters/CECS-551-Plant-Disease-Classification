@@ -3,8 +3,9 @@
 The training code, GPU trial, and all three planned training pairs are complete.
 The [combined results](training-runs/repeated-training.md) show every seed, mean
 validation scores, and variation between runs. All six selected models passed
-reload verification. Final test evaluation remains; validation scores do not
-establish performance on unfamiliar datasets.
+reload verification. Final testing is also complete: see the
+[held-out test results](evaluation/final-results.md) and [evaluation guide](evaluation.md).
+The validation scores below are separate from those final measurements.
 
 ## Run a small trial
 
@@ -134,7 +135,8 @@ pairs, mean validation accuracy is 97.54% for frozen features and 98.98% for
 fine-tuning. Fine-tuning scored higher in every pair, but its accuracy varied
 more across seeds (sample standard deviation 0.38 versus 0.18 percentage points).
 This is a descriptive validation comparison, not a significance test or final
-generalization result. Final test evaluation and the Phase 4 report remain.
+generalization result. Final test evaluation has since completed; the Phase 4
+report remains.
 
 ## Read a completed full-source run
 
@@ -171,8 +173,10 @@ certainty or compensate for the small target test set.
 
 The [selected-checkpoint record](training-runs/selected-checkpoints.json) now
 identifies every chosen model and its fingerprint before final evaluation.
-The next step is to evaluate each on the same reserved source and target test manifests.
-Do not adjust training settings or choose seeds using those test results.
+All six have now been evaluated on the same reserved source and target test
+manifests, with no further training or seed selection. See the final evaluation
+guide for those measurements. Preserve the fixed settings for this experiment;
+do not choose seeds or tune the reported models using the test scores.
 
 
 ## Reproduce the remaining repetitions and combined report

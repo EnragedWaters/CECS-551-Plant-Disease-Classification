@@ -1,8 +1,9 @@
 # Training the two model versions
 
-The training code and a small GPU trial are complete. Full experiments and final
-test results are still pending. The trial checks that the code works and fits
-in memory; it does not establish how well the model handles unfamiliar datasets.
+The training code, small GPU trial, and first full-source training pair are
+complete. [The first results](training-runs/source-seed-551.md) include validation
+scores and learning curves. Repeated runs and final test evaluation remain;
+validation scores do not establish performance on unfamiliar datasets.
 
 ## Run a small trial
 
@@ -83,7 +84,8 @@ validation images across all 22 categories. Each completed two epochs.
 These memory figures exclude CUDA context and other applications. The timings
 exclude setup and checkpoint writing; the first model also encountered initial
 GPU startup costs. They are **not a speed ranking** or a prediction of full-run
-duration. Full data loading, sustained GPU use, and longer runs still need checking.
+duration. The full-source run described below now checks sustained training on all
+selected source images; these earlier trial timings remain a separate record.
 
 The two models had identical warmup metrics. Both changed their category-layer
 weights and reduced loss. Only the fine-tuned model changed its feature weights;
@@ -109,7 +111,8 @@ Checkpoints contain model and optimizer state, but automatic resume is not yet
 implemented. Keep these files locally; do not commit model weights or personal
 dataset paths. The small public trial summary omits local absolute paths.
 
-The next experiment uses all 18,023 training and 4,529 validation images:
+The first full experiment used all 18,023 training and 4,529 validation images.
+Its command was:
 
 ```bash
 python -m plant_disease.train --output-dir outputs/runs/source-seed-551
@@ -118,6 +121,48 @@ python -m plant_disease.train --output-dir outputs/runs/source-seed-551
 Without `--trial`, the default limit is ten epochs per model, including warmup.
 `--epochs`, `--batch-size`, and `--seed` allow recorded changes. Deterministic
 algorithms are requested, but identical results across hardware/software versions
-are not guaranteed. Decide the repetition budget using full-run costs, then
-finish model selection before evaluating the two reserved test sets. Final
-evaluation, plots, repeated-run analysis, and the Phase 4 report remain to do.
+are not guaranteed. The completed pair took about 11.1 minutes in training
+and validation loops: 6.1 minutes frozen and 5.0 minutes fine-tuned. It selected
+epochs nine and five respectively; fine-tuning stopped after epoch eight.
+Both saved models were reloaded and their metrics reproduced on all 4,529
+validation images. The selected validation accuracies were 97.57% and 99.36%.
+
+This cost supports the three-pair budget below. Reserve roughly 30 more minutes
+for two additional pairs, with extra time if both reach the epoch limit or the
+laptop slows down. This is an estimate, not a guaranteed runtime. Final test
+evaluation, repeated-run analysis, and the Phase 4 report remain to do.
+
+## Read a completed full-source run
+
+After both versions finish, export a table and learning curves with:
+
+```bash
+python -m plant_disease.summarize_training --run-dir outputs/runs/source-seed-551
+```
+
+This creates Markdown, JSON, and a PNG under `docs/training-runs/`. Those small
+results files can be committed. The exporter reads saved measurements and
+fingerprints the checkpoints; it does not open images or test lists. It rejects
+an incomplete comparison, a trial run, or a changed selected-image list.
+
+The table shows the validation metrics from the selected checkpoint. The last
+epoch may be worse, and the highest-accuracy epoch is not necessarily the one
+with lowest validation loss. Keeping that distinction makes the report describe
+the actual model we will later evaluate.
+
+## Repetition budget
+
+Use three matched pairs with training seeds **551, 552, and 553**, keeping the
+existing split manifests fixed. A training seed changes the new category layer's
+initial values and the order images are shown; it does not rebuild our splits.
+The first pair uses 551. The other two pairs are planned, not completed here.
+
+Keep the current ten-epoch limit, warmup, early-stopping rule, preprocessing,
+batch size, and learning rates the same for every pair. Report all three seeds
+instead of selecting whichever produces the highest score. This gives a modest
+check on variation between runs; three repetitions do not establish statistical
+certainty or compensate for the small target test set.
+
+Before final evaluation, record the chosen checkpoint for every model and seed.
+Then evaluate each once on the same reserved source and target test manifests.
+Do not adjust training settings or choose seeds using those test results.

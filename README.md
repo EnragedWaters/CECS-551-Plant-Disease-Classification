@@ -5,8 +5,9 @@ A semester project exploring plant disease classification across PlantVillage an
 ## Current focus
 
 Phase 4: compare frozen-feature and fine-tuned MobileNetV3-Small models.
-Data preparation and a small GPU training trial are complete. Full experiments
-and final evaluation are next.
+The first full training comparison is complete. See the
+[results and learning curves](docs/training-runs/source-seed-551.md). These are
+PlantVillage validation scores; repeated runs and final test evaluation are next.
 
 After following the setup guide and downloading the data, run from this folder:
 

@@ -71,8 +71,10 @@ Sources are pinned to these revisions:
 - [MobileNetV3-Small `IMAGENET1K_V1`](https://docs.pytorch.org/vision/stable/models/generated/torchvision.models.mobilenet_v3_small.html).
   The official weight URL comes from the installed torchvision package.
 
-The saved source split lists are not yet our final experiment splits. We still
-need to review shared categories, related images, duplicates, and eligibility.
+The saved source split lists remain unchanged. The initial Phase 4 experiment
+now has separate generated lists for 22 selected categories; see the
+[experiment data guide](experiment-data.md) for exclusions, known-leaf grouping,
+counts, reproduction steps, and the remaining annotation/duplicate limitations.
 The PlantVillage lists contain 43,596 train and 10,709 test paths: all exist
 locally, with no filename overlap. This does not establish absence of related
 leaves or duplicate content across the lists.

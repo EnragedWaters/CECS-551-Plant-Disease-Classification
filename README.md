@@ -4,13 +4,20 @@ A semester project exploring plant disease classification across PlantVillage an
 
 ## Current focus
 
-Troy's Phase 3 portion:
+Phase 4: prepare reproducible image splits, then compare frozen-feature and
+fine-tuned MobileNetV3-Small models. Training has not started.
 
-- Explain the choice of MobileNetV3-Small and the two planned training approaches.
-- Outline the computing resources and what still needs checking.
-- Combine the team's sections into the Phase 3 report when available.
+After following the setup guide and downloading the data, run from this folder:
 
-Model implementation and training come later.
+```bash
+python scripts/analyze_data.py
+python scripts/build_splits.py
+python -m unittest discover -s tests -v
+```
+
+The [experiment data guide](docs/experiment-data.md) explains the 22 selected
+categories, exclusions, and generated training/validation/test lists. Raw images
+stay untouched; generated lists are stored locally in `outputs/splits/`.
 
 The proposed comparison and computing checks are in [the model plan](docs/model-plan.md).
 The [setup guide](docs/setup.md) covers the Python environment, GPU check, and

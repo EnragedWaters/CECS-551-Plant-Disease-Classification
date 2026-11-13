@@ -2,7 +2,13 @@
 
 This review replaces the inclusion decisions on pages 6–10 of `CECS 551 Phase 3_datasets.pdf`. That PDF is the original export and has not been regenerated. Use the decisions below when assembling the report.
 
-All 27 pairs remain in the notebook for exploratory counts and pictures. That does not make them the final training/evaluation categories. No images have been removed, relabeled, or used for training.
+All 27 pairs remain in the notebook for exploratory counts and pictures.
+For the initial Phase 4 experiment, the ten supported healthy matches and
+twelve named-condition matches are selected; the five unresolved pairs are
+excluded. The [experiment data guide](experiment-data.md) and
+[machine-readable category list](../configs/categories.json) record this
+conservative decision and the image-level exclusions. Raw images have not
+been deleted or relabeled, and training has not started.
 
 ## What the source supports
 
@@ -12,7 +18,9 @@ Twelve other pairs use corresponding condition names in the folder labels. Five 
 
 ## Proposed mapping
 
-“Named condition” means the category names correspond, not that the images or their annotations have been independently validated. All rows remain proposals pending the data/split audit.
+“Named condition” means the category names correspond, not that the images or
+their annotations have been independently validated. The table preserves the
+Phase 3 evidence review; Phase 4 inclusion follows the category list linked above.
 
 | PlantVillage folder | PlantDoc folder | Basis / current decision |
 | --- | --- | --- |

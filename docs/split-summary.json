@@ -1,0 +1,224 @@
+{
+  "schema_version": 1,
+  "seed": 551,
+  "validation_fraction_target": 0.2,
+  "inventory_sha256": "4056390667cf6e7561a7d49dd219bf2c3f3eea77d0320fb8f06e2d6da0dafd19",
+  "categories_sha256": "260cde73666eeea4dfbb2b36b255b9e3fda0d6b12290ff8842430c3b42776fbe",
+  "builder_sha256": "cd3f3332513d33bfe5a0ab7392862cc8d188090cf2441ff38052a132eb548997",
+  "dataset_revisions": {
+    "plantvillage_revision": "9e97599868962bd0079b8db4b7f1efa9185fa1e7",
+    "plantdoc_revision": "5467f6012d78d1c446145d5f582da6096f852ae8"
+  },
+  "classes": 22,
+  "counts": {
+    "train": 18023,
+    "validation": 4529,
+    "source_test": 5487,
+    "target_test": 183
+  },
+  "known_group_counts": {
+    "train": 6148,
+    "validation": 1503,
+    "source_test": 1892,
+    "target_test": 183
+  },
+  "source_images_without_leaf_id": {
+    "train": 3533,
+    "validation": 838,
+    "source_test": 1114
+  },
+  "excluded": 28661,
+  "exclusion_reasons": {
+    "byte_identical_copy": 16,
+    "category_outside_primary_comparison": 26788,
+    "conflicting_labels_in_related_group": 18,
+    "related_to_reserved_test_group": 5,
+    "target_training_not_used": 1834
+  },
+  "per_class": [
+    {
+      "class_id": 0,
+      "class_name": "Apple___Apple_scab",
+      "train": 400,
+      "validation": 103,
+      "source_test": 127,
+      "target_test": 10
+    },
+    {
+      "class_id": 1,
+      "class_name": "Apple___healthy",
+      "train": 1080,
+      "validation": 274,
+      "source_test": 284,
+      "target_test": 9
+    },
+    {
+      "class_id": 2,
+      "class_name": "Blueberry___healthy",
+      "train": 940,
+      "validation": 238,
+      "source_test": 324,
+      "target_test": 11
+    },
+    {
+      "class_id": 3,
+      "class_name": "Cherry_(including_sour)___healthy",
+      "train": 581,
+      "validation": 150,
+      "source_test": 123,
+      "target_test": 10
+    },
+    {
+      "class_id": 4,
+      "class_name": "Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot",
+      "train": 325,
+      "validation": 81,
+      "source_test": 107,
+      "target_test": 3
+    },
+    {
+      "class_id": 5,
+      "class_name": "Grape___Black_rot",
+      "train": 808,
+      "validation": 204,
+      "source_test": 168,
+      "target_test": 8
+    },
+    {
+      "class_id": 6,
+      "class_name": "Grape___healthy",
+      "train": 258,
+      "validation": 65,
+      "source_test": 100,
+      "target_test": 12
+    },
+    {
+      "class_id": 7,
+      "class_name": "Peach___healthy",
+      "train": 229,
+      "validation": 60,
+      "source_test": 71,
+      "target_test": 9
+    },
+    {
+      "class_id": 8,
+      "class_name": "Pepper,_bell___healthy",
+      "train": 956,
+      "validation": 239,
+      "source_test": 283,
+      "target_test": 8
+    },
+    {
+      "class_id": 9,
+      "class_name": "Potato___Early_blight",
+      "train": 668,
+      "validation": 168,
+      "source_test": 164,
+      "target_test": 7
+    },
+    {
+      "class_id": 10,
+      "class_name": "Potato___Late_blight",
+      "train": 632,
+      "validation": 156,
+      "source_test": 212,
+      "target_test": 5
+    },
+    {
+      "class_id": 11,
+      "class_name": "Raspberry___healthy",
+      "train": 165,
+      "validation": 44,
+      "source_test": 162,
+      "target_test": 7
+    },
+    {
+      "class_id": 12,
+      "class_name": "Soybean___healthy",
+      "train": 3294,
+      "validation": 823,
+      "source_test": 973,
+      "target_test": 8
+    },
+    {
+      "class_id": 13,
+      "class_name": "Squash___Powdery_mildew",
+      "train": 1166,
+      "validation": 291,
+      "source_test": 378,
+      "target_test": 6
+    },
+    {
+      "class_id": 14,
+      "class_name": "Strawberry___healthy",
+      "train": 300,
+      "validation": 76,
+      "source_test": 80,
+      "target_test": 8
+    },
+    {
+      "class_id": 15,
+      "class_name": "Tomato___Bacterial_spot",
+      "train": 1351,
+      "validation": 340,
+      "source_test": 436,
+      "target_test": 8
+    },
+    {
+      "class_id": 16,
+      "class_name": "Tomato___Early_blight",
+      "train": 628,
+      "validation": 157,
+      "source_test": 215,
+      "target_test": 9
+    },
+    {
+      "class_id": 17,
+      "class_name": "Tomato___Late_blight",
+      "train": 1221,
+      "validation": 305,
+      "source_test": 375,
+      "target_test": 10
+    },
+    {
+      "class_id": 18,
+      "class_name": "Tomato___Leaf_Mold",
+      "train": 624,
+      "validation": 156,
+      "source_test": 172,
+      "target_test": 6
+    },
+    {
+      "class_id": 19,
+      "class_name": "Tomato___Septoria_leaf_spot",
+      "train": 1147,
+      "validation": 287,
+      "source_test": 337,
+      "target_test": 11
+    },
+    {
+      "class_id": 20,
+      "class_name": "Tomato___Tomato_mosaic_virus",
+      "train": 246,
+      "validation": 61,
+      "source_test": 66,
+      "target_test": 10
+    },
+    {
+      "class_id": 21,
+      "class_name": "Tomato___healthy",
+      "train": 1004,
+      "validation": 251,
+      "source_test": 330,
+      "target_test": 8
+    }
+  ],
+  "manifest_sha256": {
+    "train.csv": "ef8252c5df0c32576c736b2b3b4b481c47b0d5f95bd0209852dc663c6e25953e",
+    "validation.csv": "c498d861ce7b71d439a487c135a39f55692d74bbbf082f558ab53b42c382a401",
+    "source_test.csv": "c2cbc52be0b14824c06961f46e027ef96cf3d5274c40cf188e45e65fd1c39faa",
+    "target_test.csv": "63d8052bd9c7aa2e1850317e9b7bce10a0bc7b9d1cd721d81cff86ef20473a67",
+    "excluded.csv": "dea8c3e92b83b0da810c1e51daf6e6dfdaba49d7ad4de73b2a7e22f0f20fe04f"
+  },
+  "limits": "Groups use exact file bytes and resolved leaf metadata only. Missing leaf IDs and re-encoded/cropped duplicates remain a limitation; labels are not independently diagnosed. Counts describe the selected, filtered subset, not all original PlantDoc images."
+}

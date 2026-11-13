@@ -9,7 +9,8 @@ The starting model is ImageNet-pretrained MobileNetV3-Small. Its compact size
 keeps the planned comparison manageable, while pretraining gives it learned
 image features to start from. The original ImageNet classifier will be replaced
 with a new linear category layer after the pooled image features. Its output
-size depends on the confirmed shared plant–condition categories.
+size comes from the shared category configuration. The initial Phase 4
+[data preparation](experiment-data.md) selects 22 plant–condition categories.
 
 The 2025 benchmark by Richter and Kim includes MobileNetV3-Small and compares
 frozen features with subsequent fine-tuning across plant-disease datasets. This
@@ -85,8 +86,10 @@ until this check. A small saved model file does not establish training memory us
 
 ## Still to confirm
 
-The source/category audit and image inspection will determine final categories,
-usable counts, and preparation details. The source split must keep duplicate or
-related pictures together. The evaluation plan will report accuracy, macro-F1,
+The initial category selection and image lists are recorded in the experiment
+data guide. Known byte duplicates and resolved leaf groups are kept from crossing
+splits; incomplete metadata and remaining label uncertainty are limitations.
+The image transformations and training settings still need implementation and
+source-only checks. The evaluation plan will report accuracy, macro-F1,
 per-category results, counts, and confusion matrices, alongside measured costs.
 Cross-dataset differences cannot identify weather or photography skill as causes.

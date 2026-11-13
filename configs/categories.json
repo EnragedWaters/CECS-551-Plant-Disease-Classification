@@ -1,0 +1,166 @@
+{
+  "schema_version": 1,
+  "decision": "Initial conservative experiment: use the 22 supported category matches; exclude the five unresolved pairs before training. Folder-label correspondence is not independent diagnosis of each image.",
+  "evidence": "docs/category-mapping.md",
+  "classes": [
+    {
+      "id": 0,
+      "plantvillage": "Apple___Apple_scab",
+      "plantdoc": "Apple Scab Leaf",
+      "basis": "Named condition; proposed match."
+    },
+    {
+      "id": 1,
+      "plantvillage": "Apple___healthy",
+      "plantdoc": "Apple leaf",
+      "basis": "Healthy category named in Figure 2; proposed match."
+    },
+    {
+      "id": 2,
+      "plantvillage": "Blueberry___healthy",
+      "plantdoc": "Blueberry leaf",
+      "basis": "Healthy category named in Figure 2; proposed match."
+    },
+    {
+      "id": 3,
+      "plantvillage": "Cherry_(including_sour)___healthy",
+      "plantdoc": "Cherry leaf",
+      "basis": "Healthy category named in Figure 2; proposed match."
+    },
+    {
+      "id": 4,
+      "plantvillage": "Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot",
+      "plantdoc": "Corn Gray leaf spot",
+      "basis": "Named condition; proposed match."
+    },
+    {
+      "id": 5,
+      "plantvillage": "Grape___Black_rot",
+      "plantdoc": "grape leaf black rot",
+      "basis": "Named condition; proposed match."
+    },
+    {
+      "id": 6,
+      "plantvillage": "Grape___healthy",
+      "plantdoc": "grape leaf",
+      "basis": "Healthy category named in Figure 2; proposed match."
+    },
+    {
+      "id": 7,
+      "plantvillage": "Peach___healthy",
+      "plantdoc": "Peach leaf",
+      "basis": "Healthy category named in Figure 2; proposed match."
+    },
+    {
+      "id": 8,
+      "plantvillage": "Pepper,_bell___healthy",
+      "plantdoc": "Bell_pepper leaf",
+      "basis": "Healthy category named in Figure 2; proposed match."
+    },
+    {
+      "id": 9,
+      "plantvillage": "Potato___Early_blight",
+      "plantdoc": "Potato leaf early blight",
+      "basis": "Named condition; proposed match."
+    },
+    {
+      "id": 10,
+      "plantvillage": "Potato___Late_blight",
+      "plantdoc": "Potato leaf late blight",
+      "basis": "Named condition; proposed match."
+    },
+    {
+      "id": 11,
+      "plantvillage": "Raspberry___healthy",
+      "plantdoc": "Raspberry leaf",
+      "basis": "Healthy category named in Figure 2; proposed match."
+    },
+    {
+      "id": 12,
+      "plantvillage": "Soybean___healthy",
+      "plantdoc": "Soyabean leaf",
+      "basis": "Healthy category named in Figure 2; proposed match."
+    },
+    {
+      "id": 13,
+      "plantvillage": "Squash___Powdery_mildew",
+      "plantdoc": "Squash Powdery mildew leaf",
+      "basis": "Named condition; proposed match."
+    },
+    {
+      "id": 14,
+      "plantvillage": "Strawberry___healthy",
+      "plantdoc": "Strawberry leaf",
+      "basis": "Healthy category named in Figure 2; proposed match."
+    },
+    {
+      "id": 15,
+      "plantvillage": "Tomato___Bacterial_spot",
+      "plantdoc": "Tomato leaf bacterial spot",
+      "basis": "Named condition; proposed match."
+    },
+    {
+      "id": 16,
+      "plantvillage": "Tomato___Early_blight",
+      "plantdoc": "Tomato Early blight leaf",
+      "basis": "Named condition; proposed match."
+    },
+    {
+      "id": 17,
+      "plantvillage": "Tomato___Late_blight",
+      "plantdoc": "Tomato leaf late blight",
+      "basis": "Named condition; proposed match."
+    },
+    {
+      "id": 18,
+      "plantvillage": "Tomato___Leaf_Mold",
+      "plantdoc": "Tomato mold leaf",
+      "basis": "Named condition; proposed match."
+    },
+    {
+      "id": 19,
+      "plantvillage": "Tomato___Septoria_leaf_spot",
+      "plantdoc": "Tomato Septoria leaf spot",
+      "basis": "Named condition; proposed match."
+    },
+    {
+      "id": 20,
+      "plantvillage": "Tomato___Tomato_mosaic_virus",
+      "plantdoc": "Tomato leaf mosaic virus",
+      "basis": "Named condition; proposed match."
+    },
+    {
+      "id": 21,
+      "plantvillage": "Tomato___healthy",
+      "plantdoc": "Tomato leaf",
+      "basis": "Healthy category named in Figure 2; proposed match."
+    }
+  ],
+  "excluded_pairs": [
+    {
+      "plantvillage": "Apple___Cedar_apple_rust",
+      "plantdoc": "Apple rust leaf",
+      "reason": "Needs confirmation: PlantDoc says rust, but does not specify cedar apple rust."
+    },
+    {
+      "plantvillage": "Corn_(maize)___Common_rust_",
+      "plantdoc": "Corn rust leaf",
+      "reason": "Needs confirmation: PlantDoc says rust, but does not specify common rust."
+    },
+    {
+      "plantvillage": "Corn_(maize)___Northern_Leaf_Blight",
+      "plantdoc": "Corn leaf blight",
+      "reason": "Intended match is supported by the collection method, but folder contents need review: filenames refer to northern blight and other diseases. See the evidence below."
+    },
+    {
+      "plantvillage": "Pepper,_bell___Bacterial_spot",
+      "plantdoc": "Bell_pepper leaf spot",
+      "reason": "Needs confirmation: PlantDoc says leaf spot. Figure 1 shows a bacterial example, but does not establish that the entire folder is bacterial spot."
+    },
+    {
+      "plantvillage": "Tomato___Tomato_Yellow_Leaf_Curl_Virus",
+      "plantdoc": "Tomato leaf yellow virus",
+      "reason": "Needs confirmation: PlantDoc says yellow virus, but does not explicitly identify yellow leaf curl virus."
+    }
+  ]
+}

@@ -1,0 +1,162 @@
+{
+  "date": "2026-11-13",
+  "purpose": "Small source-only feasibility check; not final experimental results",
+  "device": "NVIDIA GeForce RTX 4060 Laptop GPU",
+  "software": {
+    "python": "3.12.3",
+    "torch": "2.13.0+cu126",
+    "torchvision": "0.28.0+cu126"
+  },
+  "counts": {
+    "train": 704,
+    "validation": 176
+  },
+  "batch_size": 32,
+  "seed": 551,
+  "epochs_per_mode": 2,
+  "warmup_epochs": 1,
+  "weights_sha256": "047dcff4addef86ea5bc2eff13c9614dc11f47ab1160d0a71a25e7db994f4e1f",
+  "code_sha256": {
+    "__init__.py": "a587b18772b6f41c47e3fa50218dbdd5b26dc153525f4933204bc26c78b110b0",
+    "data.py": "238b4c4afa6a263edafc12ea271257f2c6465d265bb3edfeeffeef3f3d2e326e",
+    "model.py": "8105edf94d0ee8bb524697f87d4c48dfccc86564c7ab655565833108ab674559",
+    "train.py": "feca6168a6ce8bb27d22bccae93f885f0103cb442ae6d399cf708216ccab5d96"
+  },
+  "selected_manifest_sha256": {
+    "train": "477ab4a12a995efe275d85f6055686e25114e66ea33f184d75b941a77eb3eb3e",
+    "validation": "d34e5d83b4928b74ecd28a4082f630839c4d0d38cf59772ef3982cd683437e68"
+  },
+  "test_manifests_opened": false,
+  "checkpoint_checks": {
+    "frozen": {
+      "checkpoint_load_passed": true,
+      "output_shape": [
+        1,
+        22
+      ],
+      "finite_output": true
+    },
+    "finetune": {
+      "checkpoint_load_passed": true,
+      "output_shape": [
+        1,
+        22
+      ],
+      "finite_output": true
+    }
+  },
+  "results": {
+    "frozen": {
+      "mode": "frozen",
+      "trial": true,
+      "epochs_completed": 2,
+      "best_epoch": 2,
+      "best_validation_loss": 1.7786076068878174,
+      "initial_feature_sha256": "e9af93a43c2e6e9b3e77ca5118a58fb68017d24b5ae7b1c6f12524e799aabb53",
+      "initial_classifier_sha256": "958a6325cdebd2eb21678d458ab9c6d6da1ad91ad6dc8884d59472c90363b0d5",
+      "final_feature_sha256": "e9af93a43c2e6e9b3e77ca5118a58fb68017d24b5ae7b1c6f12524e799aabb53",
+      "batch_norm_statistics_unchanged": true,
+      "total_parameters": 939702,
+      "history": [
+        {
+          "epoch": 1,
+          "stage": "warmup",
+          "trainable_parameters": 12694,
+          "train": {
+            "images": 704,
+            "loss": 2.7352482947436245,
+            "accuracy": 0.2940340909090909,
+            "macro_f1": 0.3015279407117297,
+            "seconds": 2.838967273997696
+          },
+          "validation": {
+            "images": 176,
+            "loss": 2.311302488500422,
+            "accuracy": 0.6590909090909091,
+            "macro_f1": 0.629342936436238,
+            "seconds": 0.4937901060002332
+          },
+          "peak_allocated_mib": 148.34033203125,
+          "peak_reserved_mib": 200.0
+        },
+        {
+          "epoch": 2,
+          "stage": "frozen",
+          "trainable_parameters": 12694,
+          "train": {
+            "images": 704,
+            "loss": 2.048370897769928,
+            "accuracy": 0.6747159090909091,
+            "macro_f1": 0.6575686939775129,
+            "seconds": 1.2118246529971657
+          },
+          "validation": {
+            "images": 176,
+            "loss": 1.7786076068878174,
+            "accuracy": 0.7784090909090909,
+            "macro_f1": 0.7607044771377729,
+            "seconds": 0.4124241940007778
+          },
+          "peak_allocated_mib": 148.43798828125,
+          "peak_reserved_mib": 200.0
+        }
+      ]
+    },
+    "finetune": {
+      "mode": "finetune",
+      "trial": true,
+      "epochs_completed": 2,
+      "best_epoch": 2,
+      "best_validation_loss": 0.8987062573432922,
+      "initial_feature_sha256": "e9af93a43c2e6e9b3e77ca5118a58fb68017d24b5ae7b1c6f12524e799aabb53",
+      "initial_classifier_sha256": "958a6325cdebd2eb21678d458ab9c6d6da1ad91ad6dc8884d59472c90363b0d5",
+      "final_feature_sha256": "92fa5bf6b6dbc11b9911ce0bd076daab6613f6d23f07e436b7415b7d28e60784",
+      "batch_norm_statistics_unchanged": true,
+      "total_parameters": 939702,
+      "history": [
+        {
+          "epoch": 1,
+          "stage": "warmup",
+          "trainable_parameters": 12694,
+          "train": {
+            "images": 704,
+            "loss": 2.7352482947436245,
+            "accuracy": 0.2940340909090909,
+            "macro_f1": 0.3015279407117297,
+            "seconds": 1.253724244001205
+          },
+          "validation": {
+            "images": 176,
+            "loss": 2.311302488500422,
+            "accuracy": 0.6590909090909091,
+            "macro_f1": 0.629342936436238,
+            "seconds": 0.43761253300181124
+          },
+          "peak_allocated_mib": 148.34033203125,
+          "peak_reserved_mib": 200.0
+        },
+        {
+          "epoch": 2,
+          "stage": "finetune",
+          "trainable_parameters": 939702,
+          "train": {
+            "images": 704,
+            "loss": 1.5612535043196245,
+            "accuracy": 0.6818181818181818,
+            "macro_f1": 0.6750610007612754,
+            "seconds": 1.6889445619999606
+          },
+          "validation": {
+            "images": 176,
+            "loss": 0.8987062573432922,
+            "accuracy": 0.7556818181818182,
+            "macro_f1": 0.7498451555480827,
+            "seconds": 0.46205118800207856
+          },
+          "peak_allocated_mib": 578.9873046875,
+          "peak_reserved_mib": 712.0
+        }
+      ]
+    }
+  }
+}

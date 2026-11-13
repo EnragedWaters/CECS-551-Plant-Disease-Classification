@@ -1,7 +1,8 @@
 # Model and computing plan
 
-Status: proposed experiment. The local environment and basic GPU execution have
-been verified; the plant-disease training pipeline and experiments have not started.
+Status: training implementation and a small source-only GPU trial are complete.
+Full experiments and final test evaluation have not started. See the
+[training guide](training.md) for commands, measured costs, and current settings.
 
 ## Model choice
 
@@ -40,16 +41,17 @@ with source validation only. Final evaluation uses the same reserved
 PlantVillage images and eligible existing cropped PlantDoc test images.
 PlantDoc training images remain unused in the main experiment.
 
-The implementation will use explicit `IMAGENET1K_V1` weights and record the
+The implementation uses explicit `IMAGENET1K_V1` weights and records the
 installed PyTorch/torchvision versions. The frozen feature extractor must remain
 unchanged, including its batch-normalization running statistics. The existing
 proposal also keeps those statistics fixed during fine-tuning; trainable weights
-can still adapt. Trainable parameter counts will be checked before experiments.
+can still adapt. The trial verified 12,694 trainable parameters in the frozen
+version and 939,702 during fine-tuning.
 
-Image preparation will follow the selected weights' input requirements, with
-the resize/crop choice checked against actual leaf examples before it is fixed.
-The documentation provides the reference preprocessing; automatic cropping
-should not be assumed suitable before inspection.
+Image preparation converts to RGB, preserves the entire image while resizing
+and padding to 224 × 224, and applies ImageNet normalization. Source examples
+were checked visually. Padding deliberately replaces the reference center crop
+to avoid removing image edges; it has not been proven the most accurate choice.
 [Official model documentation](https://docs.pytorch.org/vision/stable/models/generated/torchvision.models.mobilenet_v3_small.html).
 
 ## Computing feasibility
@@ -66,15 +68,14 @@ The laptop is the first option; Google Colab is a fallback. Colab accelerator
 availability and runtime limits vary, so the plan does not assume a particular
 GPU or uninterrupted session. [Colab FAQ](https://research.google.com/colaboratory/faq.html).
 
-When implementation begins, a short source-only trial will check:
-
-- Whether both planned training versions run correctly on the GPU.
-- Peak training memory and time per epoch on a recorded image count and batch size.
-- Whether the proposed run budget fits the available time.
-
-No runtime, training-memory requirement, or model score has been measured yet.
-Batch size, learning rates, epoch limits, and repetition count remain provisional
-until this check. A small saved model file does not establish training memory use.
+On November 13, both versions completed a two-epoch trial using 704 training
+and 176 validation images with batch size 32. Peak PyTorch allocated memory was
+148 MiB frozen and 579 MiB fine-tuned; reserved memory peaked at 200 and 712 MiB.
+These exclude CUDA context and other applications. Saved models reloaded
+successfully, and checks confirmed that only the intended weights changed.
+The [training guide](training.md) records timings and limits. The short trial
+supports GPU feasibility, not final accuracy or a full-experiment time budget.
+Full-data runtime and the repetition budget still need measurement and planning.
 
 | Possible problem | Planned response |
 | --- | --- |
@@ -89,7 +90,8 @@ until this check. A small saved model file does not establish training memory us
 The initial category selection and image lists are recorded in the experiment
 data guide. Known byte duplicates and resolved leaf groups are kept from crossing
 splits; incomplete metadata and remaining label uncertainty are limitations.
-The image transformations and training settings still need implementation and
-source-only checks. The evaluation plan will report accuracy, macro-F1,
+Image preparation and both training modes are implemented and checked on a small
+source-only trial. Full training and final evaluation remain. The evaluation
+plan will report accuracy, macro-F1,
 per-category results, counts, and confusion matrices, alongside measured costs.
 Cross-dataset differences cannot identify weather or photography skill as causes.

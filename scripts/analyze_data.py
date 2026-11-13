@@ -223,8 +223,10 @@ def classify_duplicate_groups(hashes):
             {"train", "test"}.issubset(splits) for splits in source_splits.values()
         )
         action = RECOMMENDED_ACTIONS[impact]
-        if label_conflict and impact != "no_direct_impact":
-            action += " Review conflicting original labels within each affected dataset before using the images."
+        # Label reliability is separate from duplicate overlap: an unused copy
+        # can reveal a conflicting label on an image reserved for testing.
+        if label_conflict:
+            action += " Review conflicting original labels before using any affected image, including test images."
         group_rows.append({
             "sha256": digest,
             "copy_count": len(records),

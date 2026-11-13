@@ -95,7 +95,7 @@ def write_report(summary, destination, name):
     fig.savefig(destination / f"{name}.png", dpi=160)
     plt.close(fig)
     counts, settings = summary["counts"], summary["settings"]
-    text = f"""# First full-source training comparison
+    text = f"""# Full-source training comparison: seed {settings['seed']}
 
 These are **validation results**, not final test results. Both models trained on
 {counts['train']:,} PlantVillage images and were checked against the same

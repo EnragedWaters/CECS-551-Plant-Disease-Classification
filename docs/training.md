@@ -1,9 +1,10 @@
 # Training the two model versions
 
-The training code, small GPU trial, and first full-source training pair are
-complete. [The first results](training-runs/source-seed-551.md) include validation
-scores and learning curves. Repeated runs and final test evaluation remain;
-validation scores do not establish performance on unfamiliar datasets.
+The training code, GPU trial, and all three planned training pairs are complete.
+The [combined results](training-runs/repeated-training.md) show every seed, mean
+validation scores, and variation between runs. All six selected models passed
+reload verification. Final test evaluation remains; validation scores do not
+establish performance on unfamiliar datasets.
 
 ## Run a small trial
 
@@ -127,10 +128,13 @@ epochs nine and five respectively; fine-tuning stopped after epoch eight.
 Both saved models were reloaded and their metrics reproduced on all 4,529
 validation images. The selected validation accuracies were 97.57% and 99.36%.
 
-This cost supports the three-pair budget below. Reserve roughly 30 more minutes
-for two additional pairs, with extra time if both reach the epoch limit or the
-laptop slows down. This is an estimate, not a guaranteed runtime. Final test
-evaluation, repeated-run analysis, and the Phase 4 report remain to do.
+The other two pairs have now completed with unchanged settings. Their loop
+times and selected checkpoints are in the combined report. Across all three
+pairs, mean validation accuracy is 97.54% for frozen features and 98.98% for
+fine-tuning. Fine-tuning scored higher in every pair, but its accuracy varied
+more across seeds (sample standard deviation 0.38 versus 0.18 percentage points).
+This is a descriptive validation comparison, not a significance test or final
+generalization result. Final test evaluation and the Phase 4 report remain.
 
 ## Read a completed full-source run
 
@@ -155,7 +159,9 @@ the actual model we will later evaluate.
 Use three matched pairs with training seeds **551, 552, and 553**, keeping the
 existing split manifests fixed. A training seed changes the new category layer's
 initial values and the order images are shown; it does not rebuild our splits.
-The first pair uses 551. The other two pairs are planned, not completed here.
+All three pairs are complete. Frozen runs each finished ten epochs, selecting
+epochs 9/10/10 for seeds 551/552/553. Fine-tuned runs finished 8/7/6 epochs,
+selecting 5/4/3. Settings and stopping rules were retained throughout.
 
 Keep the current ten-epoch limit, warmup, early-stopping rule, preprocessing,
 batch size, and learning rates the same for every pair. Report all three seeds
@@ -163,6 +169,47 @@ instead of selecting whichever produces the highest score. This gives a modest
 check on variation between runs; three repetitions do not establish statistical
 certainty or compensate for the small target test set.
 
-Before final evaluation, record the chosen checkpoint for every model and seed.
-Then evaluate each once on the same reserved source and target test manifests.
+The [selected-checkpoint record](training-runs/selected-checkpoints.json) now
+identifies every chosen model and its fingerprint before final evaluation.
+The next step is to evaluate each on the same reserved source and target test manifests.
 Do not adjust training settings or choose seeds using those test results.
+
+
+## Reproduce the remaining repetitions and combined report
+
+These commands keep the split manifests fixed. Run each training command once;
+choose a fresh folder if rerunning an experiment rather than overwrite a record.
+
+```bash
+python -m plant_disease.train --seed 552 --output-dir outputs/runs/source-seed-552
+python -m plant_disease.train --seed 553 --output-dir outputs/runs/source-seed-553
+```
+
+For each seed (551, 552, 553), verify the selected checkpoints and export its
+individual report. For example:
+
+```bash
+python -m plant_disease.verify_training --run-dir outputs/runs/source-seed-552
+python -m plant_disease.summarize_training --run-dir outputs/runs/source-seed-552
+```
+
+The verifier reopens both saved models and checks all source validation images
+using the recorded settings. It stops if checkpoint details, image lists, core
+training code, expected frozen weights, or validation metrics do not match.
+Use `--data-root` if your local datasets are elsewhere. The pinned pretrained
+weights should be in that root's `weights/` folder. Verification uses the same
+software/device settings as training; it is not a cross-hardware equivalence test.
+
+After all three pairs pass verification:
+
+```bash
+python -m plant_disease.summarize_repetitions
+```
+
+The combined Markdown/JSON/PNG report is written under `docs/training-runs/`.
+It compares all three seeds, reports their mean and sample standard deviation,
+and rejects changed training settings or image lists. It also writes
+`selected-checkpoints.json`, recording all six selected models and their file
+fingerprints before final testing. It does not pick a winning seed, average
+weights, or combine predictions into an ensemble. No final test images are
+opened by these reporting or verification commands.

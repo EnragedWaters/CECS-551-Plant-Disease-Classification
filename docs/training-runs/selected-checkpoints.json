@@ -1,0 +1,67 @@
+{
+  "status": "selected using source validation before final test evaluation",
+  "selection_rule": "minimum source validation cross-entropy after warmup",
+  "seeds": [
+    551,
+    552,
+    553
+  ],
+  "categories_sha256": "260cde73666eeea4dfbb2b36b255b9e3fda0d6b12290ff8842430c3b42776fbe",
+  "split_manifest_sha256": {
+    "train.csv": "ef8252c5df0c32576c736b2b3b4b481c47b0d5f95bd0209852dc663c6e25953e",
+    "validation.csv": "c498d861ce7b71d439a487c135a39f55692d74bbbf082f558ab53b42c382a401",
+    "source_test.csv": "c2cbc52be0b14824c06961f46e027ef96cf3d5274c40cf188e45e65fd1c39faa",
+    "target_test.csv": "63d8052bd9c7aa2e1850317e9b7bce10a0bc7b9d1cd721d81cff86ef20473a67",
+    "excluded.csv": "dea8c3e92b83b0da810c1e51daf6e6dfdaba49d7ad4de73b2a7e22f0f20fe04f"
+  },
+  "checkpoints": [
+    {
+      "seed": 551,
+      "mode": "frozen",
+      "run_name": "source-seed-551",
+      "checkpoint": "frozen/best.pt",
+      "epoch": 9,
+      "sha256": "0e5593a657313d687f003798449a1f4d0fb942429b6543efd619f148db493757"
+    },
+    {
+      "seed": 551,
+      "mode": "finetune",
+      "run_name": "source-seed-551",
+      "checkpoint": "finetune/best.pt",
+      "epoch": 5,
+      "sha256": "99ee16940c5b083ac690975a6ae6c9f98542c90927797a2a4310ad2e1eed8617"
+    },
+    {
+      "seed": 552,
+      "mode": "frozen",
+      "run_name": "source-seed-552",
+      "checkpoint": "frozen/best.pt",
+      "epoch": 10,
+      "sha256": "1bffd2340f4f3f7b4f17a3bbccd554ef2e64cb72082ed571c88070be5e302912"
+    },
+    {
+      "seed": 552,
+      "mode": "finetune",
+      "run_name": "source-seed-552",
+      "checkpoint": "finetune/best.pt",
+      "epoch": 4,
+      "sha256": "95c57c0054dded9129df0dd7b95c948eb92e3a4e8a551a26783331d0b883e25f"
+    },
+    {
+      "seed": 553,
+      "mode": "frozen",
+      "run_name": "source-seed-553",
+      "checkpoint": "frozen/best.pt",
+      "epoch": 10,
+      "sha256": "e036fd3b691986a084d6973d4a35a4d72725f5678a7cc5c112e2a58bf5a504e2"
+    },
+    {
+      "seed": 553,
+      "mode": "finetune",
+      "run_name": "source-seed-553",
+      "checkpoint": "finetune/best.pt",
+      "epoch": 3,
+      "sha256": "378d43fcde672330597ff17b14d38b3ad042b712a357c49e8b14713a84e0d949"
+    }
+  ]
+}

@@ -1,0 +1,2141 @@
+{
+  "scope": "source validation only; three seeds on one fixed split",
+  "seeds": [
+    551,
+    552,
+    553
+  ],
+  "statistics": {
+    "frozen": {
+      "accuracy": {
+        "values": [
+          0.9757120777213513,
+          0.9735040847869287,
+          0.9770368734820049
+        ],
+        "mean": 0.9754176786634283,
+        "sample_standard_deviation": 0.0017846994410807265,
+        "min": 0.9735040847869287,
+        "max": 0.9770368734820049
+      },
+      "macro_f1": {
+        "values": [
+          0.9752728902621262,
+          0.9713043692592283,
+          0.9767036743536107
+        ],
+        "mean": 0.9744269779583217,
+        "sample_standard_deviation": 0.0027972843249930686,
+        "min": 0.9713043692592283,
+        "max": 0.9767036743536107
+      },
+      "loss": {
+        "values": [
+          0.08659732609051207,
+          0.0868325942605372,
+          0.0838138726575896
+        ],
+        "mean": 0.08574793100287963,
+        "sample_standard_deviation": 0.0016790693970757207,
+        "min": 0.0838138726575896,
+        "max": 0.0868325942605372
+      }
+    },
+    "finetune": {
+      "accuracy": {
+        "values": [
+          0.9935968204901744,
+          0.9896224332082137,
+          0.9860896445131375
+        ],
+        "mean": 0.9897696327371752,
+        "sample_standard_deviation": 0.003755752063641148,
+        "min": 0.9860896445131375,
+        "max": 0.9935968204901744
+      },
+      "macro_f1": {
+        "values": [
+          0.9933781268047347,
+          0.9885124741954262,
+          0.9848954675907513
+        ],
+        "mean": 0.9889286895303041,
+        "sample_standard_deviation": 0.004256618756581912,
+        "min": 0.9848954675907513,
+        "max": 0.9933781268047347
+      },
+      "loss": {
+        "values": [
+          0.02299954780309665,
+          0.03372857988842565,
+          0.04162017756171694
+        ],
+        "mean": 0.03278276841774641,
+        "sample_standard_deviation": 0.00934627640589851,
+        "min": 0.02299954780309665,
+        "max": 0.04162017756171694
+      }
+    }
+  },
+  "paired_accuracy_difference": {
+    "values": [
+      0.017884742768823125,
+      0.01611834842128501,
+      0.009052771031132667
+    ],
+    "mean": 0.014351954073746934,
+    "sample_standard_deviation": 0.004673440160855984
+  },
+  "runs": [
+    {
+      "scope": "source validation only; not final test results",
+      "settings": {
+        "epochs": 10,
+        "warmup_epochs": 1,
+        "batch_size": 32,
+        "workers": 2,
+        "seed": 551,
+        "head_lr": 0.001,
+        "backbone_lr": 0.0001,
+        "weight_decay": 0.0001,
+        "patience": 3,
+        "device": "cuda"
+      },
+      "counts": {
+        "train": 18023,
+        "validation": 4529
+      },
+      "software": {
+        "python": "3.12.3",
+        "torch": "2.13.0+cu126",
+        "torchvision": "0.28.0+cu126"
+      },
+      "device": "NVIDIA GeForce RTX 4060 Laptop GPU",
+      "preprocessing": {
+        "size": 224,
+        "resize": "bilinear, preserve aspect ratio, pad",
+        "background_rgb": [
+          124,
+          116,
+          104
+        ],
+        "mean": [
+          0.485,
+          0.456,
+          0.406
+        ],
+        "std": [
+          0.229,
+          0.224,
+          0.225
+        ],
+        "exif_orientation": true,
+        "augmentation": "none"
+      },
+      "weights_sha256": "047dcff4addef86ea5bc2eff13c9614dc11f47ab1160d0a71a25e7db994f4e1f",
+      "code_sha256": {
+        "__init__.py": "a587b18772b6f41c47e3fa50218dbdd5b26dc153525f4933204bc26c78b110b0",
+        "data.py": "238b4c4afa6a263edafc12ea271257f2c6465d265bb3edfeeffeef3f3d2e326e",
+        "model.py": "8105edf94d0ee8bb524697f87d4c48dfccc86564c7ab655565833108ab674559",
+        "train.py": "feca6168a6ce8bb27d22bccae93f885f0103cb442ae6d399cf708216ccab5d96"
+      },
+      "selected_manifest_sha256": {
+        "train": "ef8252c5df0c32576c736b2b3b4b481c47b0d5f95bd0209852dc663c6e25953e",
+        "validation": "c498d861ce7b71d439a487c135a39f55692d74bbbf082f558ab53b42c382a401"
+      },
+      "categories_sha256": "260cde73666eeea4dfbb2b36b255b9e3fda0d6b12290ff8842430c3b42776fbe",
+      "checkpoint_rule": "minimum source validation cross-entropy after warmup",
+      "models": {
+        "frozen": {
+          "epochs_completed": 10,
+          "best_epoch": 9,
+          "validation": {
+            "images": 4529,
+            "loss": 0.08659732609051207,
+            "accuracy": 0.9757120777213513,
+            "macro_f1": 0.9752728902621262,
+            "seconds": 8.595587457002694
+          },
+          "loop_seconds": 367.36559647200556,
+          "peak_allocated_mib": 148.43798828125,
+          "peak_reserved_mib": 200.0,
+          "best_checkpoint_sha256": "0e5593a657313d687f003798449a1f4d0fb942429b6543efd619f148db493757",
+          "batch_norm_statistics_unchanged": true,
+          "features_changed": false,
+          "history": [
+            {
+              "epoch": 1,
+              "stage": "warmup",
+              "trainable_parameters": 12694,
+              "train": {
+                "images": 18023,
+                "loss": 0.7607937722022436,
+                "accuracy": 0.8283859512844698,
+                "macro_f1": 0.8094812991159718,
+                "seconds": 36.91097174400056
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.3300857082137632,
+                "accuracy": 0.9233826451755355,
+                "macro_f1": 0.9117453543302454,
+                "seconds": 7.273979934998351
+              },
+              "peak_allocated_mib": 148.34033203125,
+              "peak_reserved_mib": 200.0
+            },
+            {
+              "epoch": 2,
+              "stage": "frozen",
+              "trainable_parameters": 12694,
+              "train": {
+                "images": 18023,
+                "loss": 0.2248891365932901,
+                "accuracy": 0.9507296232591689,
+                "macro_f1": 0.9480805081894179,
+                "seconds": 24.082858231999126
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.18224369438904278,
+                "accuracy": 0.9604769264738353,
+                "macro_f1": 0.9572178510550517,
+                "seconds": 6.384171369001706
+              },
+              "peak_allocated_mib": 148.43798828125,
+              "peak_reserved_mib": 200.0
+            },
+            {
+              "epoch": 3,
+              "stage": "frozen",
+              "trainable_parameters": 12694,
+              "train": {
+                "images": 18023,
+                "loss": 0.14614803657838543,
+                "accuracy": 0.9667646895633357,
+                "macro_f1": 0.9660850118949494,
+                "seconds": 25.779635078000865
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.15210249230387354,
+                "accuracy": 0.958489732832855,
+                "macro_f1": 0.9529120539266921,
+                "seconds": 7.026696540000557
+              },
+              "peak_allocated_mib": 148.34033203125,
+              "peak_reserved_mib": 200.0
+            },
+            {
+              "epoch": 4,
+              "stage": "frozen",
+              "trainable_parameters": 12694,
+              "train": {
+                "images": 18023,
+                "loss": 0.11344348139096043,
+                "accuracy": 0.9744770570937136,
+                "macro_f1": 0.9747790880545992,
+                "seconds": 26.34305612300159
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.12502732851576873,
+                "accuracy": 0.965334510929565,
+                "macro_f1": 0.9611509758531045,
+                "seconds": 6.5212408490006055
+              },
+              "peak_allocated_mib": 148.34033203125,
+              "peak_reserved_mib": 200.0
+            },
+            {
+              "epoch": 5,
+              "stage": "frozen",
+              "trainable_parameters": 12694,
+              "train": {
+                "images": 18023,
+                "loss": 0.0955753802410059,
+                "accuracy": 0.977195805359818,
+                "macro_f1": 0.977270012281074,
+                "seconds": 26.96729249100099
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.1116163120032357,
+                "accuracy": 0.970412894678737,
+                "macro_f1": 0.9695208431203391,
+                "seconds": 6.645310855998105
+              },
+              "peak_allocated_mib": 148.34033203125,
+              "peak_reserved_mib": 200.0
+            },
+            {
+              "epoch": 6,
+              "stage": "frozen",
+              "trainable_parameters": 12694,
+              "train": {
+                "images": 18023,
+                "loss": 0.08216423636057106,
+                "accuracy": 0.9816345780391722,
+                "macro_f1": 0.9816979260805131,
+                "seconds": 27.54622688300151
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.10075813013674487,
+                "accuracy": 0.9739456833738132,
+                "macro_f1": 0.9738299791140413,
+                "seconds": 7.611209722002968
+              },
+              "peak_allocated_mib": 148.34033203125,
+              "peak_reserved_mib": 200.0
+            },
+            {
+              "epoch": 7,
+              "stage": "frozen",
+              "trainable_parameters": 12694,
+              "train": {
+                "images": 18023,
+                "loss": 0.07355185059473685,
+                "accuracy": 0.9829107251844865,
+                "macro_f1": 0.9835381991955727,
+                "seconds": 30.66124257699994
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.10338699279304081,
+                "accuracy": 0.970412894678737,
+                "macro_f1": 0.9691985875955846,
+                "seconds": 7.389455401000305
+              },
+              "peak_allocated_mib": 148.34033203125,
+              "peak_reserved_mib": 200.0
+            },
+            {
+              "epoch": 8,
+              "stage": "frozen",
+              "trainable_parameters": 12694,
+              "train": {
+                "images": 18023,
+                "loss": 0.06472559286905587,
+                "accuracy": 0.9843533263052766,
+                "macro_f1": 0.9848941265480099,
+                "seconds": 28.853894406001928
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.093425446540137,
+                "accuracy": 0.9741664826672555,
+                "macro_f1": 0.9724267667798508,
+                "seconds": 7.081526515998121
+              },
+              "peak_allocated_mib": 148.34033203125,
+              "peak_reserved_mib": 200.0
+            },
+            {
+              "epoch": 9,
+              "stage": "frozen",
+              "trainable_parameters": 12694,
+              "train": {
+                "images": 18023,
+                "loss": 0.05946169863717244,
+                "accuracy": 0.9861288353770182,
+                "macro_f1": 0.9864047432246568,
+                "seconds": 33.1446333199965
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.08659732609051207,
+                "accuracy": 0.9757120777213513,
+                "macro_f1": 0.9752728902621262,
+                "seconds": 8.595587457002694
+              },
+              "peak_allocated_mib": 148.34033203125,
+              "peak_reserved_mib": 200.0
+            },
+            {
+              "epoch": 10,
+              "stage": "frozen",
+              "trainable_parameters": 12694,
+              "train": {
+                "images": 18023,
+                "loss": 0.053672817928731735,
+                "accuracy": 0.98790434444876,
+                "macro_f1": 0.9882005219376236,
+                "seconds": 34.06471554900054
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.08802905280001545,
+                "accuracy": 0.9743872819606977,
+                "macro_f1": 0.9701604912598841,
+                "seconds": 8.481891423998604
+              },
+              "peak_allocated_mib": 148.34033203125,
+              "peak_reserved_mib": 200.0
+            }
+          ]
+        },
+        "finetune": {
+          "epochs_completed": 8,
+          "best_epoch": 5,
+          "validation": {
+            "images": 4529,
+            "loss": 0.02299954780309665,
+            "accuracy": 0.9935968204901744,
+            "macro_f1": 0.9933781268047347,
+            "seconds": 7.103132991000166
+          },
+          "loop_seconds": 297.59341633100485,
+          "peak_allocated_mib": 578.9873046875,
+          "peak_reserved_mib": 738.0,
+          "best_checkpoint_sha256": "99ee16940c5b083ac690975a6ae6c9f98542c90927797a2a4310ad2e1eed8617",
+          "batch_norm_statistics_unchanged": true,
+          "features_changed": true,
+          "history": [
+            {
+              "epoch": 1,
+              "stage": "warmup",
+              "trainable_parameters": 12694,
+              "train": {
+                "images": 18023,
+                "loss": 0.7607937722022436,
+                "accuracy": 0.8283859512844698,
+                "macro_f1": 0.8094812991159718,
+                "seconds": 31.7784965619976
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.3300857082137632,
+                "accuracy": 0.9233826451755355,
+                "macro_f1": 0.9117453543302454,
+                "seconds": 7.284488163000788
+              },
+              "peak_allocated_mib": 148.34033203125,
+              "peak_reserved_mib": 200.0
+            },
+            {
+              "epoch": 2,
+              "stage": "finetune",
+              "trainable_parameters": 939702,
+              "train": {
+                "images": 18023,
+                "loss": 0.0990290863479023,
+                "accuracy": 0.9699273150973756,
+                "macro_f1": 0.9672889162644989,
+                "seconds": 30.664443811001547
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.05393333574444736,
+                "accuracy": 0.9818944579377346,
+                "macro_f1": 0.9811873938533586,
+                "seconds": 7.218414549002773
+              },
+              "peak_allocated_mib": 578.9873046875,
+              "peak_reserved_mib": 738.0
+            },
+            {
+              "epoch": 3,
+              "stage": "finetune",
+              "trainable_parameters": 939702,
+              "train": {
+                "images": 18023,
+                "loss": 0.028671880486517795,
+                "accuracy": 0.9906230927148644,
+                "macro_f1": 0.9902629717275666,
+                "seconds": 30.821250877001148
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.04286154502061261,
+                "accuracy": 0.9845440494590417,
+                "macro_f1": 0.9818466094013935,
+                "seconds": 6.650384024997038
+              },
+              "peak_allocated_mib": 578.8896484375,
+              "peak_reserved_mib": 738.0
+            },
+            {
+              "epoch": 4,
+              "stage": "finetune",
+              "trainable_parameters": 939702,
+              "train": {
+                "images": 18023,
+                "loss": 0.01658341294857504,
+                "accuracy": 0.9951728347112023,
+                "macro_f1": 0.9952207886336708,
+                "seconds": 30.198087671000394
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.037943979987536,
+                "accuracy": 0.9876352395672334,
+                "macro_f1": 0.9862454653662746,
+                "seconds": 7.343388571000105
+              },
+              "peak_allocated_mib": 578.8896484375,
+              "peak_reserved_mib": 738.0
+            },
+            {
+              "epoch": 5,
+              "stage": "finetune",
+              "trainable_parameters": 939702,
+              "train": {
+                "images": 18023,
+                "loss": 0.008514252846997339,
+                "accuracy": 0.9975031903678633,
+                "macro_f1": 0.9975395930225546,
+                "seconds": 28.931570180000563
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.02299954780309665,
+                "accuracy": 0.9935968204901744,
+                "macro_f1": 0.9933781268047347,
+                "seconds": 7.103132991000166
+              },
+              "peak_allocated_mib": 578.8896484375,
+              "peak_reserved_mib": 738.0
+            },
+            {
+              "epoch": 6,
+              "stage": "finetune",
+              "trainable_parameters": 939702,
+              "train": {
+                "images": 18023,
+                "loss": 0.008444608437291773,
+                "accuracy": 0.9973922210508794,
+                "macro_f1": 0.9972231754318297,
+                "seconds": 28.864888972002518
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.04332716654262872,
+                "accuracy": 0.9863104438065798,
+                "macro_f1": 0.9849232734923977,
+                "seconds": 7.01848947200051
+              },
+              "peak_allocated_mib": 578.8896484375,
+              "peak_reserved_mib": 738.0
+            },
+            {
+              "epoch": 7,
+              "stage": "finetune",
+              "trainable_parameters": 939702,
+              "train": {
+                "images": 18023,
+                "loss": 0.010405784229572898,
+                "accuracy": 0.9963934971980247,
+                "macro_f1": 0.9964468543841353,
+                "seconds": 29.761466085001302
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.06124453881216387,
+                "accuracy": 0.9810112607639656,
+                "macro_f1": 0.975174854463824,
+                "seconds": 7.1837668099979055
+              },
+              "peak_allocated_mib": 578.8896484375,
+              "peak_reserved_mib": 738.0
+            },
+            {
+              "epoch": 8,
+              "stage": "finetune",
+              "trainable_parameters": 939702,
+              "train": {
+                "images": 18023,
+                "loss": 0.003664828367157783,
+                "accuracy": 0.9987238528546857,
+                "macro_f1": 0.998743350904796,
+                "seconds": 29.961087835999933
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.06555430697091887,
+                "accuracy": 0.9812320600574078,
+                "macro_f1": 0.976024973227662,
+                "seconds": 6.810059756000555
+              },
+              "peak_allocated_mib": 578.8896484375,
+              "peak_reserved_mib": 738.0
+            }
+          ]
+        }
+      },
+      "precision": "float32",
+      "deterministic_algorithms": true,
+      "split_summary": {
+        "schema_version": 1,
+        "seed": 551,
+        "validation_fraction_target": 0.2,
+        "inventory_sha256": "4056390667cf6e7561a7d49dd219bf2c3f3eea77d0320fb8f06e2d6da0dafd19",
+        "categories_sha256": "260cde73666eeea4dfbb2b36b255b9e3fda0d6b12290ff8842430c3b42776fbe",
+        "builder_sha256": "cd3f3332513d33bfe5a0ab7392862cc8d188090cf2441ff38052a132eb548997",
+        "dataset_revisions": {
+          "plantvillage_revision": "9e97599868962bd0079b8db4b7f1efa9185fa1e7",
+          "plantdoc_revision": "5467f6012d78d1c446145d5f582da6096f852ae8"
+        },
+        "classes": 22,
+        "counts": {
+          "train": 18023,
+          "validation": 4529,
+          "source_test": 5487,
+          "target_test": 183
+        },
+        "known_group_counts": {
+          "train": 6148,
+          "validation": 1503,
+          "source_test": 1892,
+          "target_test": 183
+        },
+        "source_images_without_leaf_id": {
+          "train": 3533,
+          "validation": 838,
+          "source_test": 1114
+        },
+        "excluded": 28661,
+        "exclusion_reasons": {
+          "byte_identical_copy": 16,
+          "category_outside_primary_comparison": 26788,
+          "conflicting_labels_in_related_group": 18,
+          "related_to_reserved_test_group": 5,
+          "target_training_not_used": 1834
+        },
+        "per_class": [
+          {
+            "class_id": 0,
+            "class_name": "Apple___Apple_scab",
+            "train": 400,
+            "validation": 103,
+            "source_test": 127,
+            "target_test": 10
+          },
+          {
+            "class_id": 1,
+            "class_name": "Apple___healthy",
+            "train": 1080,
+            "validation": 274,
+            "source_test": 284,
+            "target_test": 9
+          },
+          {
+            "class_id": 2,
+            "class_name": "Blueberry___healthy",
+            "train": 940,
+            "validation": 238,
+            "source_test": 324,
+            "target_test": 11
+          },
+          {
+            "class_id": 3,
+            "class_name": "Cherry_(including_sour)___healthy",
+            "train": 581,
+            "validation": 150,
+            "source_test": 123,
+            "target_test": 10
+          },
+          {
+            "class_id": 4,
+            "class_name": "Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot",
+            "train": 325,
+            "validation": 81,
+            "source_test": 107,
+            "target_test": 3
+          },
+          {
+            "class_id": 5,
+            "class_name": "Grape___Black_rot",
+            "train": 808,
+            "validation": 204,
+            "source_test": 168,
+            "target_test": 8
+          },
+          {
+            "class_id": 6,
+            "class_name": "Grape___healthy",
+            "train": 258,
+            "validation": 65,
+            "source_test": 100,
+            "target_test": 12
+          },
+          {
+            "class_id": 7,
+            "class_name": "Peach___healthy",
+            "train": 229,
+            "validation": 60,
+            "source_test": 71,
+            "target_test": 9
+          },
+          {
+            "class_id": 8,
+            "class_name": "Pepper,_bell___healthy",
+            "train": 956,
+            "validation": 239,
+            "source_test": 283,
+            "target_test": 8
+          },
+          {
+            "class_id": 9,
+            "class_name": "Potato___Early_blight",
+            "train": 668,
+            "validation": 168,
+            "source_test": 164,
+            "target_test": 7
+          },
+          {
+            "class_id": 10,
+            "class_name": "Potato___Late_blight",
+            "train": 632,
+            "validation": 156,
+            "source_test": 212,
+            "target_test": 5
+          },
+          {
+            "class_id": 11,
+            "class_name": "Raspberry___healthy",
+            "train": 165,
+            "validation": 44,
+            "source_test": 162,
+            "target_test": 7
+          },
+          {
+            "class_id": 12,
+            "class_name": "Soybean___healthy",
+            "train": 3294,
+            "validation": 823,
+            "source_test": 973,
+            "target_test": 8
+          },
+          {
+            "class_id": 13,
+            "class_name": "Squash___Powdery_mildew",
+            "train": 1166,
+            "validation": 291,
+            "source_test": 378,
+            "target_test": 6
+          },
+          {
+            "class_id": 14,
+            "class_name": "Strawberry___healthy",
+            "train": 300,
+            "validation": 76,
+            "source_test": 80,
+            "target_test": 8
+          },
+          {
+            "class_id": 15,
+            "class_name": "Tomato___Bacterial_spot",
+            "train": 1351,
+            "validation": 340,
+            "source_test": 436,
+            "target_test": 8
+          },
+          {
+            "class_id": 16,
+            "class_name": "Tomato___Early_blight",
+            "train": 628,
+            "validation": 157,
+            "source_test": 215,
+            "target_test": 9
+          },
+          {
+            "class_id": 17,
+            "class_name": "Tomato___Late_blight",
+            "train": 1221,
+            "validation": 305,
+            "source_test": 375,
+            "target_test": 10
+          },
+          {
+            "class_id": 18,
+            "class_name": "Tomato___Leaf_Mold",
+            "train": 624,
+            "validation": 156,
+            "source_test": 172,
+            "target_test": 6
+          },
+          {
+            "class_id": 19,
+            "class_name": "Tomato___Septoria_leaf_spot",
+            "train": 1147,
+            "validation": 287,
+            "source_test": 337,
+            "target_test": 11
+          },
+          {
+            "class_id": 20,
+            "class_name": "Tomato___Tomato_mosaic_virus",
+            "train": 246,
+            "validation": 61,
+            "source_test": 66,
+            "target_test": 10
+          },
+          {
+            "class_id": 21,
+            "class_name": "Tomato___healthy",
+            "train": 1004,
+            "validation": 251,
+            "source_test": 330,
+            "target_test": 8
+          }
+        ],
+        "manifest_sha256": {
+          "train.csv": "ef8252c5df0c32576c736b2b3b4b481c47b0d5f95bd0209852dc663c6e25953e",
+          "validation.csv": "c498d861ce7b71d439a487c135a39f55692d74bbbf082f558ab53b42c382a401",
+          "source_test.csv": "c2cbc52be0b14824c06961f46e027ef96cf3d5274c40cf188e45e65fd1c39faa",
+          "target_test.csv": "63d8052bd9c7aa2e1850317e9b7bce10a0bc7b9d1cd721d81cff86ef20473a67",
+          "excluded.csv": "dea8c3e92b83b0da810c1e51daf6e6dfdaba49d7ad4de73b2a7e22f0f20fe04f"
+        },
+        "limits": "Groups use exact file bytes and resolved leaf metadata only. Missing leaf IDs and re-encoded/cropped duplicates remain a limitation; labels are not independently diagnosed. Counts describe the selected, filtered subset, not all original PlantDoc images."
+      }
+    },
+    {
+      "scope": "source validation only; not final test results",
+      "settings": {
+        "epochs": 10,
+        "warmup_epochs": 1,
+        "batch_size": 32,
+        "workers": 2,
+        "seed": 552,
+        "head_lr": 0.001,
+        "backbone_lr": 0.0001,
+        "weight_decay": 0.0001,
+        "patience": 3,
+        "device": "cuda"
+      },
+      "counts": {
+        "train": 18023,
+        "validation": 4529
+      },
+      "software": {
+        "python": "3.12.3",
+        "torch": "2.13.0+cu126",
+        "torchvision": "0.28.0+cu126"
+      },
+      "device": "NVIDIA GeForce RTX 4060 Laptop GPU",
+      "preprocessing": {
+        "size": 224,
+        "resize": "bilinear, preserve aspect ratio, pad",
+        "background_rgb": [
+          124,
+          116,
+          104
+        ],
+        "mean": [
+          0.485,
+          0.456,
+          0.406
+        ],
+        "std": [
+          0.229,
+          0.224,
+          0.225
+        ],
+        "exif_orientation": true,
+        "augmentation": "none"
+      },
+      "weights_sha256": "047dcff4addef86ea5bc2eff13c9614dc11f47ab1160d0a71a25e7db994f4e1f",
+      "code_sha256": {
+        "__init__.py": "a587b18772b6f41c47e3fa50218dbdd5b26dc153525f4933204bc26c78b110b0",
+        "data.py": "238b4c4afa6a263edafc12ea271257f2c6465d265bb3edfeeffeef3f3d2e326e",
+        "model.py": "8105edf94d0ee8bb524697f87d4c48dfccc86564c7ab655565833108ab674559",
+        "summarize_training.py": "9c90311c6f30a5b07078b2adf0669893e6c4546f43747aea8b4c57434f50698f",
+        "train.py": "feca6168a6ce8bb27d22bccae93f885f0103cb442ae6d399cf708216ccab5d96"
+      },
+      "selected_manifest_sha256": {
+        "train": "ef8252c5df0c32576c736b2b3b4b481c47b0d5f95bd0209852dc663c6e25953e",
+        "validation": "c498d861ce7b71d439a487c135a39f55692d74bbbf082f558ab53b42c382a401"
+      },
+      "categories_sha256": "260cde73666eeea4dfbb2b36b255b9e3fda0d6b12290ff8842430c3b42776fbe",
+      "checkpoint_rule": "minimum source validation cross-entropy after warmup",
+      "models": {
+        "frozen": {
+          "epochs_completed": 10,
+          "best_epoch": 10,
+          "validation": {
+            "images": 4529,
+            "loss": 0.0868325942605372,
+            "accuracy": 0.9735040847869287,
+            "macro_f1": 0.9713043692592283,
+            "seconds": 6.8012980179992155
+          },
+          "loop_seconds": 347.0835894959964,
+          "peak_allocated_mib": 148.43798828125,
+          "peak_reserved_mib": 200.0,
+          "best_checkpoint_sha256": "1bffd2340f4f3f7b4f17a3bbccd554ef2e64cb72082ed571c88070be5e302912",
+          "batch_norm_statistics_unchanged": true,
+          "features_changed": false,
+          "history": [
+            {
+              "epoch": 1,
+              "stage": "warmup",
+              "trainable_parameters": 12694,
+              "train": {
+                "images": 18023,
+                "loss": 0.7715154400591725,
+                "accuracy": 0.8300504910392277,
+                "macro_f1": 0.8151234801939107,
+                "seconds": 39.78249799200057
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.3246469497483254,
+                "accuracy": 0.9364098034886288,
+                "macro_f1": 0.9305539981882295,
+                "seconds": 7.908117892002338
+              },
+              "peak_allocated_mib": 148.34033203125,
+              "peak_reserved_mib": 200.0
+            },
+            {
+              "epoch": 2,
+              "stage": "frozen",
+              "trainable_parameters": 12694,
+              "train": {
+                "images": 18023,
+                "loss": 0.2251380649994965,
+                "accuracy": 0.9508405925761527,
+                "macro_f1": 0.9486445005746589,
+                "seconds": 25.489434424998763
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.19142108745535732,
+                "accuracy": 0.9518657540295871,
+                "macro_f1": 0.9458140316467233,
+                "seconds": 6.43352317300014
+              },
+              "peak_allocated_mib": 148.43798828125,
+              "peak_reserved_mib": 200.0
+            },
+            {
+              "epoch": 3,
+              "stage": "frozen",
+              "trainable_parameters": 12694,
+              "train": {
+                "images": 18023,
+                "loss": 0.1453055526280118,
+                "accuracy": 0.9662098429784165,
+                "macro_f1": 0.9661020353171714,
+                "seconds": 25.777505523998116
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.1456093118071793,
+                "accuracy": 0.9615809229410466,
+                "macro_f1": 0.9565037958306746,
+                "seconds": 7.2369421900002635
+              },
+              "peak_allocated_mib": 148.34033203125,
+              "peak_reserved_mib": 200.0
+            },
+            {
+              "epoch": 4,
+              "stage": "frozen",
+              "trainable_parameters": 12694,
+              "train": {
+                "images": 18023,
+                "loss": 0.11450691607732233,
+                "accuracy": 0.9728680019974477,
+                "macro_f1": 0.9724159268977473,
+                "seconds": 25.88151778199972
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.12459915166535265,
+                "accuracy": 0.9664385073967763,
+                "macro_f1": 0.9652644430168903,
+                "seconds": 6.6789824119987315
+              },
+              "peak_allocated_mib": 148.34033203125,
+              "peak_reserved_mib": 200.0
+            },
+            {
+              "epoch": 5,
+              "stage": "frozen",
+              "trainable_parameters": 12694,
+              "train": {
+                "images": 18023,
+                "loss": 0.09522417935828571,
+                "accuracy": 0.9783054985296565,
+                "macro_f1": 0.9783439192852047,
+                "seconds": 27.143700628999795
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.1093214968296307,
+                "accuracy": 0.9717376904393906,
+                "macro_f1": 0.9710108492526466,
+                "seconds": 7.34095986399916
+              },
+              "peak_allocated_mib": 148.34033203125,
+              "peak_reserved_mib": 200.0
+            },
+            {
+              "epoch": 6,
+              "stage": "frozen",
+              "trainable_parameters": 12694,
+              "train": {
+                "images": 18023,
+                "loss": 0.08316267512847014,
+                "accuracy": 0.9807468235033013,
+                "macro_f1": 0.9813401216247697,
+                "seconds": 28.226121760999376
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.10955722901380385,
+                "accuracy": 0.969529697504968,
+                "macro_f1": 0.9681098649116834,
+                "seconds": 6.1586973480007146
+              },
+              "peak_allocated_mib": 148.34033203125,
+              "peak_reserved_mib": 200.0
+            },
+            {
+              "epoch": 7,
+              "stage": "frozen",
+              "trainable_parameters": 12694,
+              "train": {
+                "images": 18023,
+                "loss": 0.07224405503579169,
+                "accuracy": 0.9829662098429784,
+                "macro_f1": 0.9834970216224388,
+                "seconds": 26.539170226998976
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.09879487921699938,
+                "accuracy": 0.9721792890262752,
+                "macro_f1": 0.9698852368358392,
+                "seconds": 6.756977917000768
+              },
+              "peak_allocated_mib": 148.34033203125,
+              "peak_reserved_mib": 200.0
+            },
+            {
+              "epoch": 8,
+              "stage": "frozen",
+              "trainable_parameters": 12694,
+              "train": {
+                "images": 18023,
+                "loss": 0.06559536066802316,
+                "accuracy": 0.9838539643788492,
+                "macro_f1": 0.9841249593198346,
+                "seconds": 25.515527047999058
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.09066051810109595,
+                "accuracy": 0.9748288805475822,
+                "macro_f1": 0.9737888762550877,
+                "seconds": 6.333377617000224
+              },
+              "peak_allocated_mib": 148.34033203125,
+              "peak_reserved_mib": 200.0
+            },
+            {
+              "epoch": 9,
+              "stage": "frozen",
+              "trainable_parameters": 12694,
+              "train": {
+                "images": 18023,
+                "loss": 0.0587480157870678,
+                "accuracy": 0.9867391666204295,
+                "macro_f1": 0.9870432839679419,
+                "seconds": 26.57408593299988
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.09112763608178441,
+                "accuracy": 0.9743872819606977,
+                "macro_f1": 0.9715505695583968,
+                "seconds": 6.8211288189995685
+              },
+              "peak_allocated_mib": 148.34033203125,
+              "peak_reserved_mib": 200.0
+            },
+            {
+              "epoch": 10,
+              "stage": "frozen",
+              "trainable_parameters": 12694,
+              "train": {
+                "images": 18023,
+                "loss": 0.053204284248464226,
+                "accuracy": 0.9877378904732841,
+                "macro_f1": 0.9883253472953182,
+                "seconds": 27.684022925001045
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.0868325942605372,
+                "accuracy": 0.9735040847869287,
+                "macro_f1": 0.9713043692592283,
+                "seconds": 6.8012980179992155
+              },
+              "peak_allocated_mib": 148.34033203125,
+              "peak_reserved_mib": 200.0
+            }
+          ]
+        },
+        "finetune": {
+          "epochs_completed": 7,
+          "best_epoch": 4,
+          "validation": {
+            "images": 4529,
+            "loss": 0.03372857988842565,
+            "accuracy": 0.9896224332082137,
+            "macro_f1": 0.9885124741954262,
+            "seconds": 6.464033144999121
+          },
+          "loop_seconds": 247.9361521589999,
+          "peak_allocated_mib": 578.9873046875,
+          "peak_reserved_mib": 738.0,
+          "best_checkpoint_sha256": "95c57c0054dded9129df0dd7b95c948eb92e3a4e8a551a26783331d0b883e25f",
+          "batch_norm_statistics_unchanged": true,
+          "features_changed": true,
+          "history": [
+            {
+              "epoch": 1,
+              "stage": "warmup",
+              "trainable_parameters": 12694,
+              "train": {
+                "images": 18023,
+                "loss": 0.7715154400591725,
+                "accuracy": 0.8300504910392277,
+                "macro_f1": 0.8151234801939107,
+                "seconds": 27.35897750899676
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.3246469497483254,
+                "accuracy": 0.9364098034886288,
+                "macro_f1": 0.9305539981882295,
+                "seconds": 7.074754289998964
+              },
+              "peak_allocated_mib": 148.34033203125,
+              "peak_reserved_mib": 200.0
+            },
+            {
+              "epoch": 2,
+              "stage": "finetune",
+              "trainable_parameters": 939702,
+              "train": {
+                "images": 18023,
+                "loss": 0.10306445182108515,
+                "accuracy": 0.9683182600011097,
+                "macro_f1": 0.9665011354325782,
+                "seconds": 28.55536463899989
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.06737726428884538,
+                "accuracy": 0.9792448664164275,
+                "macro_f1": 0.9733962681129692,
+                "seconds": 8.648182693003037
+              },
+              "peak_allocated_mib": 578.9873046875,
+              "peak_reserved_mib": 738.0
+            },
+            {
+              "epoch": 3,
+              "stage": "finetune",
+              "trainable_parameters": 939702,
+              "train": {
+                "images": 18023,
+                "loss": 0.024082697461312856,
+                "accuracy": 0.9927869943960494,
+                "macro_f1": 0.9926302277646047,
+                "seconds": 26.379472630000237
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.04612951572238014,
+                "accuracy": 0.9854272466328108,
+                "macro_f1": 0.9851306784163594,
+                "seconds": 6.963071726000635
+              },
+              "peak_allocated_mib": 578.8896484375,
+              "peak_reserved_mib": 738.0
+            },
+            {
+              "epoch": 4,
+              "stage": "finetune",
+              "trainable_parameters": 939702,
+              "train": {
+                "images": 18023,
+                "loss": 0.015057526048805376,
+                "accuracy": 0.9949508960772346,
+                "macro_f1": 0.994104453529755,
+                "seconds": 26.69864331399731
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.03372857988842565,
+                "accuracy": 0.9896224332082137,
+                "macro_f1": 0.9885124741954262,
+                "seconds": 6.464033144999121
+              },
+              "peak_allocated_mib": 578.8896484375,
+              "peak_reserved_mib": 738.0
+            },
+            {
+              "epoch": 5,
+              "stage": "finetune",
+              "trainable_parameters": 939702,
+              "train": {
+                "images": 18023,
+                "loss": 0.01090001941234945,
+                "accuracy": 0.9964489818565166,
+                "macro_f1": 0.9961498218956852,
+                "seconds": 31.742229871000745
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.048032547138456214,
+                "accuracy": 0.9843232501655995,
+                "macro_f1": 0.9805540443707881,
+                "seconds": 7.267244279002625
+              },
+              "peak_allocated_mib": 578.8896484375,
+              "peak_reserved_mib": 738.0
+            },
+            {
+              "epoch": 6,
+              "stage": "finetune",
+              "trainable_parameters": 939702,
+              "train": {
+                "images": 18023,
+                "loss": 0.005643491971879087,
+                "accuracy": 0.9981690062697665,
+                "macro_f1": 0.9980432068718087,
+                "seconds": 28.01822268899923
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.09644420082390935,
+                "accuracy": 0.9715168911459483,
+                "macro_f1": 0.9710813459187387,
+                "seconds": 7.002045164001174
+              },
+              "peak_allocated_mib": 578.8896484375,
+              "peak_reserved_mib": 738.0
+            },
+            {
+              "epoch": 7,
+              "stage": "finetune",
+              "trainable_parameters": 939702,
+              "train": {
+                "images": 18023,
+                "loss": 0.01344319924381454,
+                "accuracy": 0.9958386506131055,
+                "macro_f1": 0.995230662272359,
+                "seconds": 29.020644910000556
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.033952442558796966,
+                "accuracy": 0.989843232501656,
+                "macro_f1": 0.9896969076647171,
+                "seconds": 6.743265299999621
+              },
+              "peak_allocated_mib": 578.8896484375,
+              "peak_reserved_mib": 738.0
+            }
+          ]
+        }
+      },
+      "precision": "float32",
+      "deterministic_algorithms": true,
+      "split_summary": {
+        "schema_version": 1,
+        "seed": 551,
+        "validation_fraction_target": 0.2,
+        "inventory_sha256": "4056390667cf6e7561a7d49dd219bf2c3f3eea77d0320fb8f06e2d6da0dafd19",
+        "categories_sha256": "260cde73666eeea4dfbb2b36b255b9e3fda0d6b12290ff8842430c3b42776fbe",
+        "builder_sha256": "cd3f3332513d33bfe5a0ab7392862cc8d188090cf2441ff38052a132eb548997",
+        "dataset_revisions": {
+          "plantvillage_revision": "9e97599868962bd0079b8db4b7f1efa9185fa1e7",
+          "plantdoc_revision": "5467f6012d78d1c446145d5f582da6096f852ae8"
+        },
+        "classes": 22,
+        "counts": {
+          "train": 18023,
+          "validation": 4529,
+          "source_test": 5487,
+          "target_test": 183
+        },
+        "known_group_counts": {
+          "train": 6148,
+          "validation": 1503,
+          "source_test": 1892,
+          "target_test": 183
+        },
+        "source_images_without_leaf_id": {
+          "train": 3533,
+          "validation": 838,
+          "source_test": 1114
+        },
+        "excluded": 28661,
+        "exclusion_reasons": {
+          "byte_identical_copy": 16,
+          "category_outside_primary_comparison": 26788,
+          "conflicting_labels_in_related_group": 18,
+          "related_to_reserved_test_group": 5,
+          "target_training_not_used": 1834
+        },
+        "per_class": [
+          {
+            "class_id": 0,
+            "class_name": "Apple___Apple_scab",
+            "train": 400,
+            "validation": 103,
+            "source_test": 127,
+            "target_test": 10
+          },
+          {
+            "class_id": 1,
+            "class_name": "Apple___healthy",
+            "train": 1080,
+            "validation": 274,
+            "source_test": 284,
+            "target_test": 9
+          },
+          {
+            "class_id": 2,
+            "class_name": "Blueberry___healthy",
+            "train": 940,
+            "validation": 238,
+            "source_test": 324,
+            "target_test": 11
+          },
+          {
+            "class_id": 3,
+            "class_name": "Cherry_(including_sour)___healthy",
+            "train": 581,
+            "validation": 150,
+            "source_test": 123,
+            "target_test": 10
+          },
+          {
+            "class_id": 4,
+            "class_name": "Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot",
+            "train": 325,
+            "validation": 81,
+            "source_test": 107,
+            "target_test": 3
+          },
+          {
+            "class_id": 5,
+            "class_name": "Grape___Black_rot",
+            "train": 808,
+            "validation": 204,
+            "source_test": 168,
+            "target_test": 8
+          },
+          {
+            "class_id": 6,
+            "class_name": "Grape___healthy",
+            "train": 258,
+            "validation": 65,
+            "source_test": 100,
+            "target_test": 12
+          },
+          {
+            "class_id": 7,
+            "class_name": "Peach___healthy",
+            "train": 229,
+            "validation": 60,
+            "source_test": 71,
+            "target_test": 9
+          },
+          {
+            "class_id": 8,
+            "class_name": "Pepper,_bell___healthy",
+            "train": 956,
+            "validation": 239,
+            "source_test": 283,
+            "target_test": 8
+          },
+          {
+            "class_id": 9,
+            "class_name": "Potato___Early_blight",
+            "train": 668,
+            "validation": 168,
+            "source_test": 164,
+            "target_test": 7
+          },
+          {
+            "class_id": 10,
+            "class_name": "Potato___Late_blight",
+            "train": 632,
+            "validation": 156,
+            "source_test": 212,
+            "target_test": 5
+          },
+          {
+            "class_id": 11,
+            "class_name": "Raspberry___healthy",
+            "train": 165,
+            "validation": 44,
+            "source_test": 162,
+            "target_test": 7
+          },
+          {
+            "class_id": 12,
+            "class_name": "Soybean___healthy",
+            "train": 3294,
+            "validation": 823,
+            "source_test": 973,
+            "target_test": 8
+          },
+          {
+            "class_id": 13,
+            "class_name": "Squash___Powdery_mildew",
+            "train": 1166,
+            "validation": 291,
+            "source_test": 378,
+            "target_test": 6
+          },
+          {
+            "class_id": 14,
+            "class_name": "Strawberry___healthy",
+            "train": 300,
+            "validation": 76,
+            "source_test": 80,
+            "target_test": 8
+          },
+          {
+            "class_id": 15,
+            "class_name": "Tomato___Bacterial_spot",
+            "train": 1351,
+            "validation": 340,
+            "source_test": 436,
+            "target_test": 8
+          },
+          {
+            "class_id": 16,
+            "class_name": "Tomato___Early_blight",
+            "train": 628,
+            "validation": 157,
+            "source_test": 215,
+            "target_test": 9
+          },
+          {
+            "class_id": 17,
+            "class_name": "Tomato___Late_blight",
+            "train": 1221,
+            "validation": 305,
+            "source_test": 375,
+            "target_test": 10
+          },
+          {
+            "class_id": 18,
+            "class_name": "Tomato___Leaf_Mold",
+            "train": 624,
+            "validation": 156,
+            "source_test": 172,
+            "target_test": 6
+          },
+          {
+            "class_id": 19,
+            "class_name": "Tomato___Septoria_leaf_spot",
+            "train": 1147,
+            "validation": 287,
+            "source_test": 337,
+            "target_test": 11
+          },
+          {
+            "class_id": 20,
+            "class_name": "Tomato___Tomato_mosaic_virus",
+            "train": 246,
+            "validation": 61,
+            "source_test": 66,
+            "target_test": 10
+          },
+          {
+            "class_id": 21,
+            "class_name": "Tomato___healthy",
+            "train": 1004,
+            "validation": 251,
+            "source_test": 330,
+            "target_test": 8
+          }
+        ],
+        "manifest_sha256": {
+          "train.csv": "ef8252c5df0c32576c736b2b3b4b481c47b0d5f95bd0209852dc663c6e25953e",
+          "validation.csv": "c498d861ce7b71d439a487c135a39f55692d74bbbf082f558ab53b42c382a401",
+          "source_test.csv": "c2cbc52be0b14824c06961f46e027ef96cf3d5274c40cf188e45e65fd1c39faa",
+          "target_test.csv": "63d8052bd9c7aa2e1850317e9b7bce10a0bc7b9d1cd721d81cff86ef20473a67",
+          "excluded.csv": "dea8c3e92b83b0da810c1e51daf6e6dfdaba49d7ad4de73b2a7e22f0f20fe04f"
+        },
+        "limits": "Groups use exact file bytes and resolved leaf metadata only. Missing leaf IDs and re-encoded/cropped duplicates remain a limitation; labels are not independently diagnosed. Counts describe the selected, filtered subset, not all original PlantDoc images."
+      }
+    },
+    {
+      "scope": "source validation only; not final test results",
+      "settings": {
+        "epochs": 10,
+        "warmup_epochs": 1,
+        "batch_size": 32,
+        "workers": 2,
+        "seed": 553,
+        "head_lr": 0.001,
+        "backbone_lr": 0.0001,
+        "weight_decay": 0.0001,
+        "patience": 3,
+        "device": "cuda"
+      },
+      "counts": {
+        "train": 18023,
+        "validation": 4529
+      },
+      "software": {
+        "python": "3.12.3",
+        "torch": "2.13.0+cu126",
+        "torchvision": "0.28.0+cu126"
+      },
+      "device": "NVIDIA GeForce RTX 4060 Laptop GPU",
+      "preprocessing": {
+        "size": 224,
+        "resize": "bilinear, preserve aspect ratio, pad",
+        "background_rgb": [
+          124,
+          116,
+          104
+        ],
+        "mean": [
+          0.485,
+          0.456,
+          0.406
+        ],
+        "std": [
+          0.229,
+          0.224,
+          0.225
+        ],
+        "exif_orientation": true,
+        "augmentation": "none"
+      },
+      "weights_sha256": "047dcff4addef86ea5bc2eff13c9614dc11f47ab1160d0a71a25e7db994f4e1f",
+      "code_sha256": {
+        "__init__.py": "a587b18772b6f41c47e3fa50218dbdd5b26dc153525f4933204bc26c78b110b0",
+        "data.py": "238b4c4afa6a263edafc12ea271257f2c6465d265bb3edfeeffeef3f3d2e326e",
+        "model.py": "8105edf94d0ee8bb524697f87d4c48dfccc86564c7ab655565833108ab674559",
+        "summarize_repetitions.py": "bdd78e0d7a68f4c87df73b70ef64b662abd820576cf79e7d275bf179d64fbf97",
+        "summarize_training.py": "98a14c0a8bd169b98c4f7ca7dd99e378102d0935f58a797e4336531091767644",
+        "train.py": "feca6168a6ce8bb27d22bccae93f885f0103cb442ae6d399cf708216ccab5d96",
+        "verify_training.py": "cc8402c2f0ddb076a4a796fabb32bb5f46a6194b26255f8b42aeee1b4488623f"
+      },
+      "selected_manifest_sha256": {
+        "train": "ef8252c5df0c32576c736b2b3b4b481c47b0d5f95bd0209852dc663c6e25953e",
+        "validation": "c498d861ce7b71d439a487c135a39f55692d74bbbf082f558ab53b42c382a401"
+      },
+      "categories_sha256": "260cde73666eeea4dfbb2b36b255b9e3fda0d6b12290ff8842430c3b42776fbe",
+      "checkpoint_rule": "minimum source validation cross-entropy after warmup",
+      "models": {
+        "frozen": {
+          "epochs_completed": 10,
+          "best_epoch": 10,
+          "validation": {
+            "images": 4529,
+            "loss": 0.0838138726575896,
+            "accuracy": 0.9770368734820049,
+            "macro_f1": 0.9767036743536107,
+            "seconds": 7.617434043000685
+          },
+          "loop_seconds": 348.4858205670025,
+          "peak_allocated_mib": 148.43798828125,
+          "peak_reserved_mib": 200.0,
+          "best_checkpoint_sha256": "e036fd3b691986a084d6973d4a35a4d72725f5678a7cc5c112e2a58bf5a504e2",
+          "batch_norm_statistics_unchanged": true,
+          "features_changed": false,
+          "history": [
+            {
+              "epoch": 1,
+              "stage": "warmup",
+              "trainable_parameters": 12694,
+              "train": {
+                "images": 18023,
+                "loss": 0.7660549832154,
+                "accuracy": 0.8339899017921545,
+                "macro_f1": 0.8189331306815221,
+                "seconds": 36.04988625799888
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.32499026380303314,
+                "accuracy": 0.9342018105542063,
+                "macro_f1": 0.9243010601515482,
+                "seconds": 7.206014024999604
+              },
+              "peak_allocated_mib": 148.34033203125,
+              "peak_reserved_mib": 200.0
+            },
+            {
+              "epoch": 2,
+              "stage": "frozen",
+              "trainable_parameters": 12694,
+              "train": {
+                "images": 18023,
+                "loss": 0.2251507259935516,
+                "accuracy": 0.9501192920157576,
+                "macro_f1": 0.9488243318570198,
+                "seconds": 24.8585388399988
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.18617523851958456,
+                "accuracy": 0.9538529476705675,
+                "macro_f1": 0.9463773276077947,
+                "seconds": 6.101093107001361
+              },
+              "peak_allocated_mib": 148.43798828125,
+              "peak_reserved_mib": 200.0
+            },
+            {
+              "epoch": 3,
+              "stage": "frozen",
+              "trainable_parameters": 12694,
+              "train": {
+                "images": 18023,
+                "loss": 0.1470763030460055,
+                "accuracy": 0.9658769350274649,
+                "macro_f1": 0.9648711209862028,
+                "seconds": 26.13045558399972
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.1445252236170494,
+                "accuracy": 0.9609185250607198,
+                "macro_f1": 0.9591628901372933,
+                "seconds": 6.587640380999801
+              },
+              "peak_allocated_mib": 148.34033203125,
+              "peak_reserved_mib": 200.0
+            },
+            {
+              "epoch": 4,
+              "stage": "frozen",
+              "trainable_parameters": 12694,
+              "train": {
+                "images": 18023,
+                "loss": 0.11452466007548405,
+                "accuracy": 0.9737002718748267,
+                "macro_f1": 0.9739197885352401,
+                "seconds": 25.101314907002234
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.12128948574101432,
+                "accuracy": 0.9701920953852947,
+                "macro_f1": 0.9701323956678727,
+                "seconds": 6.445007452002756
+              },
+              "peak_allocated_mib": 148.34033203125,
+              "peak_reserved_mib": 200.0
+            },
+            {
+              "epoch": 5,
+              "stage": "frozen",
+              "trainable_parameters": 12694,
+              "train": {
+                "images": 18023,
+                "loss": 0.09634482416756882,
+                "accuracy": 0.9775287133107696,
+                "macro_f1": 0.9778271716380552,
+                "seconds": 26.134220694999385
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.11802653182149064,
+                "accuracy": 0.9686465003311989,
+                "macro_f1": 0.9678810694324561,
+                "seconds": 7.007281214999239
+              },
+              "peak_allocated_mib": 148.34033203125,
+              "peak_reserved_mib": 200.0
+            },
+            {
+              "epoch": 6,
+              "stage": "frozen",
+              "trainable_parameters": 12694,
+              "train": {
+                "images": 18023,
+                "loss": 0.08204523359891931,
+                "accuracy": 0.9805803695278256,
+                "macro_f1": 0.9807979504742785,
+                "seconds": 29.243263076001313
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.10542186301676189,
+                "accuracy": 0.9710752925590638,
+                "macro_f1": 0.9682908321617635,
+                "seconds": 6.9304123289985
+              },
+              "peak_allocated_mib": 148.34033203125,
+              "peak_reserved_mib": 200.0
+            },
+            {
+              "epoch": 7,
+              "stage": "frozen",
+              "trainable_parameters": 12694,
+              "train": {
+                "images": 18023,
+                "loss": 0.07329698626481355,
+                "accuracy": 0.982466847916551,
+                "macro_f1": 0.9825754146458944,
+                "seconds": 26.49505024699829
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.09539648717021305,
+                "accuracy": 0.9743872819606977,
+                "macro_f1": 0.973338920910902,
+                "seconds": 7.681079578000208
+              },
+              "peak_allocated_mib": 148.34033203125,
+              "peak_reserved_mib": 200.0
+            },
+            {
+              "epoch": 8,
+              "stage": "frozen",
+              "trainable_parameters": 12694,
+              "train": {
+                "images": 18023,
+                "loss": 0.06504706387308708,
+                "accuracy": 0.9854630194751152,
+                "macro_f1": 0.9857500882255427,
+                "seconds": 27.64481611500014
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.09487351590796703,
+                "accuracy": 0.9732832854934864,
+                "macro_f1": 0.9701556745700105,
+                "seconds": 7.022177845999977
+              },
+              "peak_allocated_mib": 148.34033203125,
+              "peak_reserved_mib": 200.0
+            },
+            {
+              "epoch": 9,
+              "stage": "frozen",
+              "trainable_parameters": 12694,
+              "train": {
+                "images": 18023,
+                "loss": 0.05844946905159497,
+                "accuracy": 0.9866281973034456,
+                "macro_f1": 0.9871963562960506,
+                "seconds": 28.32156477600074
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.09015409196760908,
+                "accuracy": 0.9732832854934864,
+                "macro_f1": 0.9711392934753157,
+                "seconds": 6.865495066998847
+              },
+              "peak_allocated_mib": 148.34033203125,
+              "peak_reserved_mib": 200.0
+            },
+            {
+              "epoch": 10,
+              "stage": "frozen",
+              "trainable_parameters": 12694,
+              "train": {
+                "images": 18023,
+                "loss": 0.054337090113111004,
+                "accuracy": 0.9876269211563002,
+                "macro_f1": 0.9882062269349654,
+                "seconds": 29.043075026002043
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.0838138726575896,
+                "accuracy": 0.9770368734820049,
+                "macro_f1": 0.9767036743536107,
+                "seconds": 7.617434043000685
+              },
+              "peak_allocated_mib": 148.34033203125,
+              "peak_reserved_mib": 200.0
+            }
+          ]
+        },
+        "finetune": {
+          "epochs_completed": 6,
+          "best_epoch": 3,
+          "validation": {
+            "images": 4529,
+            "loss": 0.04162017756171694,
+            "accuracy": 0.9860896445131375,
+            "macro_f1": 0.9848954675907513,
+            "seconds": 6.4111512929994205
+          },
+          "loop_seconds": 213.34477744100514,
+          "peak_allocated_mib": 578.9873046875,
+          "peak_reserved_mib": 738.0,
+          "best_checkpoint_sha256": "378d43fcde672330597ff17b14d38b3ad042b712a357c49e8b14713a84e0d949",
+          "batch_norm_statistics_unchanged": true,
+          "features_changed": true,
+          "history": [
+            {
+              "epoch": 1,
+              "stage": "warmup",
+              "trainable_parameters": 12694,
+              "train": {
+                "images": 18023,
+                "loss": 0.7660549832154,
+                "accuracy": 0.8339899017921545,
+                "macro_f1": 0.8189331306815221,
+                "seconds": 26.82553798200024
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.32499026380303314,
+                "accuracy": 0.9342018105542063,
+                "macro_f1": 0.9243010601515482,
+                "seconds": 6.645500307000475
+              },
+              "peak_allocated_mib": 148.34033203125,
+              "peak_reserved_mib": 200.0
+            },
+            {
+              "epoch": 2,
+              "stage": "finetune",
+              "trainable_parameters": 939702,
+              "train": {
+                "images": 18023,
+                "loss": 0.09810899785643526,
+                "accuracy": 0.9699827997558675,
+                "macro_f1": 0.9678382510874207,
+                "seconds": 29.194554756999423
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.05273997783403844,
+                "accuracy": 0.9836608522852727,
+                "macro_f1": 0.9794277849090097,
+                "seconds": 6.295043947000522
+              },
+              "peak_allocated_mib": 578.9873046875,
+              "peak_reserved_mib": 738.0
+            },
+            {
+              "epoch": 3,
+              "stage": "finetune",
+              "trainable_parameters": 939702,
+              "train": {
+                "images": 18023,
+                "loss": 0.02718058898119507,
+                "accuracy": 0.9910669699827998,
+                "macro_f1": 0.9903001341509529,
+                "seconds": 27.941665934999037
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.04162017756171694,
+                "accuracy": 0.9860896445131375,
+                "macro_f1": 0.9848954675907513,
+                "seconds": 6.4111512929994205
+              },
+              "peak_allocated_mib": 578.8896484375,
+              "peak_reserved_mib": 738.0
+            },
+            {
+              "epoch": 4,
+              "stage": "finetune",
+              "trainable_parameters": 939702,
+              "train": {
+                "images": 18023,
+                "loss": 0.016031123730670904,
+                "accuracy": 0.9948399267602508,
+                "macro_f1": 0.9946196779642634,
+                "seconds": 31.364256026001385
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.06083702573200877,
+                "accuracy": 0.9799072642967542,
+                "macro_f1": 0.9746736461354882,
+                "seconds": 6.5692252310000185
+              },
+              "peak_allocated_mib": 578.8896484375,
+              "peak_reserved_mib": 738.0
+            },
+            {
+              "epoch": 5,
+              "stage": "finetune",
+              "trainable_parameters": 939702,
+              "train": {
+                "images": 18023,
+                "loss": 0.010197014370690694,
+                "accuracy": 0.9963934971980247,
+                "macro_f1": 0.9959396567910783,
+                "seconds": 29.022748801002308
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.05196219434383636,
+                "accuracy": 0.9834400529918305,
+                "macro_f1": 0.9812596579140074,
+                "seconds": 7.132299871998839
+              },
+              "peak_allocated_mib": 578.8896484375,
+              "peak_reserved_mib": 738.0
+            },
+            {
+              "epoch": 6,
+              "stage": "finetune",
+              "trainable_parameters": 939702,
+              "train": {
+                "images": 18023,
+                "loss": 0.00935924880470659,
+                "accuracy": 0.9970593130999279,
+                "macro_f1": 0.996931465221843,
+                "seconds": 28.902603906000877
+              },
+              "validation": {
+                "images": 4529,
+                "loss": 0.05305904157355479,
+                "accuracy": 0.9825568558180614,
+                "macro_f1": 0.9792363621633732,
+                "seconds": 7.040189384002588
+              },
+              "peak_allocated_mib": 578.8896484375,
+              "peak_reserved_mib": 738.0
+            }
+          ]
+        }
+      },
+      "precision": "float32",
+      "deterministic_algorithms": true,
+      "split_summary": {
+        "schema_version": 1,
+        "seed": 551,
+        "validation_fraction_target": 0.2,
+        "inventory_sha256": "4056390667cf6e7561a7d49dd219bf2c3f3eea77d0320fb8f06e2d6da0dafd19",
+        "categories_sha256": "260cde73666eeea4dfbb2b36b255b9e3fda0d6b12290ff8842430c3b42776fbe",
+        "builder_sha256": "cd3f3332513d33bfe5a0ab7392862cc8d188090cf2441ff38052a132eb548997",
+        "dataset_revisions": {
+          "plantvillage_revision": "9e97599868962bd0079b8db4b7f1efa9185fa1e7",
+          "plantdoc_revision": "5467f6012d78d1c446145d5f582da6096f852ae8"
+        },
+        "classes": 22,
+        "counts": {
+          "train": 18023,
+          "validation": 4529,
+          "source_test": 5487,
+          "target_test": 183
+        },
+        "known_group_counts": {
+          "train": 6148,
+          "validation": 1503,
+          "source_test": 1892,
+          "target_test": 183
+        },
+        "source_images_without_leaf_id": {
+          "train": 3533,
+          "validation": 838,
+          "source_test": 1114
+        },
+        "excluded": 28661,
+        "exclusion_reasons": {
+          "byte_identical_copy": 16,
+          "category_outside_primary_comparison": 26788,
+          "conflicting_labels_in_related_group": 18,
+          "related_to_reserved_test_group": 5,
+          "target_training_not_used": 1834
+        },
+        "per_class": [
+          {
+            "class_id": 0,
+            "class_name": "Apple___Apple_scab",
+            "train": 400,
+            "validation": 103,
+            "source_test": 127,
+            "target_test": 10
+          },
+          {
+            "class_id": 1,
+            "class_name": "Apple___healthy",
+            "train": 1080,
+            "validation": 274,
+            "source_test": 284,
+            "target_test": 9
+          },
+          {
+            "class_id": 2,
+            "class_name": "Blueberry___healthy",
+            "train": 940,
+            "validation": 238,
+            "source_test": 324,
+            "target_test": 11
+          },
+          {
+            "class_id": 3,
+            "class_name": "Cherry_(including_sour)___healthy",
+            "train": 581,
+            "validation": 150,
+            "source_test": 123,
+            "target_test": 10
+          },
+          {
+            "class_id": 4,
+            "class_name": "Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot",
+            "train": 325,
+            "validation": 81,
+            "source_test": 107,
+            "target_test": 3
+          },
+          {
+            "class_id": 5,
+            "class_name": "Grape___Black_rot",
+            "train": 808,
+            "validation": 204,
+            "source_test": 168,
+            "target_test": 8
+          },
+          {
+            "class_id": 6,
+            "class_name": "Grape___healthy",
+            "train": 258,
+            "validation": 65,
+            "source_test": 100,
+            "target_test": 12
+          },
+          {
+            "class_id": 7,
+            "class_name": "Peach___healthy",
+            "train": 229,
+            "validation": 60,
+            "source_test": 71,
+            "target_test": 9
+          },
+          {
+            "class_id": 8,
+            "class_name": "Pepper,_bell___healthy",
+            "train": 956,
+            "validation": 239,
+            "source_test": 283,
+            "target_test": 8
+          },
+          {
+            "class_id": 9,
+            "class_name": "Potato___Early_blight",
+            "train": 668,
+            "validation": 168,
+            "source_test": 164,
+            "target_test": 7
+          },
+          {
+            "class_id": 10,
+            "class_name": "Potato___Late_blight",
+            "train": 632,
+            "validation": 156,
+            "source_test": 212,
+            "target_test": 5
+          },
+          {
+            "class_id": 11,
+            "class_name": "Raspberry___healthy",
+            "train": 165,
+            "validation": 44,
+            "source_test": 162,
+            "target_test": 7
+          },
+          {
+            "class_id": 12,
+            "class_name": "Soybean___healthy",
+            "train": 3294,
+            "validation": 823,
+            "source_test": 973,
+            "target_test": 8
+          },
+          {
+            "class_id": 13,
+            "class_name": "Squash___Powdery_mildew",
+            "train": 1166,
+            "validation": 291,
+            "source_test": 378,
+            "target_test": 6
+          },
+          {
+            "class_id": 14,
+            "class_name": "Strawberry___healthy",
+            "train": 300,
+            "validation": 76,
+            "source_test": 80,
+            "target_test": 8
+          },
+          {
+            "class_id": 15,
+            "class_name": "Tomato___Bacterial_spot",
+            "train": 1351,
+            "validation": 340,
+            "source_test": 436,
+            "target_test": 8
+          },
+          {
+            "class_id": 16,
+            "class_name": "Tomato___Early_blight",
+            "train": 628,
+            "validation": 157,
+            "source_test": 215,
+            "target_test": 9
+          },
+          {
+            "class_id": 17,
+            "class_name": "Tomato___Late_blight",
+            "train": 1221,
+            "validation": 305,
+            "source_test": 375,
+            "target_test": 10
+          },
+          {
+            "class_id": 18,
+            "class_name": "Tomato___Leaf_Mold",
+            "train": 624,
+            "validation": 156,
+            "source_test": 172,
+            "target_test": 6
+          },
+          {
+            "class_id": 19,
+            "class_name": "Tomato___Septoria_leaf_spot",
+            "train": 1147,
+            "validation": 287,
+            "source_test": 337,
+            "target_test": 11
+          },
+          {
+            "class_id": 20,
+            "class_name": "Tomato___Tomato_mosaic_virus",
+            "train": 246,
+            "validation": 61,
+            "source_test": 66,
+            "target_test": 10
+          },
+          {
+            "class_id": 21,
+            "class_name": "Tomato___healthy",
+            "train": 1004,
+            "validation": 251,
+            "source_test": 330,
+            "target_test": 8
+          }
+        ],
+        "manifest_sha256": {
+          "train.csv": "ef8252c5df0c32576c736b2b3b4b481c47b0d5f95bd0209852dc663c6e25953e",
+          "validation.csv": "c498d861ce7b71d439a487c135a39f55692d74bbbf082f558ab53b42c382a401",
+          "source_test.csv": "c2cbc52be0b14824c06961f46e027ef96cf3d5274c40cf188e45e65fd1c39faa",
+          "target_test.csv": "63d8052bd9c7aa2e1850317e9b7bce10a0bc7b9d1cd721d81cff86ef20473a67",
+          "excluded.csv": "dea8c3e92b83b0da810c1e51daf6e6dfdaba49d7ad4de73b2a7e22f0f20fe04f"
+        },
+        "limits": "Groups use exact file bytes and resolved leaf metadata only. Missing leaf IDs and re-encoded/cropped duplicates remain a limitation; labels are not independently diagnosed. Counts describe the selected, filtered subset, not all original PlantDoc images."
+      }
+    }
+  ]
+}

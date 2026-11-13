@@ -1,7 +1,8 @@
 # Model and computing plan
 
-Status: implementation, GPU trial, and the first full-source training pair are
-complete. Repeated runs and final test evaluation remain. See the
+Status: implementation, GPU trial, and all three full-source training pairs are
+complete. All six selected models passed reload checks. Final test evaluation
+and the final report remain. See the
 [training guide](training.md) for commands, measured costs, and current settings.
 
 ## Model choice
@@ -79,9 +80,12 @@ The first full-data pair subsequently completed: ten frozen epochs and eight
 fine-tuned epochs took about 11.1 minutes of combined training/validation loops.
 Its saved models reproduced their selected validation metrics after reload.
 See the [results table and curves](training-runs/source-seed-551.md). The declared
-budget is three matched pairs (training seeds 551, 552, 553) on the same fixed
-splits and settings. Only 551 is completed; report every seed rather than choosing
-a favorable one. Final tests remain reserved.
+budget was three matched pairs (training seeds 551, 552, 553) on the same fixed
+splits and settings. All are complete and reported in the
+[combined comparison](training-runs/repeated-training.md). Mean validation
+accuracy is 97.54% frozen and 98.98% fine-tuned. These are checkpoint-selection
+scores on one validation set; final tests remain reserved. All six selected
+checkpoint fingerprints are recorded before testing.
 
 | Possible problem | Planned response |
 | --- | --- |
@@ -97,8 +101,9 @@ The initial category selection and image lists are recorded in the experiment
 data guide. Known byte duplicates and resolved leaf groups are kept from crossing
 splits; incomplete metadata and remaining label uncertainty are limitations.
 Image preparation and both training modes are implemented and checked in the
-trial and first full-source pair. Two more matched pairs and final evaluation
-remain. The current settings are retained for those repetitions. The evaluation
+trial and three full-source pairs. Final evaluation remains. Use all six
+recorded checkpoints and the fixed settings; do not select a seed or retune
+using final test performance. The evaluation
 plan will report accuracy, macro-F1,
 per-category results, counts, and confusion matrices, alongside measured costs.
 Cross-dataset differences cannot identify weather or photography skill as causes.

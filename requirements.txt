@@ -4,5 +4,7 @@ numpy==2.5.2
 pillow==12.3.0
 pandas==3.1.0
 matplotlib==3.11.2
+# Confusion-matrix heatmaps in the evaluation notebook.
+seaborn==0.13.2
 scikit-learn==1.9.1
 ipykernel==7.4.0

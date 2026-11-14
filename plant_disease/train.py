@@ -27,8 +27,20 @@ from sklearn.metrics import accuracy_score, f1_score
 from torch import nn
 from torch.utils.data import DataLoader
 
+'''
 from .data import (BACKGROUND, MEAN, STD, PlantImages, load_source_manifests,
                    sha256_file, trial_subset)
+'''
+from .data import (
+    BACKGROUND,
+    MEAN,
+    STD,
+    TRAIN_AUGMENTATION,
+    PlantImages,
+    load_source_manifests,
+    sha256_file,
+    trial_subset,
+)
 from .model import (WEIGHTS_SHA256, batch_norm_state, build_model,
                     set_training_mode, state_fingerprint)
 
@@ -94,11 +106,29 @@ def train_mode(mode, args, rows, class_count, device, run_metadata):
     run_dir = args.output_dir / mode
     run_dir.mkdir()
     train_generator = torch.Generator()
+    '''
     train_loader = DataLoader(PlantImages(rows["train"], args.data_root), batch_size=args.batch_size,
                               shuffle=True, generator=train_generator, num_workers=args.workers,
                               pin_memory=device.type == "cuda")
     val_loader = DataLoader(PlantImages(rows["validation"], args.data_root), batch_size=args.batch_size,
-                            shuffle=False, num_workers=args.workers, pin_memory=device.type == "cuda")
+                        shuffle=False, num_workers=args.workers, pin_memory=device.type == "cuda")
+    '''
+    # Improvement 1: Use data augmentation for training images
+    train_loader = DataLoader(
+        PlantImages(rows["train"], args.data_root, transform=TRAIN_AUGMENTATION),
+        batch_size=args.batch_size,
+        shuffle=True,
+        generator=train_generator,
+        num_workers=args.workers,
+        pin_memory=device.type == "cuda")
+
+    val_loader = DataLoader(
+        PlantImages(rows["validation"], args.data_root),
+        batch_size=args.batch_size,
+        shuffle=False,
+        num_workers=args.workers,
+        pin_memory=device.type == "cuda")
+
     best_loss, best_epoch, bad_epochs = float("inf"), None, 0
     history = []
     optimizer = None

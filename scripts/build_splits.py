@@ -121,8 +121,9 @@ def choose_validation(groups, fraction, seed, class_id):
     return picked
 
 
-def build_manifests(rows, config, seed=551, validation_fraction=0.2):
-    """Exclude known risks, preserve holdouts, then split the source-only pool."""
+def build_manifests(rows, config, seed=551, validation_fraction=0.2,
+                    include_plantdoc_train=False):
+    """Exclude known risks, preserve holdouts, then split the training pool."""
     if not 0 < validation_fraction < 1:
         raise ValueError("Validation fraction must be between zero and one")
     validate_inventory(rows)
@@ -135,7 +136,9 @@ def build_manifests(rows, config, seed=551, validation_fraction=0.2):
     # training image into a test set: only retain its existing test members.
     priorities = {("plantdoc", "test"): 0,
                   ("plantvillage", "test"): 1,
-                  ("plantvillage", "train"): 2}
+                  ("plantvillage", "train"): 2,
+                  ("plantdoc", "train"): 2}
+
     destinations = {0: "target_test", 1: "source_test", 2: "pool"}
 
     for group in related_groups(sorted(rows, key=lambda r: r["relative_path"])):
@@ -167,7 +170,8 @@ def build_manifests(rows, config, seed=551, validation_fraction=0.2):
                 reason = "conflicting_labels_in_related_group"
             elif item is None:
                 reason = "category_outside_primary_comparison"
-            elif (row["dataset"], row["split"]) == ("plantdoc", "train"):
+            elif ((row["dataset"], row["split"]) == ("plantdoc", "train")
+                and not include_plantdoc_train):
                 reason = "target_training_not_used"
             elif row["split"] == "unassigned":
                 reason = "missing_source_split"
@@ -219,9 +223,9 @@ def verify_manifests(manifests, excluded, inventory, class_count):
             raise ValueError(f"Not all selected classes have examples in {split}")
         for row in records:
             all_paths.append(row["relative_path"])
-            expected_dataset = "plantdoc" if split == "target_test" else "plantvillage"
+            expected_datasets = {"plantdoc"} if split == "target_test" else {"plantvillage", "plantdoc"}
             expected_source = "train" if split in ("train", "validation") else "test"
-            if row["dataset"] != expected_dataset or row["source_split"] != expected_source:
+            if row["dataset"] not in expected_datasets or row["source_split"] != expected_source:
                 raise ValueError(f"Wrong data source for {split}")
             for key in (("group", row["group_id"]), ("bytes", row["sha256"])):
                 if key in owner and owner[key] != split:
@@ -241,6 +245,8 @@ def main():
     parser.add_argument("--output-dir", type=Path, default=Path("outputs/splits"))
     parser.add_argument("--seed", type=int, default=551)
     parser.add_argument("--validation-fraction", type=float, default=0.2)
+    # Trying improvement 1: Adding PlantDoc images to training 
+    parser.add_argument("--include-plantdoc-train", action="store_true")
     args = parser.parse_args()
     inventory_path = args.audit_dir / "image_inventory.csv"
     with inventory_path.open(encoding="utf-8", newline="") as stream:
@@ -252,7 +258,8 @@ def main():
     for key in ("plantvillage_revision", "plantdoc_revision"):
         if not audit.get(key) or audit[key] == "unknown":
             raise ValueError(f"Missing source version {key}; check the download manifest")
-    manifests, excluded = build_manifests(rows, config, args.seed, args.validation_fraction)
+    manifests, excluded = build_manifests(
+        rows, config, args.seed, args.validation_fraction, args.include_plantdoc_train)
     args.output_dir.mkdir(parents=True, exist_ok=True)
     output_hashes = {}
     for name, records in {**manifests, "excluded": excluded}.items():

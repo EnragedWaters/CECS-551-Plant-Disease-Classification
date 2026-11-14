@@ -14,6 +14,7 @@ from pathlib import Path, PurePosixPath
 import torch
 from PIL import Image, ImageOps
 from torch.utils.data import Dataset
+from torchvision import transforms
 from torchvision.transforms import functional as TF
 
 
@@ -21,7 +22,18 @@ IMAGE_SIZE = 224
 MEAN = (0.485, 0.456, 0.406)
 STD = (0.229, 0.224, 0.225)
 BACKGROUND = tuple(round(x * 255) for x in MEAN)
-
+# Improvement 1: Add data augmentation for training images
+TRAIN_AUGMENTATION = transforms.Compose([
+    transforms.RandomResizedCrop(224, scale=(0.7, 1.0)),
+    transforms.RandomHorizontalFlip(),
+    transforms.RandomRotation(20),
+    transforms.ColorJitter(
+        brightness=0.25,
+        contrast=0.25,
+        saturation=0.25,
+        hue=0.05,
+    ),
+])
 
 def sha256_file(path):
     with Path(path).open("rb") as stream:
@@ -76,12 +88,29 @@ def load_source_manifests(directory, categories_path):
             class_id = int(row["class_id"])
             if not 0 <= class_id < len(classes):
                 raise ValueError("Unknown category ID")
+            '''
             category = classes[class_id]["plantvillage"]
             if (row["dataset"] != "plantvillage" or row["source_split"] != "train"
                     or row["split"] != split or row["source_category"] != category
                     or row["class_name"] != category
                     or relative.parts[:3] != ("plantvillage", "raw", "color")):
                 raise ValueError("Training/validation must use the mapped PlantVillage training pool")
+            '''
+            # Trying improvement 1: Allow PlantDoc images to be used in training
+            expected_category = classes[class_id][row["dataset"]]
+            expected_prefix = (
+                ("plantvillage", "raw", "color")
+                if row["dataset"] == "plantvillage"
+                else ("plantdoc", row["source_split"])
+            )
+            if (row["dataset"] not in ("plantvillage", "plantdoc")
+                or row["source_split"] not in ("train", "validation")
+                or row["split"] != split
+                or row["source_category"] != expected_category
+                or row["class_name"] != classes[class_id]["plantvillage"]
+                or relative.parts[:len(expected_prefix)] != expected_prefix):
+                raise ValueError("Training/validation must use the mapped training images")
+
         if {int(r["class_id"]) for r in rows} != set(range(len(classes))):
             raise ValueError(f"Missing category coverage in {split}")
         for key in seen:
@@ -112,9 +141,10 @@ def trial_subset(rows, per_class, seed):
 class PlantImages(Dataset):
     """Read the selected images without changing or silently skipping files."""
 
-    def __init__(self, rows, data_root):
+    def __init__(self, rows, data_root, transform=None):
         self.rows = rows
         self.root = Path(data_root).expanduser().resolve()
+        self.transform = transform
 
     def __len__(self):
         return len(self.rows)
@@ -128,5 +158,9 @@ class PlantImages(Dataset):
         if hashlib.sha256(content).hexdigest() != row["sha256"]:
             raise ValueError(f"Image changed since the audit: {row['relative_path']}")
         with Image.open(io.BytesIO(content)) as image:
+            image = ImageOps.exif_transpose(image)
+            if self.transform is not None:
+                image = self.transform(image)
             tensor = prepare_image(image)
+            
         return tensor, int(row["class_id"])

@@ -131,18 +131,13 @@ def load_source_manifests(directory, categories_path):
             dataset = row["dataset"]
             if dataset not in ("plantvillage", "plantdoc") or dataset not in classes[class_id]:
                 raise ValueError("Training dataset is not allowed or has no category mapping")
-            expected_category = classes[class_id][dataset]
-            expected_prefix = (
-                ("plantvillage", "raw", "color")
-                if row["dataset"] == "plantvillage"
-                else ("plantdoc", row["source_split"])
-            )
-            if (row["dataset"] not in ("plantvillage", "plantdoc")
-                or row["source_split"] not in ("train", "validation")
-                or row["split"] != split
-                or row["source_category"] != expected_category
-                or row["class_name"] != classes[class_id]["plantvillage"]
-                or relative.parts[:len(expected_prefix)] != expected_prefix):
+            category = classes[class_id][dataset]
+            parent = (("plantvillage", "raw", "color", category) if dataset == "plantvillage"
+                      else ("plantdoc", "train", category))
+            if (row["source_split"] != "train" or row["split"] != split
+                    or row["source_category"] != category
+                    or row["class_name"] != classes[class_id]["plantvillage"]
+                    or relative.parts[:-1] != parent):
                 raise ValueError("Training/validation must use the mapped training images")
 
         if {int(r["class_id"]) for r in rows} != set(range(len(classes))):

@@ -120,6 +120,34 @@ class ManifestGuardTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     load_source_manifests(root, categories)
 
+    def assert_invalid_training_row(self, changes):
+        """Keep checksums valid so the test exercises row validation itself."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root, categories = self.write_fixture(tmp)
+            path = root / "train.csv"
+            with path.open(newline="") as stream:
+                rows = list(csv.DictReader(stream))
+            rows[0].update(changes)
+            with path.open("w", newline="") as stream:
+                writer = csv.DictWriter(stream, fieldnames=list(rows[0]))
+                writer.writeheader()
+                writer.writerows(rows)
+            summary_path = root / "summary.json"
+            summary = json.loads(summary_path.read_text())
+            summary["manifest_sha256"][path.name] = sha256_file(path)
+            summary_path.write_text(json.dumps(summary))
+            with self.assertRaisesRegex(ValueError, "mapped training images"):
+                load_source_manifests(root, categories)
+
+    def test_training_path_must_match_the_category_folder(self):
+        self.assert_invalid_training_row({"relative_path": "plantvillage/raw/color/B/train.jpg"})
+
+    def test_training_pool_rejects_original_validation_and_test_splits(self):
+        # Our validation set is carved out of the original training pool.
+        for split in ("validation", "test"):
+            with self.subTest(split=split):
+                self.assert_invalid_training_row({"source_split": split})
+
     def test_trial_subset_is_repeatable_and_covers_every_class(self):
         rows = [{"class_id": c, "relative_path": f"{c}/{i}.jpg"}
                 for c in range(3) for i in range(10)]

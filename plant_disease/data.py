@@ -59,6 +59,13 @@ def make_augmentation(name="none"):
     ])
 
 
+def training_data_record(rows, include_plantdoc_train=False):
+    """Record actual image counts, including any PlantDoc training examples."""
+    return {"include_plantdoc_train": include_plantdoc_train,
+            "images_by_dataset": {split: dict(sorted(Counter(r["dataset"] for r in records).items()))
+                                  for split, records in rows.items()}}
+
+
 def sha256_file(path):
     with Path(path).open("rb") as stream:
         return hashlib.file_digest(stream, "sha256").hexdigest()

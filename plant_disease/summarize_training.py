@@ -41,6 +41,20 @@ def describe_training_data(record):
     return " ".join(descriptions)
 
 
+def is_followup(settings):
+    return settings.get("augmentation", "none") != "none" or settings.get("include_plantdoc_train", False)
+
+
+def protect_report_destination(destination, filenames, followup=False):
+    """Keep new experiments separate and never replace an existing report."""
+    root = Path(__file__).resolve().parents[1]
+    if followup and any(destination.resolve().is_relative_to(root / folder)
+                       for folder in ("docs/training-runs", "docs/evaluation")):
+        raise ValueError("Use a separate --output-dir for follow-up experiment reports")
+    if any((destination / name).exists() for name in filenames):
+        raise ValueError("Report files already exist; choose a new output directory")
+
+
 def collect_summary(run_dir):
     """Use the chosen checkpoint's metrics, rather than the last epoch's scores."""
     metadata = json.loads((run_dir / "run.json").read_text())
@@ -112,6 +126,8 @@ def collect_summary(run_dir):
 
 def write_report(summary, destination, name):
     """Export the same measured values as a table and a two-panel plot."""
+    protect_report_destination(destination, [f"{name}.{ext}" for ext in ("json", "md", "png")],
+                               is_followup(summary["settings"]))
     destination.mkdir(parents=True, exist_ok=True)
     (destination / f"{name}.json").write_text(json.dumps(summary, indent=2, allow_nan=False) + "\n")
     fig, axes = plt.subplots(1, 2, figsize=(10, 4), constrained_layout=True)

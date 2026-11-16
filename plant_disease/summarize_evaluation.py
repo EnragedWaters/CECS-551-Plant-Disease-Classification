@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from .data import sha256_file
-from .summarize_training import describe_training_data
+from .summarize_training import describe_training_data, is_followup, protect_report_destination
 
 
 MODES = ("frozen", "finetune")
@@ -113,6 +113,9 @@ def collect_evaluation(directory):
 
 
 def write_report(summary, destination):
+    protect_report_destination(destination,
+        ["final-results.json", "final-results.md", "per-class-results.csv", "test-comparison.png", "confusion-matrices.png"],
+        is_followup(summary["metadata"].get("training_settings", {})))
     destination.mkdir(parents=True, exist_ok=True)
     (destination / "final-results.json").write_text(json.dumps(summary, indent=2, allow_nan=False) + "\n")
     records, classes = summary["results"], summary["metadata"]["categories"]

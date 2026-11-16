@@ -16,7 +16,8 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-from .summarize_training import collect_summary, describe_training_data
+from .summarize_training import (collect_summary, describe_training_data, is_followup,
+                                 protect_report_destination)
 
 
 SEEDS = (551, 552, 553)
@@ -116,6 +117,9 @@ def collect(runs_root):
 
 
 def write_report(combined, selection, destination):
+    protect_report_destination(destination,
+        ["repeated-training.json", "repeated-training.md", "repeated-training.png", "selected-checkpoints.json"],
+        is_followup(combined["runs"][0]["settings"]))
     destination.mkdir(parents=True, exist_ok=True)
     for name, value in (("repeated-training", combined), ("selected-checkpoints", selection)):
         (destination / f"{name}.json").write_text(json.dumps(value, indent=2, allow_nan=False) + "\n")

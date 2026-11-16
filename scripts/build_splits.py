@@ -248,6 +248,10 @@ def main():
     # Trying improvement 1: Adding PlantDoc images to training 
     parser.add_argument("--include-plantdoc-train", action="store_true")
     args = parser.parse_args()
+    if args.include_plantdoc_train and args.output_dir.resolve() == Path("outputs/splits").resolve():
+        parser.error("PlantDoc training needs a separate --output-dir; preserve the original splits")
+    if args.output_dir.exists() and any(args.output_dir.iterdir()):
+        parser.error("Output directory is not empty; choose a new split directory")
     inventory_path = args.audit_dir / "image_inventory.csv"
     with inventory_path.open(encoding="utf-8", newline="") as stream:
         rows = list(csv.DictReader(stream))

@@ -126,8 +126,12 @@ def load_source_manifests(directory, categories_path):
                     or relative.parts[:3] != ("plantvillage", "raw", "color")):
                 raise ValueError("Training/validation must use the mapped PlantVillage training pool")
             '''
-            # Trying improvement 1: Allow PlantDoc images to be used in training
-            expected_category = classes[class_id][row["dataset"]]
+            # Validate the dataset before looking up its category mapping.
+            # Otherwise malformed input crashes with an unexplained KeyError.
+            dataset = row["dataset"]
+            if dataset not in ("plantvillage", "plantdoc") or dataset not in classes[class_id]:
+                raise ValueError("Training dataset is not allowed or has no category mapping")
+            expected_category = classes[class_id][dataset]
             expected_prefix = (
                 ("plantvillage", "raw", "color")
                 if row["dataset"] == "plantvillage"

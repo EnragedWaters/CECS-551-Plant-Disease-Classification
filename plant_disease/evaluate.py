@@ -173,11 +173,12 @@ def main():
                for split, records in rows.items()}
     args.output_dir.mkdir(parents=True)
     save_json(args.output_dir / "selection.json", selection)
-    metadata = {"scope": "final held-out source and target evaluation; no tuning",
+    metadata = {"scope": "evaluation on reserved source and target lists; no fitting during evaluation",
+                "training_data": reference.get("training_data"),
                 "started_utc": datetime.now(timezone.utc).isoformat(),
                 "selection_sha256": sha256_file(args.selection), "selection": selection,
                 "categories": categories["classes"], "split_summary": split_summary,
-                "preprocessing": reference["preprocessing"],
+                "preprocessing": reference["preprocessing"], "test_augmentation": "none",
                 "training_settings": {k: v for k, v in reference["settings"].items() if k != "seed"},
                 "training_seeds": selection["seeds"],
                 "evaluation": {"batch_size": batch_size, "workers": args.workers, "precision": "float32",

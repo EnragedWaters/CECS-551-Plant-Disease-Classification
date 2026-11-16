@@ -16,7 +16,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-from .summarize_training import collect_summary
+from .summarize_training import collect_summary, describe_training_data
 
 
 SEEDS = (551, 552, 553)
@@ -40,6 +40,8 @@ def aggregate(summaries):
                     "precision", "deterministic_algorithms", "split_summary"):
             if summary[key] != reference[key]:
                 raise ValueError(f"Experiments differ: {key}")
+        if summary.get("training_data") != reference.get("training_data"):
+            raise ValueError("Training populations differ between seeds")
         # Reporting helpers may have been added since the first run; compare
         # only the files that actually build inputs and train the models.
         for name in CORE_FILES:
@@ -68,7 +70,7 @@ def aggregate(summaries):
             }
     differences = [s["models"]["finetune"]["validation"]["accuracy"] -
                    s["models"]["frozen"]["validation"]["accuracy"] for s in summaries]
-    return {"scope": "source validation only; three seeds on one fixed split",
+    return {"scope": "validation only; three seeds on one fixed split",
             "seeds": list(SEEDS), "statistics": statistics_by_mode,
             "paired_accuracy_difference": {"values": differences, "mean": statistics.mean(differences),
                                             "sample_standard_deviation": statistics.stdev(differences)},
@@ -105,6 +107,11 @@ def collect(runs_root):
                  "categories_sha256": reference["categories_sha256"],
                  "split_manifest_sha256": reference["split_summary"]["manifest_sha256"],
                  "checkpoints": checkpoints}
+    # Leave old selection files reproducible. New runs carry an explicit policy.
+    if reference.get("training_data") is not None:
+        selection["training_data"] = reference["training_data"]
+        selection["augmentation"] = reference["preprocessing"]["augmentation"]
+        selection["status"] = "selected using the recorded validation set before this evaluation"
     return combined, selection
 
 
@@ -140,10 +147,13 @@ def write_report(combined, selection, destination):
     classes = combined["runs"][0]["split_summary"]["classes"]
     text = f"""# Training repeated three times
 
-All three planned pairs are complete. These are **PlantVillage validation
-results**, not final test scores. Each pair used the same {counts['train']:,} training and
+All three planned pairs are complete. These are **validation results**, not final test scores. Each pair used the same {counts['train']:,} training and
 {counts['validation']:,} validation images across {classes} categories. Only the training seed changed.
-That changes the new classifier's initial weights and the training image order.
+That changes the new classifier's initial weights, training image order, and any random augmentation.
+
+{describe_training_data(combined['runs'][0].get('training_data'))}
+Training augmentation: `{combined['runs'][0]['settings'].get('augmentation', 'none')}`.
+Validation images are not randomly augmented.
 
 | Seed | Model | Epochs completed | Selected epoch | Validation accuracy | Macro-F1 | Loss | Loop minutes |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -151,7 +161,7 @@ That changes the new classifier's initial weights and the training image order.
 
 The selected epoch had the lowest validation loss after warmup. The table uses
 that epoch's accuracy and macro-F1, even if another epoch scored higher on those
-metrics. Early stopping and the ten-epoch limit are the same for all runs.
+metrics. Early stopping and the epoch budget are the same for all runs.
 Loop time excludes setup, saving checkpoints, and the later verification pass.
 
 | Model | Mean validation accuracy ± sample standard deviation | Mean macro-F1 ± sample standard deviation |
@@ -173,18 +183,20 @@ performance on PlantDoc, casual photographs, or new weather conditions.
 Every saved model was reloaded and reproduced its scores on all validation
 images. Frozen feature weights stayed fixed; fine-tuned feature weights changed;
 batch-normalization running statistics stayed fixed in both versions. Training
-settings, source image lists, preprocessing, and core training code match across
+settings, training and validation image lists, preprocessing, and core training code match across
 all three seeds. Both models had matching warmup results within each pair.
 
 The [selected-checkpoint record](selected-checkpoints.json) identifies all six
 models by their file fingerprints before final test evaluation. The next step
 is to evaluate **all six** on the same reserved PlantVillage and PlantDoc test
 lists, without changing settings or choosing seeds based on test results.
-Neither final test set was evaluated during these training repetitions.
+Neither final test set was evaluated during these training repetitions. If the
+original test results have already been viewed, this is exploratory follow-up
+work; those test images are not newly unseen evidence.
 
 See [all recorded measurements](repeated-training.json), the individual reports
 for [551](source-seed-551.md), [552](source-seed-552.md), and
-[553](source-seed-553.md), and [run instructions](../training.md).
+[553](source-seed-553.md). Run instructions are in `docs/training.md` in the repository.
 """
     (destination / "repeated-training.md").write_text(text, encoding="utf-8")
 

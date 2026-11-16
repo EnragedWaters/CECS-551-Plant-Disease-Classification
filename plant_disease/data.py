@@ -98,13 +98,15 @@ def prepare_image(image):
     return TF.normalize(TF.to_tensor(resize_with_padding(image)), MEAN, STD)
 
 
-def load_source_manifests(directory, categories_path):
-    """Validate file fingerprints and reject any target/test training input."""
+def load_source_manifests(directory, categories_path, include_plantdoc_train=False):
+    """Allow PlantDoc training only by explicit opt-in; always reject test input."""
     directory = Path(directory)
     categories = json.loads(Path(categories_path).read_text(encoding="utf-8"))
     summary = json.loads((directory / "summary.json").read_text(encoding="utf-8"))
     if sha256_file(categories_path) != summary["categories_sha256"]:
         raise ValueError("Category configuration changed; rebuild the split manifests")
+    if bool(summary.get("include_plantdoc_train", False)) != include_plantdoc_train:
+        raise ValueError("PlantDoc training policy differs from the split record; use matching explicit options")
     classes = categories["classes"]
     if [item["id"] for item in classes] != list(range(len(classes))) or not classes:
         raise ValueError("Category IDs must be consecutive from zero")
@@ -125,18 +127,11 @@ def load_source_manifests(directory, categories_path):
             class_id = int(row["class_id"])
             if not 0 <= class_id < len(classes):
                 raise ValueError("Unknown category ID")
-            '''
-            category = classes[class_id]["plantvillage"]
-            if (row["dataset"] != "plantvillage" or row["source_split"] != "train"
-                    or row["split"] != split or row["source_category"] != category
-                    or row["class_name"] != category
-                    or relative.parts[:3] != ("plantvillage", "raw", "color")):
-                raise ValueError("Training/validation must use the mapped PlantVillage training pool")
-            '''
-            # Validate the dataset before looking up its category mapping.
-            # Otherwise malformed input crashes with an unexplained KeyError.
+            # Check the dataset before looking up its category key. Malformed
+            # rows should produce a clear validation error, not a KeyError.
             dataset = row["dataset"]
-            if dataset not in ("plantvillage", "plantdoc") or dataset not in classes[class_id]:
+            allowed = {"plantvillage", "plantdoc"} if include_plantdoc_train else {"plantvillage"}
+            if dataset not in allowed or dataset not in classes[class_id]:
                 raise ValueError("Training dataset is not allowed or has no category mapping")
             category = classes[class_id][dataset]
             parent = (("plantvillage", "raw", "color", category) if dataset == "plantvillage"

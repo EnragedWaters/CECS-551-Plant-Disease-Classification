@@ -210,11 +210,11 @@ def build_manifests(rows, config, seed=551, validation_fraction=0.2,
     for records in manifests.values():
         records.sort(key=lambda r: (r["class_id"], r["relative_path"]))
     excluded.sort(key=lambda r: r["relative_path"])
-    verify_manifests(manifests, excluded, rows, len(config["classes"]))
+    verify_manifests(manifests, excluded, rows, len(config["classes"]), include_plantdoc_train)
     return manifests, excluded
 
 
-def verify_manifests(manifests, excluded, inventory, class_count):
+def verify_manifests(manifests, excluded, inventory, class_count, include_plantdoc_train=False):
     """Stop if any class lacks coverage or known related images cross splits."""
     all_paths = []
     owner = {}
@@ -223,7 +223,9 @@ def verify_manifests(manifests, excluded, inventory, class_count):
             raise ValueError(f"Not all selected classes have examples in {split}")
         for row in records:
             all_paths.append(row["relative_path"])
-            expected_datasets = {"plantdoc"} if split == "target_test" else {"plantvillage", "plantdoc"}
+            expected_datasets = {"plantdoc"} if split == "target_test" else {"plantvillage"}
+            if include_plantdoc_train and split in ("train", "validation"):
+                expected_datasets.add("plantdoc")
             expected_source = "train" if split in ("train", "validation") else "test"
             if row["dataset"] not in expected_datasets or row["source_split"] != expected_source:
                 raise ValueError(f"Wrong data source for {split}")
@@ -245,7 +247,6 @@ def main():
     parser.add_argument("--output-dir", type=Path, default=Path("outputs/splits"))
     parser.add_argument("--seed", type=int, default=551)
     parser.add_argument("--validation-fraction", type=float, default=0.2)
-    # Trying improvement 1: Adding PlantDoc images to training 
     parser.add_argument("--include-plantdoc-train", action="store_true")
     args = parser.parse_args()
     if args.include_plantdoc_train and args.output_dir.resolve() == Path("outputs/splits").resolve():
@@ -276,7 +277,10 @@ def main():
     per_class = [{"class_id": item["id"], "class_name": item["plantvillage"],
                   **{split: sum(r["class_id"] == item["id"] for r in records)
                      for split, records in manifests.items()}} for item in config["classes"]]
-    summary = {"schema_version": 1, "seed": args.seed,
+    summary = {"schema_version": 2, "seed": args.seed,
+               "include_plantdoc_train": args.include_plantdoc_train,
+               "images_by_dataset": {k: dict(sorted(Counter(r["dataset"] for r in v).items()))
+                                     for k, v in manifests.items()},
                "validation_fraction_target": args.validation_fraction,
                "inventory_sha256": fingerprint(inventory_path),
                "categories_sha256": fingerprint(args.categories),

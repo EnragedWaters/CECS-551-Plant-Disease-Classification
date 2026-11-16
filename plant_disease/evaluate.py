@@ -33,7 +33,8 @@ TESTS = {"source_test": "plantvillage", "target_test": "plantdoc"}
 
 def load_test_manifests(directory, categories_path, selection):
     """Check the reserved lists and known overlaps before reading test pixels."""
-    source, categories, summary = load_source_manifests(directory, categories_path)
+    source, categories, summary = load_source_manifests(
+        directory, categories_path, (selection.get("training_data") or {}).get("include_plantdoc_train", False))
     if (summary["categories_sha256"] != selection["categories_sha256"]
             or summary["manifest_sha256"] != selection["split_manifest_sha256"]):
         raise ValueError("Category or split fingerprints changed after model selection")

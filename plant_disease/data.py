@@ -1,4 +1,4 @@
-"""Load verified source-only manifests and prepare images without cropping.
+"""Load verified training manifests and prepare images with optional augmentation.
 
 Training reads only train.csv and validation.csv. Raw images stay unchanged;
 each image's bytes are checked against its manifest before preprocessing.
@@ -22,26 +22,50 @@ IMAGE_SIZE = 224
 MEAN = (0.485, 0.456, 0.406)
 STD = (0.229, 0.224, 0.225)
 BACKGROUND = tuple(round(x * 255) for x in MEAN)
-# Improvement 1: Add data augmentation for training images
-TRAIN_AUGMENTATION = transforms.Compose([
-    transforms.RandomResizedCrop(224, scale=(0.7, 1.0)),
-    transforms.RandomHorizontalFlip(),
-    transforms.RandomRotation(20),
-    transforms.ColorJitter(
-        brightness=0.25,
-        contrast=0.25,
-        saturation=0.25,
-        hue=0.05,
-    ),
-])
+def augmentation_recipe(name):
+    """Describe exactly the random changes applied to TRAINING images only."""
+    if name == "none":
+        return "none"
+    if name != "basic-v1":
+        raise ValueError(f"Unknown augmentation: {name}")
+    return {
+        "name": name, "applies_to": "training only",
+        "order": ["random_resized_crop", "horizontal_flip", "rotation", "color_jitter"],
+        "random_resized_crop": {"size": IMAGE_SIZE, "scale": [0.7, 1.0],
+                                "ratio": [0.75, 4 / 3], "interpolation": "bilinear", "antialias": True},
+        "horizontal_flip": {"p": 0.5},
+        "rotation": {"degrees": [-20, 20], "interpolation": "nearest",
+                     "expand": False, "fill": list(BACKGROUND)},
+        "color_jitter": {"brightness": 0.25, "contrast": 0.25, "saturation": 0.25, "hue": 0.05},
+    }
+
+
+def make_augmentation(name="none"):
+    """Build the transform from the same recipe that is saved in run.json."""
+    recipe = augmentation_recipe(name)
+    if recipe == "none":
+        return None
+    crop = recipe["random_resized_crop"]
+    rotation = recipe["rotation"]
+    return transforms.Compose([
+        transforms.RandomResizedCrop(crop["size"], scale=tuple(crop["scale"]),
+            ratio=tuple(crop["ratio"]), interpolation=transforms.InterpolationMode.BILINEAR,
+            antialias=crop["antialias"]),
+        transforms.RandomHorizontalFlip(**recipe["horizontal_flip"]),
+        transforms.RandomRotation(rotation["degrees"],
+            interpolation=transforms.InterpolationMode.NEAREST,
+            expand=rotation["expand"], fill=tuple(rotation["fill"])),
+        transforms.ColorJitter(**recipe["color_jitter"]),
+    ])
+
 
 def sha256_file(path):
     with Path(path).open("rb") as stream:
         return hashlib.file_digest(stream, "sha256").hexdigest()
 
 
-def resize_with_padding(image):
-    """Honor orientation, flatten transparency, and keep the entire image."""
+def oriented_rgb(image):
+    """Honor orientation and flatten transparency before any color changes."""
     image = ImageOps.exif_transpose(image)
     if "A" in image.getbands() or "transparency" in image.info:
         rgba = image.convert("RGBA")
@@ -49,6 +73,12 @@ def resize_with_padding(image):
         rgb.paste(rgba, mask=rgba.getchannel("A"))
     else:
         rgb = image.convert("RGB")
+    return rgb
+
+
+def resize_with_padding(image):
+    """Keep the entire image and pad to the model input size."""
+    rgb = oriented_rgb(image)
     resized = ImageOps.contain(rgb, (IMAGE_SIZE, IMAGE_SIZE), Image.Resampling.BILINEAR)
     canvas = Image.new("RGB", (IMAGE_SIZE, IMAGE_SIZE), BACKGROUND)
     canvas.paste(resized, ((IMAGE_SIZE - resized.width) // 2,
@@ -158,9 +188,9 @@ class PlantImages(Dataset):
         if hashlib.sha256(content).hexdigest() != row["sha256"]:
             raise ValueError(f"Image changed since the audit: {row['relative_path']}")
         with Image.open(io.BytesIO(content)) as image:
-            image = ImageOps.exif_transpose(image)
+            image = oriented_rgb(image)
             if self.transform is not None:
                 image = self.transform(image)
             tensor = prepare_image(image)
-            
+
         return tensor, int(row["class_id"])

@@ -30,18 +30,24 @@ and either test set are different image lists.
 
 ## Run the evaluation
 
+Existing checkpoints must be evaluated with their original code at `9619975`;
+the code-fingerprint checks deliberately reject changed training code. For new
+experiments, use their own runs, selection, splits, and output folders as described
+in [optional experiments](optional-experiments.md).
+
 Follow [setup](setup.md), [data preparation](experiment-data.md), and
 [training](training.md) first. The selected model files must exist locally.
 From the repository root with the project environment active:
 
 ```bash
 python -m plant_disease.evaluate --output-dir outputs/evaluation/final-01
-python -m plant_disease.summarize_evaluation --evaluation-dir outputs/evaluation/final-01
+python -m plant_disease.summarize_evaluation --evaluation-dir outputs/evaluation/final-01 --output-dir outputs/reports/evaluation-reproduction-01
 ```
 
 The first command was run once for this experiment. It refuses to overwrite an
 existing folder. The second command can regenerate reports from saved
-predictions without opening test images or running the models again.
+predictions without opening test images or running the models again. Choose a
+fresh report directory; existing report files are not overwritten.
 
 Use `--data-root` if the datasets and pinned weights are stored elsewhere.
 `--runs-root`, `--splits-dir`, `--categories`, and `--selection` can point to

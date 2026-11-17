@@ -19,6 +19,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from .data import sha256_file
+from .summarize_training import describe_training_data, is_followup, protect_report_destination
 
 
 MODES = ("frozen", "finetune")
@@ -112,6 +113,9 @@ def collect_evaluation(directory):
 
 
 def write_report(summary, destination):
+    protect_report_destination(destination,
+        ["final-results.json", "final-results.md", "per-class-results.csv", "test-comparison.png", "confusion-matrices.png"],
+        is_followup(summary["metadata"].get("training_settings", {})))
     destination.mkdir(parents=True, exist_ok=True)
     (destination / "final-results.json").write_text(json.dumps(summary, indent=2, allow_nan=False) + "\n")
     records, classes = summary["results"], summary["metadata"]["categories"]
@@ -190,15 +194,19 @@ def write_report(summary, destination):
     fine = summary["groups"]["finetune"]
     main_finding = (f"The fine-tuned models averaged {fine['source_test']['accuracy']['mean']:.2%} on "
                     f"PlantVillage and {fine['target_test']['accuracy']['mean']:.2%} on PlantDoc. "
-                    "The large gap shows that strong same-dataset performance did not carry over "
-                    "to this external subset. These models have not demonstrated reliable "
-                    "classification across the two datasets.")
-    text = """# Final test results: PlantVillage and PlantDoc
+                    "These scores describe the recorded models on these selected test images; "
+                    "they do not establish general robustness.")
+    population = describe_training_data(summary["metadata"].get("training_data"))
+    augmentation = summary["metadata"].get("training_settings", {}).get("augmentation", "none")
+    text = f"""# Test results: PlantVillage and PlantDoc
 
-All six models selected using source validation have now been evaluated on the
-reserved test images. The model files, image preparation, category mapping,
-and test lists were fixed before these predictions. No model was retrained,
-adapted to PlantDoc, or chosen because of a test score.
+All six models selected using their recorded validation set were evaluated on
+the reserved test images. Evaluation did not update model weights.
+
+{population}
+Training augmentation: `{augmentation}`. Test images receive no random augmentation.
+Follow-up experiments after viewing the original test scores are exploratory;
+reusing those images does not provide a fresh unseen test set.
 
 ## Overall results
 
@@ -207,7 +215,7 @@ adapted to PlantDoc, or chosen because of a test score.
 """ + "\n".join(rows) + "\n\n" + main_finding + """
 
 Accuracy is the fraction classified correctly. Macro-F1 combines precision and
-recall while giving each of the 22 categories equal weight. The ± values are
+recall while giving each selected category equal weight. The ± values are
 the sample standard deviation across the three training seeds. They are not
 confidence intervals or uncertainty from drawing different test photographs.
 “pp” means percentage points. All three runs reuse the same test images.
@@ -215,7 +223,7 @@ confidence intervals or uncertainty from drawing different test photographs.
 ![Test comparison](test-comparison.png)
 
 The error bars show variation across seeds. These results describe the selected
-22-category subsets, not the entire original datasets or all casual-user photos.
+category subsets, not the entire original datasets or all casual-user photos.
 
 ## Difference between datasets
 
@@ -232,12 +240,13 @@ photography skill, weather, background, disease severity, label quality, or
 class proportions as causes. Those factors may differ together. No causal
 claim about weather or photographer ability follows from these scores.
 
-PlantDoc has only 183 eligible test images, with 3–12 per category. A few errors
+PlantDoc contains a limited number of eligible test images; the category counts
+below show the support for this particular experiment. A few errors
 can strongly affect category scores. The three runs do not provide three
 independent test sets. Known duplicates and resolved leaf groups were separated,
 but missing leaf metadata and re-encoded/cropped copies remain limitations.
-Folder annotations have not been independently diagnosed, and five uncertain
-category pairs were excluded before training.
+Folder annotations have not been independently diagnosed. The recorded category
+mapping identifies which pairs were selected before training.
 
 ## Every model and seed
 
@@ -278,10 +287,9 @@ recomputes accuracy, macro-F1, class metrics, and confusion counts from them.
 It also verifies that all models saw identical ordered test images and labels.
 Evaluation confirmed that no model weights or buffers changed.
 
-See [the evaluation guide](../evaluation.md) for commands. Training settings and
-checkpoint selection are documented in [the training guide](../training.md).
-The remaining deliverable is the IEEE-style Phase 4 report, using these results
-with the stated limits rather than claiming general robustness.
+See `docs/evaluation.md` in the repository for commands and `docs/training.md`
+for training and checkpoint selection. Use the measured results and stated
+limits when writing up this experiment.
 """
     (destination / "final-results.md").write_text(text, encoding="utf-8")
 

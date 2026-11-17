@@ -1,7 +1,7 @@
-"""Reload saved models and reproduce their full source-validation scores.
+"""Reload saved models and reproduce their recorded validation scores.
 
 Run: python -m plant_disease.verify_training --run-dir outputs/runs/source-seed-552
-Reads only source train/validation manifests and validation images. Does not
+Reads only the recorded train/validation manifests and validation images. Does not
 train, change checkpoints, or open final test lists. Writes a small verification
 record inside the ignored run folder. Uses the recorded device and batch size.
 """
@@ -27,14 +27,15 @@ def verify(run_dir, data_root, splits_dir, categories_path):
     for name in ("__init__.py", "data.py", "model.py", "train.py"):
         if sha256_file(Path(__file__).parent / name) != metadata["code_sha256"][name]:
             raise ValueError(f"Training implementation changed: {name}")
-    rows, categories, split_summary = load_source_manifests(splits_dir, categories_path)
+    rows, categories, split_summary = load_source_manifests(
+        splits_dir, categories_path, args.get("include_plantdoc_train", False))
     if split_summary != metadata["split_summary"]:
         raise ValueError("Split configuration changed after training")
     if {key: len(value) for key, value in rows.items()} != metadata["counts"]:
-        raise ValueError("This is not the recorded full-source validation pool")
+        raise ValueError("This is not the recorded full validation pool")
     for split in rows:
         if sha256_file(splits_dir / f"{split}.csv") != sha256_file(run_dir / f"selected_{split}.csv"):
-            raise ValueError("Selected images do not match the current full-source lists")
+            raise ValueError("Selected images do not match the current full training/validation lists")
     torch.set_num_threads(4)
     torch.use_deterministic_algorithms(True)
     torch.backends.cudnn.benchmark = False

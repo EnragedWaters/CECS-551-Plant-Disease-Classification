@@ -28,3 +28,7 @@ saved outputs, and trial findings. The comparison is described in
 [the model plan](docs/model-plan.md).
 The [setup guide](docs/setup.md) covers the Python environment, GPU check, and
 when dataset downloads are needed.
+
+Optional augmentation and PlantDoc-training experiments are described in the
+[follow-up guide](docs/optional-experiments.md). They use separate records and
+do not replace the original results.

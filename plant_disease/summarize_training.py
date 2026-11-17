@@ -1,4 +1,4 @@
-"""Turn a completed source-training run into a shareable table and learning curves.
+"""Turn a completed training run into a shareable table and learning curves.
 
 Run from the repository root:
     python -m plant_disease.summarize_training --run-dir outputs/runs/source-seed-551
@@ -9,6 +9,7 @@ Personal absolute paths and optimizer/model weights are not exported.
 """
 
 import argparse
+import csv
 import json
 from pathlib import Path
 
@@ -17,20 +18,70 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-from .data import sha256_file
+from .data import augmentation_recipe, sha256_file, training_data_record
+
+
+def describe_training_data(record):
+    """Explain the recorded population rather than assuming source-only input."""
+    if record is None:
+        return "The recorded training and validation images are PlantVillage only; no PlantDoc training images were used."
+    names = {"plantvillage": "PlantVillage", "plantdoc": "PlantDoc"}
+    descriptions = []
+    for split in ("train", "validation"):
+        counts = record["images_by_dataset"][split]
+        images = ", ".join(f"{count:,} {names[dataset]}"
+                           for dataset, count in sorted(counts.items()))
+        descriptions.append(f"{split.capitalize()}: {images} images.")
+    if record["include_plantdoc_train"]:
+        descriptions.append("This experiment allows PlantDoc training data and splits the combined training pool. "
+                            "It is not a source-only transfer experiment; its validation scores are not directly "
+                            "comparable to the original PlantVillage-only validation scores.")
+    else:
+        descriptions.append("No PlantDoc training images were used.")
+    return " ".join(descriptions)
+
+
+def is_followup(settings):
+    return settings.get("augmentation", "none") != "none" or settings.get("include_plantdoc_train", False)
+
+
+def protect_report_destination(destination, filenames, followup=False):
+    """Keep new experiments separate and never replace an existing report."""
+    root = Path(__file__).resolve().parents[1]
+    if followup and any(destination.resolve().is_relative_to(root / folder)
+                       for folder in ("docs/training-runs", "docs/evaluation")):
+        raise ValueError("Use a separate --output-dir for follow-up experiment reports")
+    if any((destination / name).exists() for name in filenames):
+        raise ValueError("Report files already exist; choose a new output directory")
 
 
 def collect_summary(run_dir):
     """Use the chosen checkpoint's metrics, rather than the last epoch's scores."""
     metadata = json.loads((run_dir / "run.json").read_text())
     results = json.loads((run_dir / "comparison.json").read_text())
-    if metadata["scope"] != "source_training_and_validation":
-        raise ValueError("Use a full-source run, not a feasibility trial")
+    if metadata["scope"] not in ("source_training_and_validation", "mixed_training_and_validation"):
+        raise ValueError("Use a completed full run, not a feasibility trial")
     if set(results) != {"frozen", "finetune"}:
         raise ValueError("Both model versions must finish before comparison")
     for split, digest in metadata["selected_manifest_sha256"].items():
         if sha256_file(run_dir / f"selected_{split}.csv") != digest:
             raise ValueError("Selected image list changed after training")
+    if "training_data" in metadata:
+        # New records must agree with their actual CSVs and transform recipe.
+        rows = {}
+        for split in ("train", "validation"):
+            with (run_dir / f"selected_{split}.csv").open(newline="") as stream:
+                rows[split] = list(csv.DictReader(stream))
+        include = metadata["arguments"].get("include_plantdoc_train", False)
+        if (training_data_record(rows, include) != metadata["training_data"]
+                or {key: len(value) for key, value in rows.items()} != metadata["counts"]):
+            raise ValueError("Recorded training population differs from the selected images")
+        if metadata["preprocessing"]["augmentation"] != augmentation_recipe(metadata["arguments"].get("augmentation", "none")):
+            raise ValueError("Recorded augmentation differs from the selected option")
+        if (include != (metadata["scope"] == "mixed_training_and_validation")
+                or include != bool(metadata["split_summary"].get("include_plantdoc_train", False))
+                or (not include and any(r["dataset"] != "plantvillage" for records in rows.values() for r in records))):
+            raise ValueError("Recorded training policy is inconsistent")
     for key in ("initial_feature_sha256", "initial_classifier_sha256"):
         if results["frozen"][key] != results["finetune"][key]:
             raise ValueError("The two starting models did not match")
@@ -58,7 +109,11 @@ def collect_summary(run_dir):
     settings = {key: metadata["arguments"][key] for key in (
         "epochs", "warmup_epochs", "batch_size", "workers", "seed", "head_lr",
         "backbone_lr", "weight_decay", "patience", "device")}
-    return {"scope": "source validation only; not final test results",
+    for key in ("augmentation", "include_plantdoc_train"):
+        if key in metadata["arguments"]:
+            settings[key] = metadata["arguments"][key]
+    return {"scope": "validation only; not final test results",
+            "training_data": metadata.get("training_data"),
             "settings": settings, "counts": metadata["counts"],
             "software": metadata["software"], "device": metadata["device"],
             "preprocessing": metadata["preprocessing"],
@@ -71,6 +126,8 @@ def collect_summary(run_dir):
 
 def write_report(summary, destination, name):
     """Export the same measured values as a table and a two-panel plot."""
+    protect_report_destination(destination, [f"{name}.{ext}" for ext in ("json", "md", "png")],
+                               is_followup(summary["settings"]))
     destination.mkdir(parents=True, exist_ok=True)
     (destination / f"{name}.json").write_text(json.dumps(summary, indent=2, allow_nan=False) + "\n")
     fig, axes = plt.subplots(1, 2, figsize=(10, 4), constrained_layout=True)
@@ -86,7 +143,7 @@ def write_report(summary, destination, name):
         rows.append(f"| {label} | {result['epochs_completed']} | {result['best_epoch']} | "
                     f"{metrics['accuracy']:.2%} | {metrics['macro_f1']:.4f} | {metrics['loss']:.4f} | "
                     f"{result['loop_seconds'] / 60:.1f} | {memory} |")
-    for ax, title, ylabel in zip(axes, ("Source validation error", "Source validation macro-F1"),
+    for ax, title, ylabel in zip(axes, ("Validation error", "Validation macro-F1"),
                                  ("Cross-entropy loss (lower is better)", "Macro-F1 (higher is better)")):
         ax.set(title=title, xlabel="Epoch (one pass through training images)", ylabel=ylabel)
         ax.grid(alpha=.25)
@@ -95,12 +152,13 @@ def write_report(summary, destination, name):
     fig.savefig(destination / f"{name}.png", dpi=160)
     plt.close(fig)
     counts, settings = summary["counts"], summary["settings"]
-    text = f"""# Full-source training comparison: seed {settings['seed']}
+    text = f"""# Training comparison: seed {settings['seed']}
 
-These are **validation results**, not final test results. Both models trained on
-{counts['train']:,} PlantVillage images and were checked against the same
-{counts['validation']:,} separate PlantVillage validation images. No PlantDoc
-images were used in this training comparison.
+These are **validation results**, not final test results.
+{describe_training_data(summary.get('training_data'))}
+Both models used {counts['train']:,} training and {counts['validation']:,} validation images.
+Training augmentation: `{settings.get('augmentation', 'none')}`. The complete
+recipe is in the JSON record; validation images receive no random augmentation.
 
 | Model | Epochs completed | Selected epoch | Validation accuracy | Macro-F1 | Validation loss | Loop minutes | Peak allocated GPU MiB |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -125,12 +183,13 @@ and reporting. GPU memory is PyTorch's allocated memory, excluding CUDA context
 and other applications. Different stopping points mean different total work.
 
 This is one pair of runs. It does not measure variation across random seeds,
-prove robustness, or establish performance on PlantDoc. Validation influenced
+prove robustness, or establish performance on held-out PlantDoc images. Validation influenced
 checkpoint selection, so these scores cannot substitute for held-out test scores.
-Keep test sets reserved until the experiment settings are fixed.
+Fix experiment settings before evaluation. Follow-up experiments after viewing
+the original test results are exploratory; they do not create a fresh unseen test set.
 
 See [the machine-readable record]({name}.json) for all epoch metrics, settings,
-software versions, and fingerprints. See [the training guide](../training.md)
+software versions, and fingerprints. See `docs/training.md` in the repository
 for reproduction instructions. Model weights remain in ignored local outputs.
 """
     (destination / f"{name}.md").write_text(text, encoding="utf-8")

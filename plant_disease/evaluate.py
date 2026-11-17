@@ -33,7 +33,8 @@ TESTS = {"source_test": "plantvillage", "target_test": "plantdoc"}
 
 def load_test_manifests(directory, categories_path, selection):
     """Check the reserved lists and known overlaps before reading test pixels."""
-    source, categories, summary = load_source_manifests(directory, categories_path)
+    source, categories, summary = load_source_manifests(
+        directory, categories_path, (selection.get("training_data") or {}).get("include_plantdoc_train", False))
     if (summary["categories_sha256"] != selection["categories_sha256"]
             or summary["manifest_sha256"] != selection["split_manifest_sha256"]):
         raise ValueError("Category or split fingerprints changed after model selection")
@@ -173,11 +174,12 @@ def main():
                for split, records in rows.items()}
     args.output_dir.mkdir(parents=True)
     save_json(args.output_dir / "selection.json", selection)
-    metadata = {"scope": "final held-out source and target evaluation; no tuning",
+    metadata = {"scope": "evaluation on reserved source and target lists; no fitting during evaluation",
+                "training_data": reference.get("training_data"),
                 "started_utc": datetime.now(timezone.utc).isoformat(),
                 "selection_sha256": sha256_file(args.selection), "selection": selection,
                 "categories": categories["classes"], "split_summary": split_summary,
-                "preprocessing": reference["preprocessing"],
+                "preprocessing": reference["preprocessing"], "test_augmentation": "none",
                 "training_settings": {k: v for k, v in reference["settings"].items() if k != "seed"},
                 "training_seeds": selection["seeds"],
                 "evaluation": {"batch_size": batch_size, "workers": args.workers, "precision": "float32",

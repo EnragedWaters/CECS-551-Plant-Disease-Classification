@@ -7,6 +7,11 @@ reload verification. Final testing is also complete: see the
 [held-out test results](evaluation/final-results.md) and [evaluation guide](evaluation.md).
 The validation scores below are separate from those final measurements.
 
+The commands below describe the original source-only method. Augmentation and
+PlantDoc training are off by default. See [optional experiments](optional-experiments.md)
+for explicit options and separate output folders. Existing checkpoints must be
+verified with their original code (`9619975`); new code fingerprints will differ.
+
 ## Run a small trial
 
 Activate the environment from [setup.md](setup.md), and run from the repository
@@ -24,6 +29,8 @@ second epoch, the fine-tuned version also updates the earlier image-processing
 weights. The frozen version continues learning only its category layer.
 
 Choose a new output folder for each run; existing runs cannot be overwritten.
+Report exporters also refuse to replace existing files; choose a fresh report
+folder when regenerating them. The examples keep regenerated reports in ignored outputs.
 The default dataset location is `~/datasets/cecs551-plant-disease`. Use
 `--data-root /path/to/datasets` if yours differs, or `--weights /path/to/file.pth`
 to specify the previously downloaded weights separately. Nothing is downloaded.
@@ -143,11 +150,11 @@ report remains.
 After both versions finish, export a table and learning curves with:
 
 ```bash
-python -m plant_disease.summarize_training --run-dir outputs/runs/source-seed-551
+python -m plant_disease.summarize_training --run-dir outputs/runs/source-seed-551 --output-dir outputs/reports/reproduction-01
 ```
 
-This creates Markdown, JSON, and a PNG under `docs/training-runs/`. Those small
-results files can be committed. The exporter reads saved measurements and
+This example creates Markdown, JSON, and a PNG under ignored
+`outputs/reports/reproduction-01/`. Review new evidence before publishing it. The exporter reads saved measurements and
 fingerprints the checkpoints; it does not open images or test lists. It rejects
 an incomplete comparison, a trial run, or a changed selected-image list.
 
@@ -194,7 +201,7 @@ individual report. For example:
 
 ```bash
 python -m plant_disease.verify_training --run-dir outputs/runs/source-seed-552
-python -m plant_disease.summarize_training --run-dir outputs/runs/source-seed-552
+python -m plant_disease.summarize_training --run-dir outputs/runs/source-seed-552 --output-dir outputs/reports/reproduction-01
 ```
 
 The verifier reopens both saved models and checks all source validation images
@@ -207,10 +214,11 @@ software/device settings as training; it is not a cross-hardware equivalence tes
 After all three pairs pass verification:
 
 ```bash
-python -m plant_disease.summarize_repetitions
+python -m plant_disease.summarize_repetitions --output-dir outputs/reports/reproduction-01
 ```
 
-The combined Markdown/JSON/PNG report is written under `docs/training-runs/`.
+This example writes the combined Markdown/JSON/PNG report under
+`outputs/reports/reproduction-01/`.
 It compares all three seeds, reports their mean and sample standard deviation,
 and rejects changed training settings or image lists. It also writes
 `selected-checkpoints.json`, recording all six selected models and their file

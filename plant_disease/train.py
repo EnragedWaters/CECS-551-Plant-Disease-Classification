@@ -1,10 +1,11 @@
-"""Train on PlantVillage and select checkpoints using source validation only.
+"""Train on the selected training pool and select checkpoints using validation.
 
 Short GPU feasibility check from the repository root:
     python -m plant_disease.train --trial --output-dir outputs/trials/first
 
-Without --trial, the same implementation uses all source train/validation
-images (ten epochs by default). Test manifests are never opened by this runner.
+By default, use PlantVillage only with no random augmentation. Optional
+experiments require explicit flags. Without --trial, use the full selected pool
+(ten epochs by default). This runner never opens test manifests.
 Outputs include run settings, selected filenames, epoch metrics and checkpoints.
 """
 
@@ -27,8 +28,9 @@ from sklearn.metrics import accuracy_score, f1_score
 from torch import nn
 from torch.utils.data import DataLoader
 
-from .data import (BACKGROUND, MEAN, STD, PlantImages, load_source_manifests,
-                   sha256_file, trial_subset)
+from .data import (BACKGROUND, MEAN, STD, PlantImages, augmentation_recipe,
+                   load_source_manifests, make_augmentation, sha256_file,
+                   training_data_record, trial_subset)
 from .model import (WEIGHTS_SHA256, batch_norm_state, build_model,
                     set_training_mode, state_fingerprint)
 
@@ -94,11 +96,22 @@ def train_mode(mode, args, rows, class_count, device, run_metadata):
     run_dir = args.output_dir / mode
     run_dir.mkdir()
     train_generator = torch.Generator()
-    train_loader = DataLoader(PlantImages(rows["train"], args.data_root), batch_size=args.batch_size,
-                              shuffle=True, generator=train_generator, num_workers=args.workers,
-                              pin_memory=device.type == "cuda")
-    val_loader = DataLoader(PlantImages(rows["validation"], args.data_root), batch_size=args.batch_size,
-                            shuffle=False, num_workers=args.workers, pin_memory=device.type == "cuda")
+    # Validation remains deterministic; only training receives random changes.
+    train_loader = DataLoader(
+        PlantImages(rows["train"], args.data_root, transform=make_augmentation(args.augmentation)),
+        batch_size=args.batch_size,
+        shuffle=True,
+        generator=train_generator,
+        num_workers=args.workers,
+        pin_memory=device.type == "cuda")
+
+    val_loader = DataLoader(
+        PlantImages(rows["validation"], args.data_root),
+        batch_size=args.batch_size,
+        shuffle=False,
+        num_workers=args.workers,
+        pin_memory=device.type == "cuda")
+
     best_loss, best_epoch, bad_epochs = float("inf"), None, 0
     history = []
     optimizer = None
@@ -110,6 +123,10 @@ def train_mode(mode, args, rows, class_count, device, run_metadata):
             optimizer = make_optimizer(model, args.head_lr, args.backbone_lr,
                                        args.weight_decay, fine_tune)
         train_generator.manual_seed(args.seed + epoch)
+        if args.augmentation != "none":
+            # Worker processes use the loader's seed. With workers=0, random
+            # transforms use this process; keep paired runs matched per epoch.
+            torch.manual_seed(args.seed + epoch)
         if device.type == "cuda":
             torch.cuda.reset_peak_memory_stats(device)
         train_metrics = run_epoch(model, train_loader, device, class_count, optimizer)
@@ -171,6 +188,10 @@ def main():
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--mode", choices=("both", "frozen", "finetune"), default="both")
     parser.add_argument("--trial", action="store_true")
+    parser.add_argument("--augmentation", choices=("none", "basic-v1"), default="none",
+                        help="Random training-image changes; validation/test images are never augmented")
+    parser.add_argument("--include-plantdoc-train", action="store_true",
+                        help="Explicitly allow a separate split built with PlantDoc training images")
     parser.add_argument("--epochs", type=int)
     parser.add_argument("--warmup-epochs", type=int, default=1)
     parser.add_argument("--batch-size", type=int, default=32)
@@ -201,7 +222,8 @@ def main():
     torch.use_deterministic_algorithms(True)
     torch.backends.cudnn.benchmark = False
     device = torch.device(args.device)
-    rows, categories, split_summary = load_source_manifests(args.splits_dir, args.categories)
+    rows, categories, split_summary = load_source_manifests(
+        args.splits_dir, args.categories, args.include_plantdoc_train)
     if args.trial:
         rows = {split: trial_subset(records, 32 if split == "train" else 8, args.seed)
                 for split, records in rows.items()}
@@ -211,7 +233,9 @@ def main():
             writer = csv.DictWriter(stream, fieldnames=list(records[0]))
             writer.writeheader()
             writer.writerows(records)
-    metadata = {"scope": "feasibility_trial_not_final_results" if args.trial else "source_training_and_validation",
+    scope = "mixed_training_and_validation" if args.include_plantdoc_train else "source_training_and_validation"
+    metadata = {"scope": "feasibility_trial_not_final_results" if args.trial else scope,
+                "training_data": training_data_record(rows, args.include_plantdoc_train),
                 "arguments": {k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items()},
                 "counts": {k: len(v) for k, v in rows.items()}, "categories": categories["classes"],
                 "software": {"python": platform.python_version(), "torch": str(torch.__version__),
@@ -222,9 +246,9 @@ def main():
                 "selected_manifest_sha256": {split: sha256_file(args.output_dir / f"selected_{split}.csv") for split in rows},
                 "preprocessing": {"size": 224, "resize": "bilinear, preserve aspect ratio, pad",
                                   "background_rgb": BACKGROUND, "mean": MEAN, "std": STD,
-                                  "exif_orientation": True, "augmentation": "none"},
+                                  "exif_orientation": True, "augmentation": augmentation_recipe(args.augmentation)},
                 "precision": "float32", "deterministic_algorithms": True,
-                "checkpoint_rule": "minimum source validation cross-entropy after warmup",
+                "checkpoint_rule": "minimum validation cross-entropy after warmup",
                 "test_manifests_opened": False}
     save_json(args.output_dir / "run.json", metadata)
     modes = ("frozen", "finetune") if args.mode == "both" else (args.mode,)
@@ -235,7 +259,7 @@ def main():
             if results["frozen"][key] != results["finetune"][key]:
                 raise RuntimeError("Model initializations did not match")
     save_json(args.output_dir / "comparison.json", results)
-    print(f"Completed {'feasibility trial' if args.trial else 'source training'}: {args.output_dir}", flush=True)
+    print(f"Completed {'feasibility trial' if args.trial else 'training'}: {args.output_dir}", flush=True)
 
 
 if __name__ == "__main__":

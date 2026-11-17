@@ -68,6 +68,11 @@ python scripts/build_splits.py
 python -m unittest discover -s tests -v
 ```
 
+If the output folder already contains files, choose a fresh `--output-dir`;
+existing split files are not overwritten. Optional PlantDoc training requires
+its own folder and explicit flags; see [optional experiments](optional-experiments.md).
+The counts above remain the original submitted experiment's counts.
+
 For a different data location, pass `--data-root` to the audit script. Manifest
 paths remain relative to that root, so personal home-directory paths are not
 embedded in them. `build_splits.py` accepts `--audit-dir`, `--categories`,

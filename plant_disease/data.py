@@ -1,4 +1,4 @@
-"""Load verified source-only manifests and prepare images without cropping.
+"""Load verified training manifests and prepare images with optional augmentation.
 
 Training reads only train.csv and validation.csv. Raw images stay unchanged;
 each image's bytes are checked against its manifest before preprocessing.
@@ -14,6 +14,7 @@ from pathlib import Path, PurePosixPath
 import torch
 from PIL import Image, ImageOps
 from torch.utils.data import Dataset
+from torchvision import transforms
 from torchvision.transforms import functional as TF
 
 
@@ -21,6 +22,48 @@ IMAGE_SIZE = 224
 MEAN = (0.485, 0.456, 0.406)
 STD = (0.229, 0.224, 0.225)
 BACKGROUND = tuple(round(x * 255) for x in MEAN)
+def augmentation_recipe(name):
+    """Describe exactly the random changes applied to TRAINING images only."""
+    if name == "none":
+        return "none"
+    if name != "basic-v1":
+        raise ValueError(f"Unknown augmentation: {name}")
+    return {
+        "name": name, "applies_to": "training only",
+        "order": ["random_resized_crop", "horizontal_flip", "rotation", "color_jitter"],
+        "random_resized_crop": {"size": IMAGE_SIZE, "scale": [0.7, 1.0],
+                                "ratio": [0.75, 4 / 3], "interpolation": "bilinear", "antialias": True},
+        "horizontal_flip": {"p": 0.5},
+        "rotation": {"degrees": [-20, 20], "interpolation": "nearest",
+                     "expand": False, "fill": list(BACKGROUND)},
+        "color_jitter": {"brightness": 0.25, "contrast": 0.25, "saturation": 0.25, "hue": 0.05},
+    }
+
+
+def make_augmentation(name="none"):
+    """Build the transform from the same recipe that is saved in run.json."""
+    recipe = augmentation_recipe(name)
+    if recipe == "none":
+        return None
+    crop = recipe["random_resized_crop"]
+    rotation = recipe["rotation"]
+    return transforms.Compose([
+        transforms.RandomResizedCrop(crop["size"], scale=tuple(crop["scale"]),
+            ratio=tuple(crop["ratio"]), interpolation=transforms.InterpolationMode.BILINEAR,
+            antialias=crop["antialias"]),
+        transforms.RandomHorizontalFlip(**recipe["horizontal_flip"]),
+        transforms.RandomRotation(rotation["degrees"],
+            interpolation=transforms.InterpolationMode.NEAREST,
+            expand=rotation["expand"], fill=tuple(rotation["fill"])),
+        transforms.ColorJitter(**recipe["color_jitter"]),
+    ])
+
+
+def training_data_record(rows, include_plantdoc_train=False):
+    """Record actual image counts, including any PlantDoc training examples."""
+    return {"include_plantdoc_train": include_plantdoc_train,
+            "images_by_dataset": {split: dict(sorted(Counter(r["dataset"] for r in records).items()))
+                                  for split, records in rows.items()}}
 
 
 def sha256_file(path):
@@ -28,8 +71,8 @@ def sha256_file(path):
         return hashlib.file_digest(stream, "sha256").hexdigest()
 
 
-def resize_with_padding(image):
-    """Honor orientation, flatten transparency, and keep the entire image."""
+def oriented_rgb(image):
+    """Honor orientation and flatten transparency before any color changes."""
     image = ImageOps.exif_transpose(image)
     if "A" in image.getbands() or "transparency" in image.info:
         rgba = image.convert("RGBA")
@@ -37,6 +80,12 @@ def resize_with_padding(image):
         rgb.paste(rgba, mask=rgba.getchannel("A"))
     else:
         rgb = image.convert("RGB")
+    return rgb
+
+
+def resize_with_padding(image):
+    """Keep the entire image and pad to the model input size."""
+    rgb = oriented_rgb(image)
     resized = ImageOps.contain(rgb, (IMAGE_SIZE, IMAGE_SIZE), Image.Resampling.BILINEAR)
     canvas = Image.new("RGB", (IMAGE_SIZE, IMAGE_SIZE), BACKGROUND)
     canvas.paste(resized, ((IMAGE_SIZE - resized.width) // 2,
@@ -49,13 +98,15 @@ def prepare_image(image):
     return TF.normalize(TF.to_tensor(resize_with_padding(image)), MEAN, STD)
 
 
-def load_source_manifests(directory, categories_path):
-    """Validate file fingerprints and reject any target/test training input."""
+def load_source_manifests(directory, categories_path, include_plantdoc_train=False):
+    """Allow PlantDoc training only by explicit opt-in; always reject test input."""
     directory = Path(directory)
     categories = json.loads(Path(categories_path).read_text(encoding="utf-8"))
     summary = json.loads((directory / "summary.json").read_text(encoding="utf-8"))
     if sha256_file(categories_path) != summary["categories_sha256"]:
         raise ValueError("Category configuration changed; rebuild the split manifests")
+    if bool(summary.get("include_plantdoc_train", False)) != include_plantdoc_train:
+        raise ValueError("PlantDoc training policy differs from the split record; use matching explicit options")
     classes = categories["classes"]
     if [item["id"] for item in classes] != list(range(len(classes))) or not classes:
         raise ValueError("Category IDs must be consecutive from zero")
@@ -76,12 +127,21 @@ def load_source_manifests(directory, categories_path):
             class_id = int(row["class_id"])
             if not 0 <= class_id < len(classes):
                 raise ValueError("Unknown category ID")
-            category = classes[class_id]["plantvillage"]
-            if (row["dataset"] != "plantvillage" or row["source_split"] != "train"
-                    or row["split"] != split or row["source_category"] != category
-                    or row["class_name"] != category
-                    or relative.parts[:3] != ("plantvillage", "raw", "color")):
-                raise ValueError("Training/validation must use the mapped PlantVillage training pool")
+            # Check the dataset before looking up its category key. Malformed
+            # rows should produce a clear validation error, not a KeyError.
+            dataset = row["dataset"]
+            allowed = {"plantvillage", "plantdoc"} if include_plantdoc_train else {"plantvillage"}
+            if dataset not in allowed or dataset not in classes[class_id]:
+                raise ValueError("Training dataset is not allowed or has no category mapping")
+            category = classes[class_id][dataset]
+            parent = (("plantvillage", "raw", "color", category) if dataset == "plantvillage"
+                      else ("plantdoc", "train", category))
+            if (row["source_split"] != "train" or row["split"] != split
+                    or row["source_category"] != category
+                    or row["class_name"] != classes[class_id]["plantvillage"]
+                    or relative.parts[:-1] != parent):
+                raise ValueError("Training/validation must use the mapped training images")
+
         if {int(r["class_id"]) for r in rows} != set(range(len(classes))):
             raise ValueError(f"Missing category coverage in {split}")
         for key in seen:
@@ -112,9 +172,10 @@ def trial_subset(rows, per_class, seed):
 class PlantImages(Dataset):
     """Read the selected images without changing or silently skipping files."""
 
-    def __init__(self, rows, data_root):
+    def __init__(self, rows, data_root, transform=None):
         self.rows = rows
         self.root = Path(data_root).expanduser().resolve()
+        self.transform = transform
 
     def __len__(self):
         return len(self.rows)
@@ -128,5 +189,9 @@ class PlantImages(Dataset):
         if hashlib.sha256(content).hexdigest() != row["sha256"]:
             raise ValueError(f"Image changed since the audit: {row['relative_path']}")
         with Image.open(io.BytesIO(content)) as image:
+            image = oriented_rgb(image)
+            if self.transform is not None:
+                image = self.transform(image)
             tensor = prepare_image(image)
+
         return tensor, int(row["class_id"])

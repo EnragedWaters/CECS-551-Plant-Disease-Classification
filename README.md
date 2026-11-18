@@ -6,9 +6,12 @@ A semester project exploring plant disease classification across PlantVillage an
 
 Phase 4: compare frozen-feature and fine-tuned MobileNetV3-Small models.
 Training and final testing are complete. See the [final test results](docs/evaluation/final-results.md):
-accuracy was high on PlantVillage and much lower on PlantDoc. The IEEE report
-is next. The [evaluation guide](docs/evaluation.md) explains how to reproduce
-the tests and regenerate tables and plots.
+accuracy was high on PlantVillage and much lower on PlantDoc. The submitted
+Phase 4 IEEE report is available as a [PDF](docs/phase4-report/Phase-4-Plant-Disease-Classification.pdf)
+and [readable Markdown](docs/phase4-report/Phase-4-Plant-Disease-Classification.md).
+It describes the original experiment at commit `9619975`; later optional
+experiments are not part of this submission. The [evaluation guide](docs/evaluation.md)
+explains how to reproduce the tests and regenerate tables and plots.
 
 After following the setup guide and downloading the data, run from this folder:
 

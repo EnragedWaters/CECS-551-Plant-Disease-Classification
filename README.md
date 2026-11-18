@@ -2,6 +2,9 @@
 
 A semester project exploring plant disease classification across PlantVillage and PlantDoc images.
 
+Before starting team or AI-assisted work, read [AGENTS.md](AGENTS.md) for the
+existing report, project locations, and guidance on follow-up changes.
+
 ## Current focus
 
 Phase 4: compare frozen-feature and fine-tuned MobileNetV3-Small models.

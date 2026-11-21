@@ -38,3 +38,7 @@ Read [AGENTS.md](AGENTS.md) before team or AI-assisted changes. It maps the
 existing files and explains what must be preserved.
 [Reproduction instructions](docs/reproduction.md) cover the original experiment;
 [optional experiments](docs/optional-experiments.md) are separate follow-up work.
+
+## Submission files
+
+[Phase-4-Submission](Phase-4-Submission/README.md) contains the repository-link TXT, IEEE paper, slides and speaker notes.

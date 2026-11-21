@@ -20,7 +20,8 @@ recorded offline backup. WSL is optional on Windows.
 ## Open the slides and notes
 
 [Presentation guide](docs/presentation/README.md) — editable PowerPoint, PDF,
-speaker notes, and the suggested four-person speaking portions.
+speaker notes, real dataset photographs, visual comparisons and suggested
+four-person speaking portions.
 
 ## Read the paper and results
 

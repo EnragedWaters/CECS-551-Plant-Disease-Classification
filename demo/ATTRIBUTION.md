@@ -1,8 +1,9 @@
 # Demonstration images and recorded outputs
 
-Images are loaded from the local datasets. They and the generated replay/backups
-stay in ignored `outputs/`; they are not bundled with the public presentation.
-The committed example manifest contains relative source names and checksums only.
+The live demo loads images from the local datasets. Its generated replay/backups
+stay in ignored `outputs/`. The example manifest records relative source names
+and checksums. A small set of credited presentation derivatives is included in
+[the slide assets](../docs/presentation/PHOTO_CREDITS.md); raw datasets remain local.
 
 - **PlantVillage:** S. P. Mohanty, author-hosted distribution, revision
   `9e97599868962bd0079b8db4b7f1efa9185fa1e7`.

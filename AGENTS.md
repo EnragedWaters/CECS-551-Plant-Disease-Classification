@@ -29,6 +29,14 @@ Personal `demo-settings.local.json` stays at the root and is Git-ignored.
 The Phase 4 presentation and visual demo are now prepared; see
 [the presentation guide](docs/presentation/README.md) before creating another
 deck or demo. Confirm the class schedule and rehearse the existing materials.
+The slides now use real photos, diagrams and editable result bars. Keep visible
+text brief and explanations in the notes. `docs/presentation/slides.json` and
+`scripts/build_presentation.py` are the sources; `assets/manifest.json` and
+`PHOTO_CREDITS.md` record the small licensed presentation illustrations. Do not
+replace them with generated photos or treat selected examples as full-test scores.
+Rebuild with `--office libreoffice`, inspect all rendered slides, and refresh
+`Phase-4-Submission/presentation/` after changes. The evidence checker is
+`scripts/check_presentation.py`; it requires the original local data and outputs.
 
 Read these before planning work:
 

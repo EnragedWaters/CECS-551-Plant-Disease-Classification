@@ -3,240 +3,143 @@
   "timing_note": "Provisional ~9-minute version including demo; duration and dates must be confirmed. Slides 11–12 are backup.",
   "slides": [
     {
-      "kind": "title",
-      "title": "Plant disease classification\nacross image datasets",
-      "subtitle": "Does a model trained on one image collection\nstill work on another?",
+      "kind": "cover",
+      "title": "Plant disease\nclassification",
+      "subtitle": "Across image datasets",
       "presenter": "Jacob",
       "seconds": 30,
-      "notes": "Our project asks whether a plant disease classifier can handle images beyond the collection it learned from. We compared two ways of adapting the same lightweight model. The experiment is complete; this presentation explains our measured results, including where the models fail. The main finding is a large drop on the second dataset, not a claim that we solved plant diagnosis."
+      "notes": "Our project asks whether a plant disease classifier can handle images beyond the collection it learned from. We compared two ways of adapting the same lightweight model. The experiment is complete; this presentation explains our measured results, including where the models fail. The main finding is a large drop on the second dataset, not a claim that we solved plant diagnosis.",
+      "photos": [
+        "pd-apple-01"
+      ]
     },
     {
-      "kind": "cards",
-      "title": "The practical problem",
-      "subtitle": "Casual plant photos vary. A familiar-looking test can hide that challenge.",
-      "cards": [
-        [
-          "Intended users",
-          "Casual gardeners and plant owners taking everyday photographs."
-        ],
-        [
-          "Pain point",
-          "A confident wrong label can send someone in the wrong direction."
-        ],
-        [
-          "Research question",
-          "Does fine-tuning help a lightweight model transfer between datasets?"
-        ]
-      ],
-      "source": "Paper: Introduction; PlantDoc [1]; dataset bias [2].",
+      "kind": "question",
+      "title": "Will it work on a different collection?",
+      "subtitle": "Everyday plant photos motivate the question.",
       "presenter": "Jacob",
       "seconds": 35,
-      "notes": "A gardener will not necessarily control lighting, framing, or background. This motivates evaluating a classifier on a different image collection. We are investigating robustness, not promising it. Comparing two datasets does not isolate weather or photography skill as causes. This is a research comparison; we did not build a diagnostic service."
+      "notes": "Casual plant owners take photographs with different framing, backgrounds and lighting. These are real dataset photographs, not pictures of study participants. Our question is whether a model trained on PlantVillage transfers to cropped PlantDoc. The two photos share the apple-scab annotation but are different leaves. They illustrate the motivation, not a controlled test of weather or photography skill. A confident wrong category could mislead a user; we investigate that limitation rather than promise a diagnostic service.",
+      "photos": [
+        "pv-apple-01",
+        "pd-apple-02"
+      ]
     },
     {
-      "kind": "cards",
-      "title": "Two collections, one shared label set",
-      "subtitle": "A label means the plant condition written in the dataset annotation.",
-      "cards": [
-        [
-          "PlantVillage",
-          "Training images and same-dataset testing. Mostly controlled leaf photographs."
-        ],
-        [
-          "Cropped PlantDoc",
-          "Separate testing on internet-sourced photographs with different image conditions."
-        ],
-        [
-          "22 shared categories",
-          "Healthy leaves and named conditions. Five uncertain category pairs excluded."
-        ]
-      ],
-      "source": "Paper: Methods, Tables I–II; configs/categories.json; PlantDoc [1].",
+      "kind": "datasets",
+      "title": "Two collections. Same 22 labels.",
+      "subtitle": "Different photos of the same annotated conditions.",
       "presenter": "Jacob",
       "seconds": 40,
-      "notes": "PlantVillage is the source collection: the one we trained on. Cropped PlantDoc is the target collection: the different one used for external testing. We matched 22 plant-condition categories and excluded five uncertain pairs rather than assume similar names meant identical conditions. These labels are dataset annotations, not diagnoses independently verified by us. Cropped PlantDoc is also not a controlled sample of future users."
+      "notes": "PlantVillage is the source collection: the one we trained on. Cropped PlantDoc is the target collection: the different one used for external testing. We matched 22 plant-condition categories and excluded five uncertain pairs rather than assume similar names meant identical conditions. These labels are dataset annotations, not diagnoses independently verified by us. Cropped PlantDoc is also not a controlled sample of future users. The photographs show two shared annotated conditions: apple scab and grape black rot. Each column is a different collection, not matched views of the same plants. Images are selected illustrations and retain their original framing. The 22 shared categories include ten healthy and twelve named conditions; five uncertain pairs were excluded. PlantDoc is internet-sourced and is not a controlled sample of casual users.",
+      "photos": [
+        "pv-apple-01",
+        "pv-grape-01",
+        "pd-apple-01",
+        "pd-grape-01"
+      ]
     },
     {
-      "kind": "pipeline",
-      "title": "Keep learning separate from testing",
-      "subtitle": "The same image lists were used for both model versions and all three seeds.",
-      "steps": [
-        [
-          "Train",
-          "18,023",
-          "PlantVillage images"
-        ],
-        [
-          "Validate",
-          "4,529",
-          "Choose saved models"
-        ],
-        [
-          "Source test",
-          "5,487",
-          "PlantVillage images"
-        ],
-        [
-          "Target test",
-          "183",
-          "PlantDoc images"
-        ]
-      ],
-      "source": "Paper: Methods, Table I; fixed splits; selected-checkpoints.json.",
+      "kind": "protocol",
+      "title": "Learn first. Test separately.",
+      "subtitle": "PlantDoc never selects a checkpoint.",
       "presenter": "Troy",
       "seconds": 45,
-      "notes": "Training fits the model weights. Validation selects the saved checkpoint with the lowest prediction loss, without using the final tests. The two test sets answer different questions: familiar collection versus different collection. We grouped known photos of the same leaf and checked identical files to reduce overlap. Some related or altered duplicates may still escape these checks. PlantDoc test results did not select models or training settings. The first two boxes describe development; the last two are separate final evaluations, not additional training stages."
+      "notes": "Training fits the model weights. Validation selects the saved checkpoint with the lowest prediction loss, without using the final tests. The two test sets answer different questions: familiar collection versus different collection. We grouped known photos of the same leaf and checked identical files to reduce overlap. Some related or altered duplicates may still escape these checks. PlantDoc test results did not select models or training settings. The first two boxes describe development; the last two are separate final evaluations, not additional training stages. Read the diagram left to right. Training fits the candidate models. Validation selects the saved checkpoints. Only those selected checkpoints reach the two separate test collections. There is no path from PlantDoc test results back to training or selection.",
+      "photos": []
     },
     {
-      "kind": "compare",
-      "title": "Same starting model. Different learning.",
-      "subtitle": "MobileNetV3-Small, pretrained on ImageNet; a new layer predicts 22 categories.",
-      "cards": [
-        [
-          "Frozen features",
-          "Keep earlier image features fixed.\nTrain only the final category layer."
-        ],
-        [
-          "Fine-tuned features",
-          "Warm up the category layer for one epoch.\nThen also train the earlier features."
-        ]
-      ],
-      "bottom": "Three seeds · fixed splits · no random augmentation in this experiment",
-      "source": "Paper: Methods; MobileNetV3 [3]; original code 9619975.",
+      "kind": "models",
+      "title": "Same model. Different learning.",
+      "subtitle": "ImageNet-pretrained MobileNetV3-Small",
       "presenter": "Troy",
       "seconds": 50,
-      "notes": "Pretrained means the model already learned image patterns on ImageNet before our plant experiment. The frozen baseline reuses these patterns unchanged and only learns the final category layer. Fine-tuning also adjusts the earlier feature weights after one warmup epoch. We replaced the entire original classifier with one linear 576-to-22 layer. Batch-normalization running statistics stayed fixed in both versions. Three seeds repeat training with different initial category weights and image order, using the same split. Maximum ten epochs, AdamW, and source-validation early stopping were fixed. No random augmentation was used for the published experiment; later optional code does not change that. During inference both models are fixed. Different photographs change the responses, not the weights. The demo’s training comparison explains this distinction visually."
+      "notes": "Pretrained means the model already learned image patterns on ImageNet before our plant experiment. The frozen baseline reuses these patterns unchanged and only learns the final category layer. Fine-tuning also adjusts the earlier feature weights after one warmup epoch. We replaced the entire original classifier with one linear 576-to-22 layer. Batch-normalization running statistics stayed fixed in both versions. Three seeds repeat training with different initial category weights and image order, using the same split. Maximum ten epochs, AdamW, and source-validation early stopping were fixed. No random augmentation was used for the published experiment; later optional code does not change that. During inference both models are fixed. Different photographs change the responses, not the weights. The demo’s training comparison explains this distinction visually. The colored blocks are an editable schematic, not an exact layer-by-layer drawing of MobileNet. Blue means the feature weights remain fixed during plant training; green means weights are allowed to learn. Both versions produce 576 pooled features and 22 category scores. Both saved models stay fixed during demonstration.",
+      "photos": [
+        "pv-apple-01"
+      ]
     },
     {
-      "kind": "demo",
-      "title": "Follow the numbers. Compare the datasets.",
-      "subtitle": "A guided lesson using real saved-model outputs",
-      "cards": [
-        [
-          "Inside the models",
-          "Photo → prepared input → patterns → 576 averages → 22 scores. See what each stage changes and why."
-        ],
-        [
-          "Across two datasets",
-          "Explore both collections. Watch the same two models process 22 images per dataset, including mistakes."
-        ]
-      ],
-      "bottom": "Slowed playback explains captured outputs. Sample counts are separate from full-test results.",
-      "source": "Original seed-551 models; docs/presentation/demo-guide.md; full results follow.",
+      "kind": "process",
+      "title": "Watch the image become a prediction",
+      "subtitle": "Live demo · real outputs · explanatory playback",
       "presenter": "Max",
       "seconds": 120,
-      "notes": "Before class, open ONE-CLICK-LAUNCHERS and choose your OS. Both dataset panels are visible. Choose a PlantVillage thumbnail and Run & show all stages. The full summary stays visible; there is no need to click through tabs. Follow the visuals and short captions. Dimensions and the training comparison are under Model setup & dimensions if needed. Prepared input outlines the resized photo and added padding. Early features respond to local patterns. Middle and late blocks combine them into smaller maps with more channels. These are real responses, not disease masks. Scroll to Pooling: each 7-by-7 late map becomes one average, leaving 576 values. Point to the map → average → 576-value diagram. Use Inspect the numbers only if someone asks for the calculation. Scores multiply those features by learned category weights and add a bias. Use Inspect score contributions if time permits: the five largest contributions plus all remaining contributions reconstruct its raw score. Softmax compares all 22 scores; a high score can still be wrong. Select PlantDoc example 6 for a mistake, or example 5 where only fine-tuning matches the annotation. Start Compare 22 images per dataset; show a few pairs or use zero pause. Identify partial counts as partial. The full balanced sample gives both models 22/22 on PlantVillage and 5/22 on PlantDoc, not the full evaluation shown next. Seed 551 is the first planned seed. The six thumbnails were selected after evaluation; the running sample uses a prediction-independent checksum rule, one photo per category per dataset. Neither is a representative new test. Playback reveals captured values; no weights change while demonstrating. The optional toy filter is explicitly a separate, hand-written teaching example, not a MobileNet filter. Leave it for questions if time is short. If using offline replay, say it is recorded. Aim for two minutes on the essentials; allow a longer walkthrough only if the instructor time limit permits."
+      "notes": "Open ONE-CLICK-LAUNCHERS and choose your OS before class. This slide is a recorded visual preview of the live demo. The full-frame PlantDoc photo is prepared with the original resize/pad settings; the two small tiles are actual final-block channel 0 responses from seed 551, using one shared color scale. These are not disease masks or attention maps. Both models classify this apple-scab-labeled image incorrectly: frozen predicts potato late blight, fine-tuned predicts tomato early blight. Start the live demo with both dataset panels visible, choose a PlantVillage example and Run & show all stages. Follow the photos and maps; show the map-to-average diagram and score bars. Longer explanations are optional. Then show a PlantDoc mistake. If time permits, run a few pairs in Compare 22 images per dataset and identify the partial sample counts. The balanced 22-pair sample is separate from the published full evaluation. If using the portable replay, explicitly say it is recorded. Do not describe explanatory playback as model thinking time. Allow about two minutes for the main sequence; use the detailed lessons only if time permits.",
+      "photos": [
+        "pd-apple-02",
+        "prepared-apple",
+        "late-frozen",
+        "late-finetune"
+      ]
     },
     {
       "kind": "results",
-      "title": "Strong source scores did not transfer",
-      "subtitle": "Fine-tuning helped on PlantDoc, but the cross-dataset gap remained large.",
-      "image": "../evaluation/test-comparison.png",
-      "source": "Original final results: three seeds; 5,487 source / 183 target images. Error bars: seed SD.",
+      "title": "Familiar-image accuracy did not transfer",
+      "subtitle": "Full evaluation · mean of three training seeds",
       "presenter": "Max",
       "seconds": 45,
-      "notes": "Frozen-feature mean accuracy was 97.59 percent on PlantVillage and 21.68 percent on PlantDoc. Fine-tuned accuracy was 99.07 and 25.87 percent respectively. The PlantDoc improvement was 4.19 percentage points, not 4.19 percent relative improvement. Macro-F1, which gives each category equal weight, shows the same broad pattern. Error bars describe variation between three training seeds on the same test images; they are not confidence intervals for new photographs. We report every seed, not just the best run."
+      "notes": "Frozen-feature mean accuracy was 97.59 percent on PlantVillage and 21.68 percent on PlantDoc. Fine-tuned accuracy was 99.07 and 25.87 percent respectively. The PlantDoc improvement was 4.19 percentage points, not 4.19 percent relative improvement. Macro-F1, which gives each category equal weight, shows the same broad pattern. Error bars describe variation between three training seeds on the same test images; they are not confidence intervals for new photographs. We report every seed, not just the best run.",
+      "photos": []
     },
     {
-      "kind": "cards",
-      "title": "A recurring mistake worth investigating",
-      "subtitle": "The models often predicted “tomato late blight” on the PlantDoc test set.",
-      "cards": [
-        [
-          "10 images",
-          "Actually carried that dataset label."
-        ],
-        [
-          "61–75 predictions",
-          "Frozen models predicted that label across the three separate runs."
-        ],
-        [
-          "42–59 predictions",
-          "Fine-tuned models predicted that label across the three separate runs."
-        ]
-      ],
-      "source": "Paper: Results; docs/evaluation/final-results.json. Each run tests the same 183 images.",
+      "kind": "examples",
+      "title": "Three examples. Three different outcomes.",
+      "subtitle": "Dataset label: apple scab · selected after evaluation",
       "presenter": "Shriyansh",
       "seconds": 35,
-      "notes": "This is one error pattern from the full evaluation, not just our demo examples. Ten of the 183 target images were annotated as tomato late blight. The frozen models predicted that label 61, 70, and 75 times; the fine-tuned models predicted it 59, 54, and 42 times. This identifies a behavior to investigate. It does not tell us the visual or biological cause, and it does not justify changing the dataset labels simply because the model disagrees."
+      "notes": "These three selected seed-551 examples all carry the dataset annotation apple scab. In the first PlantVillage photo, both models predict apple scab. In the second PlantVillage photo, frozen predicts tomato leaf mold while fine-tuned predicts apple scab. In the PlantDoc photo, frozen predicts potato late blight and fine-tuned predicts tomato early blight. These examples were chosen after evaluation to explain different outcomes; they are not random or representative, and their proportions are not an accuracy estimate. Predictions come from the saved original evaluation and agree in category with the CPU replay. A dataset label is a reference annotation, not our independently verified diagnosis. In the full PlantDoc evaluation, overprediction of tomato late blight was another recurring error: 61–75 times for frozen and 42–59 times for fine-tuned, versus 10 annotated images. That identifies a behavior, not its cause.",
+      "photos": [
+        "pv-apple-01",
+        "pv-apple-02",
+        "pd-apple-02"
+      ]
     },
     {
-      "kind": "cards",
-      "title": "What these results cannot establish",
-      "subtitle": "The limits are part of the finding.",
-      "cards": [
-        [
-          "Small external test",
-          "183 images; only 3–12 examples per category. Three seeds reuse those images."
-        ],
-        [
-          "Imperfect annotations",
-          "Category matching and duplicate checks reduce known problems, not every problem."
-        ],
-        [
-          "No isolated cause",
-          "Background, lighting, framing and labels change together. Weather and skill were not isolated."
-        ]
-      ],
-      "source": "Paper: Discussion; Table II; category-mapping.md.",
+      "kind": "limits",
+      "title": "Useful evidence. Limited claims.",
+      "subtitle": "These findings do not establish a reliable diagnosis.",
       "presenter": "Shriyansh",
       "seconds": 40,
-      "notes": "We evaluated one architecture, one split and one fixed training configuration. The target test set is small and internet-sourced. We cannot claim general field accuracy or statistical significance from three training seeds. Our uncertainty is not solved by counting each repeated prediction as a new test photograph. The domain shift includes many simultaneous differences, so we cannot attribute the accuracy drop to weather, camera skills or any single cause."
+      "notes": "We evaluated one architecture, one split and one fixed training configuration. The target test set is small and internet-sourced. We cannot claim general field accuracy or statistical significance from three training seeds. Our uncertainty is not solved by counting each repeated prediction as a new test photograph. The domain shift includes many simultaneous differences, so we cannot attribute the accuracy drop to weather, camera skills or any single cause. The three visuals summarize sample size, changes occurring together and uncertain reference labels. The small dot grid is a symbol for a sample, not a plot of individual outcomes. The arrows around the question mark are a schematic of unresolved causes, not measured causal effects.",
+      "photos": [
+        "pd-apple-01"
+      ]
     },
     {
       "kind": "conclusion",
-      "title": "High familiar-image accuracy is not enough.",
-      "subtitle": "External evaluation changed the story.",
-      "cards": [
-        [
-          "What we completed",
-          "A reproducible frozen-versus-fine-tuned comparison with all planned seeds."
-        ],
-        [
-          "What we learned",
-          "Fine-tuning helped modestly. Reliable cross-dataset performance was not demonstrated."
-        ]
-      ],
-      "bottom": "Next: separate augmentation/adaptation studies and a larger checked external test set.",
-      "source": "Existing IEEE paper and measured results are linked from the repository README.",
+      "title": "Evaluate beyond the training collection.",
+      "subtitle": "Fine-tuning helped. Robustness remains unproven.",
       "presenter": "Shriyansh",
       "seconds": 35,
-      "notes": "Our contribution is an empirical baseline and reproducibility exercise, not a new architecture or the first study of this dataset shift. We completed the agreed comparison and found a clear gap. Future augmentation or adaptation experiments need their own records and evaluation plan. We should not tune against these already observed test scores and call that a new unseen test. The code, paper, plots and detailed measurements are available in the repository. Invite questions."
+      "notes": "Our contribution is an empirical baseline and reproducibility exercise, not a new architecture or the first study of this dataset shift. We completed the agreed comparison and found a clear gap. Future augmentation or adaptation experiments need their own records and evaluation plan. We should not tune against these already observed test scores and call that a new unseen test. The code, paper, plots and detailed measurements are available in the repository. Invite questions. The closing photograph is an illustrative PlantDoc image, not an example of the average accuracy. End with the distinction between strong same-dataset testing and demonstrated practical robustness.",
+      "photos": [
+        "pd-apple-01"
+      ]
     },
     {
-      "kind": "reproduce",
-      "title": "Backup: how someone can repeat the work",
-      "subtitle": "The paper describes the original code snapshot, 9619975.",
-      "cards": [
-        [
-          "Original experiment",
-          "Pinned dataset versions → image audit → fixed splits → three training pairs → verification → tests."
-        ],
-        [
-          "Demo versus reproduction",
-          "Demo uses the saved original pair. A fresh clone needs data and models; the offline replay is a local backup."
-        ]
-      ],
-      "bottom": "Full instructions: docs/reproduction.md · Demo: docs/presentation/demo-guide.md",
-      "source": "github.com/EnragedWaters/CECS-551-Plant-Disease-Classification",
+      "kind": "reproduction",
+      "title": "Backup: follow the evidence",
+      "subtitle": "Original experiment code: 9619975",
       "presenter": "Any speaker",
       "seconds": 0,
-      "notes": "Use this slide only for questions. The original saved checkpoints are fingerprinted and require the original code; the demo loads verified historical modules automatically. Full reproduction uses a separate worktree at 9619975 so optional later training changes do not get mixed into the paper. Raw images, models and private notes are not on GitHub. Reproduction commands generate separate records; exact numerical equality across different devices is not guaranteed. The processing display uses temporary observation hooks that copy actual layer outputs. Checks confirm identical category scores with and without those hooks, unchanged weights and buffers, and no retained hooks. Fixed channels and shared stage color scales make the two models easier to compare; these displays do not establish a causal explanation. The running sample is chosen from the original test manifests and recorded with source paths and image hashes in the local replay JSON. The learning display verifies all 576 spatial averages and reconstructs all 22 logits from the actual linear weights and bias. Double-precision explanatory sums can differ slightly from float32 execution. A top-five contribution display also includes the sum of the other 571 features, so nothing is silently omitted. The optional filter lesson is separate from the real model. Headless tests and --no-open-browser avoid launching or focusing a browser window."
+      "notes": "Use this slide only for questions. The original saved checkpoints are fingerprinted and require the original code; the demo loads verified historical modules automatically. Full reproduction uses a separate worktree at 9619975 so optional later training changes do not get mixed into the paper. Raw images, models and private notes are not on GitHub. Reproduction commands generate separate records; exact numerical equality across different devices is not guaranteed. The processing display uses temporary observation hooks that copy actual layer outputs. Checks confirm identical category scores with and without those hooks, unchanged weights and buffers, and no retained hooks. Fixed channels and shared stage color scales make the two models easier to compare; these displays do not establish a causal explanation. The running sample is chosen from the original test manifests and recorded with source paths and image hashes in the local replay JSON. The learning display verifies all 576 spatial averages and reconstructs all 22 logits from the actual linear weights and bias. Double-precision explanatory sums can differ slightly from float32 execution. A top-five contribution display also includes the sum of the other 571 features, so nothing is silently omitted. The optional filter lesson is separate from the real model. Headless tests and --no-open-browser avoid launching or focusing a browser window. The diagram summarizes the reproduction workflow. See docs/reproduction.md for commands and dependencies. The 72 current software tests include later demo checks; the original paper accurately records 39 checks at its experiment snapshot. No new training was needed for these visuals.",
+      "photos": []
     },
     {
       "kind": "references",
-      "title": "Selected references",
-      "subtitle": "Full references and direct links are in the existing IEEE paper.",
+      "title": "References & image credits",
+      "subtitle": "Full references and photo provenance accompany the deck.",
+      "presenter": "Any speaker",
+      "seconds": 0,
+      "notes": "These are selected sources, not a replacement for the full literature review. The 2019 reference identifies the architecture; the plant-disease literature review emphasizes papers from 2020 onward. Salman et al. also study cross-dataset performance using a different model and protocol. Do not compare headline scores as if the image lists, categories and training access were identical. Real photograph derivatives are credited in PHOTO_CREDITS.md and assets/manifest.json. PlantVillage photos are attributed to S. P. Mohanty under CC BY-SA 3.0. PlantDoc photos are attributed to D. Singh et al. with cropped repository by P. Kayal et al., under the repository-declared CC BY 4.0. These declarations are not an independent audit of internet-image provenance. Whole frames are retained with orientation correction and resizing; no AI-generated photos, symptom enhancement or background replacement was used. Prepared inputs and feature maps are actual recorded displays and are identified as such.",
+      "photos": [],
       "refs": [
         "[1] D. Singh et al., “PlantDoc: A Dataset for Visual Plant Disease Detection,” CoDS-COMAD, 2020. doi: 10.1145/3371158.3371196.",
         "[2] M. A. Noyan, “Uncovering bias in the PlantVillage dataset,” arXiv, 2022. doi: 10.48550/arXiv.2206.04374.",
         "[3] A. Howard et al., “Searching for MobileNetV3,” ICCV, 2019. doi: 10.1109/ICCV.2019.00140. Architecture reference.",
         "[4] Z. Salman et al., “Plant disease classification in the wild using vision transformers and mixture of experts,” Frontiers in Plant Science, 2025. doi: 10.3389/fpls.2025.1522985."
-      ],
-      "source": "Our project is not the first PlantVillage-to-PlantDoc study; protocols differ across studies.",
-      "presenter": "Any speaker",
-      "seconds": 0,
-      "notes": "These are selected sources, not a replacement for the full literature review. The 2019 reference identifies the architecture; the plant-disease literature review emphasizes papers from 2020 onward. Salman et al. also study cross-dataset performance using a different model and protocol. Do not compare headline scores as if the image lists, categories and training access were identical."
+      ]
     }
   ]
 }

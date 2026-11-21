@@ -1,0 +1,209 @@
+{
+  "selection": "Illustrative examples selected after evaluation; not representative of accuracy.",
+  "original_commit": "9619975a2f64954bc25d056708962eea1895d84b",
+  "seed": 551,
+  "sources": {
+    "plantvillage": {
+      "creator": "S. P. Mohanty / PlantVillage",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "revision": "9e97599868962bd0079b8db4b7f1efa9185fa1e7",
+      "url": "https://huggingface.co/datasets/mohanty/PlantVillage/tree/9e97599868962bd0079b8db4b7f1efa9185fa1e7"
+    },
+    "plantdoc": {
+      "creator": "D. Singh et al. / cropped repository by P. Kayal et al.",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "revision": "5467f6012d78d1c446145d5f582da6096f852ae8",
+      "url": "https://github.com/pratikkayal/PlantDoc-Dataset/tree/5467f6012d78d1c446145d5f582da6096f852ae8"
+    }
+  },
+  "assets": {
+    "pv-apple-01": {
+      "file": "pv-apple-01.jpg",
+      "dataset": "plantvillage",
+      "label": "Apple / Apple scab",
+      "source_path": "plantvillage/raw/color/Apple___Apple_scab/0261a6e4-21f8-481a-8827-b674e6955644___FREC_Scab 3055.JPG",
+      "source_sha256": "5d7236ea8400b9b6093b51a860ebf4844d78b961e1505b6e64520a29fcef4427",
+      "original_size": [
+        256,
+        256
+      ],
+      "display_size": [
+        256,
+        256
+      ],
+      "sha256": "cfecd533d64f5a8e3a5bbc405633d2018952f8e30f46914234f671b0915b6f55",
+      "changes": "EXIF orientation, RGB, fit without cropping, JPEG encoding.",
+      "predictions": {
+        "frozen": {
+          "label": "Apple / Apple scab",
+          "matches_label": true
+        },
+        "finetune": {
+          "label": "Apple / Apple scab",
+          "matches_label": true
+        }
+      }
+    },
+    "pv-apple-02": {
+      "file": "pv-apple-02.jpg",
+      "dataset": "plantvillage",
+      "label": "Apple / Apple scab",
+      "source_path": "plantvillage/raw/color/Apple___Apple_scab/154842bb-6ee3-4176-9007-cf7a43cfe140___FREC_Scab 3434.JPG",
+      "source_sha256": "0727842c7b1e0717dd8cf4876dcd19ec325442999fec2c89856f03675d7b981d",
+      "original_size": [
+        256,
+        256
+      ],
+      "display_size": [
+        256,
+        256
+      ],
+      "sha256": "1134b0e065f72a750de4f9ca23fa57ccb9d1d70fa4d8add0d9763f1cec39491e",
+      "changes": "EXIF orientation, RGB, fit without cropping, JPEG encoding.",
+      "predictions": {
+        "frozen": {
+          "label": "Tomato / Leaf Mold",
+          "matches_label": false
+        },
+        "finetune": {
+          "label": "Apple / Apple scab",
+          "matches_label": true
+        }
+      }
+    },
+    "pd-apple-01": {
+      "file": "pd-apple-01.jpg",
+      "dataset": "plantdoc",
+      "label": "Apple / Apple scab",
+      "source_path": "plantdoc/test/Apple Scab Leaf/052609%20Hartman%20Crabapple%20scab%20single%20leaf.JPG.jpg",
+      "source_sha256": "13cfeac779b23fa433e92498086f19b1768b84cab23bc9d25e5b33cbe7ca17db",
+      "original_size": [
+        496,
+        348
+      ],
+      "display_size": [
+        496,
+        348
+      ],
+      "sha256": "a7cf5dfea7f18648d98dd7d297978f12212ac4ee2270d2fbf28b2a569165acf9",
+      "changes": "EXIF orientation, RGB, fit without cropping, JPEG encoding.",
+      "predictions": {
+        "frozen": {
+          "label": "Apple / Apple scab",
+          "matches_label": true
+        },
+        "finetune": {
+          "label": "Apple / Apple scab",
+          "matches_label": true
+        }
+      }
+    },
+    "pd-apple-02": {
+      "file": "pd-apple-02.jpg",
+      "dataset": "plantdoc",
+      "label": "Apple / Apple scab",
+      "source_path": "plantdoc/test/Apple Scab Leaf/1b321015-6e33-4f18-aade-888f4383fe92.jpeg.jpg",
+      "source_sha256": "7af1a2678a7114632f0274947888e29794321fc9e5edc25dd78d16d42017d685",
+      "original_size": [
+        768,
+        514
+      ],
+      "display_size": [
+        768,
+        514
+      ],
+      "sha256": "1bfd7ae199f87bccbf9035bb5d3d1a525da5cce7d122070fd267cb5073a80d69",
+      "changes": "EXIF orientation, RGB, fit without cropping, JPEG encoding.",
+      "predictions": {
+        "frozen": {
+          "label": "Potato / Late blight",
+          "matches_label": false
+        },
+        "finetune": {
+          "label": "Tomato / Early blight",
+          "matches_label": false
+        }
+      }
+    },
+    "pv-grape-01": {
+      "file": "pv-grape-01.jpg",
+      "dataset": "plantvillage",
+      "label": "Grape / Black rot",
+      "source_path": "plantvillage/raw/color/Grape___Black_rot/994db94a-4a38-45c0-a36b-98daa4fa18d2___FAM_B.Rot 3383.JPG",
+      "source_sha256": "019b11c74692d5d8071b8442f126090b651923aebe42723ed776a13ecb6d336c",
+      "original_size": [
+        256,
+        256
+      ],
+      "display_size": [
+        256,
+        256
+      ],
+      "sha256": "5cc21d52394de067762c6cda870d5fa3ad6fd1131d8b50ef2df0b20c539432df",
+      "changes": "EXIF orientation, RGB, fit without cropping, JPEG encoding.",
+      "predictions": {
+        "frozen": {
+          "label": "Grape / Black rot",
+          "matches_label": true
+        },
+        "finetune": {
+          "label": "Grape / Black rot",
+          "matches_label": true
+        }
+      }
+    },
+    "pd-grape-01": {
+      "file": "pd-grape-01.jpg",
+      "dataset": "plantdoc",
+      "label": "Grape / Black rot",
+      "source_path": "plantdoc/test/grape leaf black rot/brleaf2_zoom.jpg",
+      "source_sha256": "09f5a6a0ded0e8f811d4a6c10f479c5fecb09f41b713eb729d381de12bd4ac01",
+      "original_size": [
+        900,
+        675
+      ],
+      "display_size": [
+        900,
+        675
+      ],
+      "sha256": "528cac868f514c6d3e19e8103076e4f658d5176b75d0f4709d6e9e2b341d8f14",
+      "changes": "EXIF orientation, RGB, fit without cropping, JPEG encoding.",
+      "predictions": {
+        "frozen": {
+          "label": "Grape / Black rot",
+          "matches_label": true
+        },
+        "finetune": {
+          "label": "Grape / Black rot",
+          "matches_label": true
+        }
+      }
+    },
+    "prepared-apple": {
+      "file": "prepared-apple.png",
+      "dataset": "plantdoc",
+      "source_photo": "pd-apple-02",
+      "sha256": "11f6c378241a5197a5b56c685922c4b915f5dab707a7fac877b4a7683371fc90",
+      "changes": "Original preprocessing display",
+      "replay_sha256": "c038df7aabe630f8076bf0ead3acb97f021fda1764c8aa1a169c708926c2af0f"
+    },
+    "late-frozen": {
+      "file": "late-frozen.png",
+      "dataset": "plantdoc",
+      "source_photo": "pd-apple-02",
+      "sha256": "22b6749f942468e8d905f6c7bd642e1e1f99da6dec32d28011b697b176dd4800",
+      "changes": "Actual seed-551 final-block channel 0; shared color scale; not an attention map.",
+      "replay_sha256": "c038df7aabe630f8076bf0ead3acb97f021fda1764c8aa1a169c708926c2af0f"
+    },
+    "late-finetune": {
+      "file": "late-finetune.png",
+      "dataset": "plantdoc",
+      "source_photo": "pd-apple-02",
+      "sha256": "02cdeafdedd3b384a62e0c9172758e51ca653c0d31706cf25280c9cdbb7748db",
+      "changes": "Actual seed-551 final-block channel 0; shared color scale; not an attention map.",
+      "replay_sha256": "c038df7aabe630f8076bf0ead3acb97f021fda1764c8aa1a169c708926c2af0f"
+    }
+  }
+}

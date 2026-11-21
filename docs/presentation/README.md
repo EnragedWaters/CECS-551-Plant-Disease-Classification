@@ -5,8 +5,9 @@ that existing work; they do not add new training results or replace the paper.
 
 | Open this | What it contains |
 | --- | --- |
-| [Phase-4-Presentation.pptx](Phase-4-Presentation.pptx) | Editable PowerPoint, including speaker notes. Standard text/shapes and embedded chart images for Google Slides import. |
+| [Phase-4-Presentation.pptx](Phase-4-Presentation.pptx) | Editable PowerPoint, including speaker notes. Real photos, editable diagrams and editable result bars for Google Slides import. |
 | [Phase-4-Presentation.pdf](Phase-4-Presentation.pdf) | Matching PDF companion for presenting or reviewing without PowerPoint. |
+| [PHOTO_CREDITS.md](PHOTO_CREDITS.md) | Photo IDs, source links, licenses and a manifest of the selected illustrations. |
 | [speaker-notes.md](speaker-notes.md) | Plain-English explanations, demo sequence, suggested four-person handoffs. |
 | [demo-guide.md](demo-guide.md) | Start the live visual demo, use the offline backup, and troubleshoot. |
 | [rubric-checklist.md](rubric-checklist.md) | Coverage of the updated rubric and remaining instructor-dependent details. |
@@ -38,14 +39,15 @@ cannot fulfill that live requirement.
 Upload `Phase-4-Presentation.pptx` to your Drive and open it with Google Slides.
 Check the fonts, chart readability and speaker notes before presenting. The deck
 uses standard editable shapes/text with Arial and no macros or unusual effects.
-The charts are embedded images. The PDF and Markdown notes are backups if an
+Photographs and recorded feature maps are embedded images; labels, diagrams
+and chart bars remain editable. The PDF and Markdown notes are backups if an
 import changes layout or omits notes. An actual Google Slides import has **not**
 been performed as part of the local checks.
 
-The PDF is rendered from the same layout and content as the PPTX; it is not
-an export made by PowerPoint or Google Slides. Both were checked for text and
-page/slide counts; the PDF was visually reviewed. Check the imported deck on the
-computer/projector that will be used in class.
+The supplied PDF was exported from the actual PPTX using headless LibreOffice.
+All twelve rendered slides were visually reviewed, and all slide text survived
+the export. Photo hashes, labels and example predictions were checked against
+the original evidence. Check the imported deck on the classroom computer/projector.
 
 ## Before presenting
 
@@ -73,8 +75,13 @@ change `slides.json` (wording and notes) and, if necessary,
 
 ```bash
 python -m pip install -r requirements-presentation.txt
-python scripts/build_presentation.py
+python scripts/build_presentation.py --office libreoffice
 ```
+
+Install LibreOffice separately for this export command (`soffice` is also a
+valid executable). Without `--office`, the builder creates a fallback PDF from
+the same layout instead of exporting the PPTX. The supplied final PDF uses the
+office export. All conversion runs headlessly.
 
 The builder overwrites only the presentation PPTX/PDF and generated speaker
 notes; it does not touch the IEEE paper. Export files should be reviewed again
@@ -82,6 +89,23 @@ after any source or layout change. Keep manual edits separately if you intend
 to rebuild: the builder cannot merge edits made in PowerPoint/Google Slides.
 PDF generation uses the DejaVu Sans fonts at the standard Ubuntu font path;
 install `fonts-dejavu-core` or adjust the font path on another platform.
+
+The committed `assets/` folder contains six small, credited photo derivatives
+and three actual model-display captures. Rebuilding slides needs no raw datasets
+or model weights. To recreate these illustrations, see PHOTO_CREDITS.md.
+
+With the original local images, prediction CSVs and verified replay available:
+
+```bash
+python scripts/check_presentation.py --data-root /path/to/datasets \
+  --predictions /path/to/final-01 --replay /path/to/replay.json
+```
+
+The checker also needs Poppler's `pdftotext`. It checks image/output hashes,
+labels, prediction categories, full-result means, PDF text and slide boundaries.
+It writes a local report under ignored `outputs/presentation-redesign/`.
+Render every page with `pdftoppm` and inspect it after layout changes. Refresh
+`Phase-4-Submission/presentation/` with the final PPTX, PDF and speaker notes.
 
 Authoring tools: [python-pptx speaker notes](https://python-pptx.readthedocs.io/en/latest/user/notes.html).
 Browser checks use [Playwright screenshots](https://playwright.dev/python/docs/screenshots).

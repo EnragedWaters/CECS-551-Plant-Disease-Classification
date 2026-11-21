@@ -9,7 +9,7 @@ presentation has already happened.
 | Rubric item | Points | Evidence and status |
 | --- | ---: | --- |
 | Demonstration | 5 | Local visual demo runs both original saved models, displays both datasets, actual feature maps and predictions. Browser checks cover seven stages for six examples and the 22-pair running sample; recorded HTML/PDF backups are prepared. Still needs delivery in class. |
-| Organization and clarity | 4 | Ten main slides cover problem → data → method → demo → findings → limits. Two backup slides cover reproduction and selected references. |
+| Organization and clarity | 4 | Ten main slides use real photographs, editable diagrams, result bars and selected correct/incorrect predictions to cover problem → data → method → demo → findings → limits. Two backup slides cover reproduction and selected references. |
 | Technical explanation | 3 | Speaker notes explain pretrained/frozen/fine-tuned models, splits, category mapping, metrics, repeated seeds and limitations. Team still needs to practice answering questions. |
 | Delivery and team participation | 3 | Suggested speaking portions for four people are provided. Agreement, rehearsal and balanced live participation remain team actions. |
 | Complete and correct code | 5 | Existing pipeline plus verified-checkpoint demo; 72 automated tests passed. Original experiment code is identified as 9619975. No new training was needed. |
@@ -82,9 +82,14 @@ six-page paper remains within it anyway.
 - The updated local backup is `outputs/demo-visual-cleanup/replay/offline-demo.html`;
   screenshots, numerical checks and PDF backups are beside it under the ignored
   `outputs/demo-visual-cleanup/` folder.
-- PPTX contains twelve slides and speaker notes for all twelve. Text and shapes
-  are editable; the chart is an embedded copy of the published result plot.
-- Twelve-page PDF companion visually reviewed. Google Slides import and actual
+- PPTX contains twelve slides and speaker notes for all twelve. Text, diagrams and result bars
+  are editable. Six real photos and three actual processing displays have recorded
+  sources/credits; full-result means and example predictions match original evidence.
+- The twelve-page PDF was exported directly from the PPTX by headless LibreOffice.
+  Every slide was visually reviewed for readability, cropping, contrast and overflow.
+  PDF/PPTX text matches; photos retain their framing; all photo and prediction
+  hashes passed. Small credited slide derivatives are in presentation/assets;
+  raw datasets and demo recordings remain local. Google Slides import and actual
   classroom display have not been observed and still need a quick human check.
 - The reproduction exporter was checked against the original saved prediction
   files in an isolated checkout. Original report/results were not overwritten.

@@ -77,9 +77,9 @@ class DemoTests(unittest.TestCase):
 
     def test_replay_is_labeled_embedded_and_not_overwritten(self):
         with tempfile.TemporaryDirectory() as directory:
-            engine = SimpleNamespace(examples=[{}], info=lambda:{'mode':'live'},
+            engine = SimpleNamespace(examples=[{}], batch=[], info=lambda:{'mode':'live'},
                 example=lambda i:{'index':i,'label':'</script>'},
-                predict=lambda i:{'index':i,'predictions':{}})
+                trace=lambda i:{'index':i,'predictions':{}}, batch_step=lambda i:{})
             destination = Path(directory)/'replay'
             export_replay(engine, destination)
             text = (destination/'offline-demo.html').read_text()
@@ -91,7 +91,9 @@ class DemoTests(unittest.TestCase):
                 export_replay(engine, destination)
 
     def test_http_serves_only_known_routes_and_rejects_bad_indexes(self):
-        engine = SimpleNamespace(examples=[{}], info=lambda:{'count':1}, example=lambda i:{'index':i})
+        engine = SimpleNamespace(examples=[{}], batch=[{}], info=lambda:{'count':1},
+            example=lambda i:{'index':i}, trace=lambda i:{'index':i,'observed':True},
+            batch_step=lambda i:{'index':i,'pair':True})
         server = HTTPServer(('127.0.0.1',0),make_handler(engine))
         thread = threading.Thread(target=server.serve_forever,daemon=True)
         thread.start()
@@ -99,7 +101,10 @@ class DemoTests(unittest.TestCase):
             base = f'http://127.0.0.1:{server.server_port}'
             with urlopen(base+'/api/info') as response:
                 self.assertEqual(json.load(response), {'count':1})
-            for route,code in [('/api/example/-1',400),('/api/example/2',400),('/api/example/no',400),('/.env',404),('/../AGENTS.local.md',404)]:
+            for route in ('trace','batch'):
+                with urlopen(base+f'/api/{route}/0') as response:
+                    self.assertEqual(json.load(response)['index'],0)
+            for route,code in [('/api/trace/1',400),('/api/batch/-1',400),('/api/batch/1',400),('/api/trace/0/extra',400),('/api/example/-1',400),('/api/example/2',400),('/api/example/no',400),('/.env',404),('/../AGENTS.local.md',404)]:
                 with self.assertRaises(HTTPError) as raised:
                     urlopen(base+route)
                 self.assertEqual(raised.exception.code,code)

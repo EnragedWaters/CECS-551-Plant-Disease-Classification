@@ -116,6 +116,8 @@ class DemoEngine:
             raise ValueError('This demonstration is fixed to the original seed-551 pair')
         self.examples = self.config['examples']
         self.validate_examples(splits_dir, selection)
+        from .demo_trace import choose_batch
+        self.batch = choose_batch(self.test_rows, len(self.categories))
         chosen = [r for r in selection['checkpoints'] if r['seed'] == 551]
         self.models = {}
         self.hashes = {}
@@ -163,6 +165,7 @@ class DemoEngine:
                 raise ValueError(f'Changed test image list: {split}')
             with path.open(encoding='utf-8', newline='') as stream:
                 rows[split] = {r['relative_path']: r for r in csv.DictReader(stream)}
+        self.test_rows = rows
         for example in self.examples:
             original = rows.get(example['split'], {}).get(example['relative_path'])
             if not original or any(example[k] != original[k] for k in
@@ -173,15 +176,21 @@ class DemoEngine:
 
     def info(self):
         return {'mode': 'live', 'seed': 551, 'device': str(self.device),
-            'original_commit': ORIGINAL_COMMIT, 'count': len(self.examples),
+            'original_commit': ORIGINAL_COMMIT, 'count': len(self.examples), 'schema_version': 2,
+            'batch_steps': len(self.batch), 'batch_per_dataset': len(self.batch),
+            'batch_policy': 'One test image per shared category per dataset, chosen by lowest SHA-256 then relative path. No prediction outcomes were used. This balanced teaching sample is not representative of the full test sets.',
             'selection_policy': self.config['selection_policy'], 'checkpoint_sha256': self.hashes,
-            'examples': [{'dataset': e['dataset'], 'purpose': e['purpose']} for e in self.examples]}
+            'examples': [{'dataset': e['dataset'], 'purpose': e['purpose'],
+                          'label': label_name(self.categories[int(e['class_id'])])} for e in self.examples]}
 
     def load_image(self, index):
         from PIL import Image
         if not 0 <= index < len(self.examples):
             raise IndexError('Unknown demonstration image')
-        example = self.examples[index]
+        return self.load_record(self.examples[index])
+
+    def load_record(self, example):
+        from PIL import Image
         path = checked_path(self.data_root, example['relative_path'])
         raw = path.read_bytes()
         if hashlib.sha256(raw).hexdigest() != example['sha256']:
@@ -190,40 +199,74 @@ class DemoEngine:
             return image.copy()
 
     def example(self, index):
-        image = self.load_image(index)
-        item = self.examples[index]
+        return dict(self.picture(self.examples[index]), index=index)
+
+    def picture(self, item):
+        image = self.load_record(item)
         from PIL import ImageOps
         original = ImageOps.exif_transpose(image).convert("RGB")
         original.thumbnail((850, 650))
-        return {'index': index, 'dataset': item['dataset'], 'purpose': item['purpose'],
+        return {'dataset': item['dataset'], 'purpose': item.get('purpose','Balanced teaching sample'),
             'label': label_name(self.categories[int(item['class_id'])]),
             'source_path': item['relative_path'], 'original_size': list(image.size),
             'original': image_url(original), 'prepared': image_url(self.data.resize_with_padding(image))}
 
     def predict(self, index):
+        if not 0 <= index < len(self.examples):
+            raise IndexError('Unknown demonstration image')
         image = self.load_image(index)
+        predictions, _ = self.infer(image, self.examples[index])
+        return {'index': index, 'predictions': predictions, 'mode': 'live'}
+
+    def infer(self, image, item, trace=False):
+        """Run unchanged saved models; optional observers only copy layer outputs."""
+        from .demo_trace import observe, describe_pair
         tensor = self.data.prepare_image(image).unsqueeze(0).to(self.device)
-        predictions = {}
+        predictions, captures = {}, {}
         for mode, model in self.models.items():
             before = self.model_code.state_fingerprint(model.state_dict())
             start = time.perf_counter()
             with self.torch.inference_mode():
-                logits = model(tensor)
+                if trace:
+                    logits, captures[mode] = observe(model, tensor)
+                else:
+                    logits = model(tensor)
                 if logits.shape != (1, len(self.categories)) or not self.torch.isfinite(logits).all():
                     raise ValueError('Invalid model output')
                 scores = logits.softmax(1)[0]
                 guess = int(scores.argmax().item())
                 score = float(scores[guess].item())
             if self.model_code.state_fingerprint(model.state_dict()) != before:
-                raise RuntimeError('Inference unexpectedly changed the saved model state')
-            item = self.examples[index]
-            recorded = item['recorded'][mode]
-            predictions[mode] = {'label': label_name(self.categories[guess]), 'class_id': guess,
+                raise RuntimeError('Inference unexpectedly changed the model state')
+            prediction = {'label': label_name(self.categories[guess]), 'class_id': guess,
                 'score': score, 'matches_label': guess == int(item['class_id']),
-                'matches_recorded_prediction': guess == int(recorded['predicted_class_id']),
-                'recorded_score_difference': abs(score - float(recorded['confidence'])),
-                'epoch': self.epochs[mode], 'milliseconds': round((time.perf_counter() - start) * 1000, 1)}
-        return {'index': index, 'predictions': predictions, 'mode': 'live'}
+                'epoch': self.epochs[mode], 'milliseconds': round((time.perf_counter() - start) * 1000, 1),
+                'scores': [{'class_id': i, 'label': label_name(self.categories[i]), 'score': float(v)}
+                           for i, v in enumerate(scores.tolist())]}
+            if item.get('recorded'):
+                recorded = item['recorded'][mode]
+                prediction.update(matches_recorded_prediction=guess == int(recorded['predicted_class_id']),
+                                  recorded_score_difference=abs(score - float(recorded['confidence'])))
+            predictions[mode] = prediction
+        return predictions, describe_pair(captures) if trace else None
+
+    def trace(self, index):
+        image = self.load_image(index)
+        predictions, features = self.infer(image, self.examples[index], trace=True)
+        return {'index': index, 'predictions': predictions, 'features': features,
+                'observed_logits_equal_plain': True, 'model_states_unchanged': True,
+                'mode': 'live', 'playback_note': 'Real outputs captured now; step timing is explanatory playback, not inference timing.'}
+
+    def batch_step(self, index):
+        if not 0 <= index < len(self.batch):
+            raise IndexError('Unknown sample step')
+        records = {}
+        for dataset, item in self.batch[index].items():
+            image = self.load_record(item)
+            predictions, _ = self.infer(image, item)
+            records[dataset] = dict(self.picture(item), predictions=predictions,
+                                   image_sha256=item['sha256'], class_id=int(item['class_id']))
+        return {'index': index, 'records': records, 'mode': 'live'}
 
 
 def export_replay(engine, destination):
@@ -231,9 +274,10 @@ def export_replay(engine, destination):
     destination = Path(destination)
     if destination.exists():
         raise FileExistsError('Choose a new replay folder; existing backups are preserved')
-    records = [dict(engine.example(i), **engine.predict(i)) for i in range(len(engine.examples))]
+    records = [dict(engine.example(i), **engine.trace(i)) for i in range(len(engine.examples))]
+    batch = [engine.batch_step(i) for i in range(len(engine.batch))]
     destination.mkdir(parents=True, exist_ok=False)
-    payload = {'info': dict(engine.info(), mode='recorded'), 'records': records}
+    payload = {'info': dict(engine.info(), mode='recorded'), 'records': records, 'batch': batch}
     # A self-contained HTML file works from a flash drive with no server/network.
     page = (ROOT / 'demo/index.html').read_text()
     page = page.replace('<link rel="stylesheet" href="/assets/demo.css">',
@@ -264,12 +308,16 @@ def make_handler(engine):
                     mime = {'html': 'text/html', 'css': 'text/css', 'js': 'text/javascript'}[name.split('.')[-1]]
                 elif route == '/api/info':
                     content, mime = json.dumps(engine.info()).encode(), 'application/json'
-                elif route.startswith('/api/example/') or route.startswith('/api/predict/'):
-                    index = int(route.rsplit('/', 1)[1])
-                    if not 0 <= index < len(engine.examples):
-                        raise IndexError('Unknown demonstration image')
-                    value = engine.example(index) if route.startswith('/api/example/') else engine.predict(index)
-                    content, mime = json.dumps(value).encode(), 'application/json'
+                elif any(route.startswith('/api/' + name + '/') for name in ('example','predict','trace','batch')):
+                    parts = route.strip('/').split('/')
+                    if len(parts) != 3:
+                        raise ValueError('Invalid route')
+                    index = int(parts[2])
+                    limit = len(engine.batch) if parts[1] == 'batch' else len(engine.examples)
+                    if not 0 <= index < limit:
+                        raise IndexError('Unknown image or sample step')
+                    action = getattr(engine, 'batch_step' if parts[1] == 'batch' else parts[1])
+                    content, mime = json.dumps(action(index)).encode(), 'application/json'
                 else:
                     self.send_error(404)
                     return
@@ -326,7 +374,7 @@ def main():
         engine = DemoEngine(args.data_root, args.runs_root, args.splits_dir, args.device)
         if args.export:
             records = export_replay(engine, args.export)
-            print(f'Saved {len(records)} illustrative examples to {args.export / "offline-demo.html"}')
+            print(f'Saved {len(records)} processing examples and {len(engine.batch)} pairs of dataset images to {args.export / "offline-demo.html"}')
         else:
             server = HTTPServer(('127.0.0.1', args.port), make_handler(engine))
             print(f'Open http://localhost:{args.port} (Ctrl+C stops the demo). CPU works; no training.', flush=True)

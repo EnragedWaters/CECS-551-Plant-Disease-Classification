@@ -142,25 +142,28 @@ There are no invented intermediate category guesses.
 
 ### Learn what changes and why
 
-Each stage includes its input/output dimensions and a plain-English purpose.
+The default view uses one short caption per stage. Photos, feature maps and
+score bars stay visible together. **Why this step?** opens the longer explanation;
+**Model setup & dimensions** contains the training comparison and dimension strip.
+Pooling shows a real 7 × 7 map → its average → the 576-value display immediately.
 The dimension strip reads **channels × height × width**: for example, 576 × 7 × 7
 means 576 separate grids, each with 49 positions. These are selected observation
 points, not every internal layer.
 
 - **Prepared:** the outline marks the resized photograph; space outside it is
   padding. Square photographs need no padding. Expand the color-number lesson
-  to follow a real center pixel through the original normalization settings.
+  under **Pixel values & resizing** to follow a real center pixel through the original normalization settings.
   The ordinary-color preview is not a picture of the normalized numbers.
-- **Early:** expand **Try a tiny filter** and switch from a uniform patch to
+- **Early:** expand **Try a toy filter (separate example)** and switch from a uniform patch to
   opposite edges. Multiplication and addition explain how a pattern produces a
   response. This hand-written toy is separate from MobileNet and never changes
   the photograph or model. It does not identify what a real channel detects.
-- **Pooling:** expand **Follow 49 actual values**. Choose channels 0–3 and follow
+- **Pooling:** expand **Inspect the numbers**. Choose channels 0–3 and follow
   their actual 7 × 7 grid, sum, division by 49, and observed average. The outlined
   cell in the 576-value display follows that channel. Averaging keeps a summary
   while losing exact spatial layout. The numeric grid uses the shared late-stage
   color scale; the 576-value display uses the pooled stage's own shared scale.
-- **Scores:** expand **How do the 576 averages vote?** Choose the prediction,
+- **Scores:** expand **Inspect score contributions** Choose the prediction,
   runner-up, or dataset label. Repeated roles share one option. Five largest
   absolute contributions are shown as feature × weight, with the other 571
   added together and the learned bias included. Positive and negative bars raise
@@ -210,10 +213,10 @@ to make one approach look better.
 ## Suggested classroom sequence (about two minutes)
 
 1. Identify both datasets and the frozen/fine-tuned difference. Run one
-   PlantVillage image and follow the dimension strip.
-2. Point out the prepared-photo outline, then the smaller response maps. Open
-   one pooling channel to show 49 numbers becoming one. Explain the score
-   calculation; expand its arithmetic only if time permits.
+   PlantVillage image and follow the visuals down the page.
+2. Point out the prepared-photo outline, then the smaller response maps. Use
+   the pooling diagram to show a map becoming one average. Explain the score
+   bars; expand arithmetic only if someone asks.
 3. Show a PlantDoc mistake (example 6), or example 5 where only fine-tuning
    matches the annotation. Start a few sample pairs; call partial counts partial.
 4. Return to the full-results slide. These lessons illustrate computation;
@@ -266,7 +269,7 @@ results are never overwritten. See [PyTorch's hook documentation](https://docs.p
 The prepared portable replay is:
 
 ```text
-outputs/phase4-demo-learning/replay-final/offline-demo.html
+outputs/demo-visual-cleanup/replay/offline-demo.html
 ```
 
 Double-click it in File Explorer. It contains both views, all six processing
@@ -277,8 +280,8 @@ class. Copy the HTML and neighboring `ATTRIBUTION.md` to your flash drive.
 Static PDFs and screenshots are under:
 
 ```text
-outputs/phase4-demo-learning/browser-check-verified/
-outputs/phase4-demo-learning/Demo-Learning-Backup.pdf
+outputs/demo-visual-cleanup/browser-check/
+outputs/demo-visual-cleanup/Demo-Visual-Backup.pdf
 ```
 
 These contain dataset images and stay Git-ignored. The combined PDF includes
@@ -300,7 +303,7 @@ python -m playwright install chromium --only-shell
 python scripts/check_demo_browser.py --output-dir outputs/phase4-demo-learning/browser-check-new
 ```
 
-The default replay path is the prepared `replay-final` above. Override `--url`,
+The default replay path is the prepared `replay` above. Override `--url`,
 `--replay`, or `--browser` for other locations. Checks exercise all seven stages
 of all six examples, both datasets, playback, sample counts, pause/resume/reset,
 learning controls, real arithmetic, and narrow windows. Offline checks block HTTP. Screenshots and printable PDFs

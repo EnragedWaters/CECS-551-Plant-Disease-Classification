@@ -13,6 +13,9 @@ For presenting, start in [ONE-CLICK-LAUNCHERS](ONE-CLICK-LAUNCHERS/README.md) an
 choose the OS-labeled launcher. Windows supports native Python with optional WSL;
 macOS and Linux/WSL have separate launchers. The demo defaults to all seven
 processing stages together and also offers a running two-dataset sample.
+Keep the default view visual: one short caption per stage, photos/maps/diagrams
+first, and explanations/calculations behind optional details. Do not repeat
+paragraphs beneath both models or expand every lesson by default.
 `demo/lessons.js` adds stage purposes, preprocessing geometry, a separate toy
 filter, actual pooling arithmetic and classifier contributions. The toy must
 remain clearly separate from the real model. `demo_trace.py` verifies the real

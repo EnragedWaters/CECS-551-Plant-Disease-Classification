@@ -54,8 +54,8 @@ computer/projector that will be used in class.
 3. Open [ONE-CLICK-LAUNCHERS](../../ONE-CLICK-LAUNCHERS/README.md), choose your OS,
    and start the demo before class. Try both dataset panels, the processing stages,
    and the running sample; see the demo guide for a short sequence.
-4. Keep `outputs/phase4-demo-learning/replay-final/offline-demo.html` and
-   `outputs/phase4-demo-learning/Demo-Learning-Backup.pdf` available locally/on a flash drive.
+4. Keep `outputs/demo-visual-cleanup/replay/offline-demo.html` and
+   `outputs/demo-visual-cleanup/Demo-Visual-Backup.pdf` available locally/on a flash drive.
    They contain dataset photographs and are deliberately ignored by Git.
 5. If a backup is used, identify it as recorded. Do not claim training occurred
    during the demo or that either the six walkthrough examples or the 44-image teaching sample

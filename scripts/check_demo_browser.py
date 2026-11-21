@@ -15,8 +15,8 @@ ROOT = Path(__file__).resolve().parents[1]
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--url', default='http://localhost:8766')
-    parser.add_argument('--replay', type=Path, default=ROOT/'outputs/phase4-demo-learning/replay-final/offline-demo.html')
-    parser.add_argument('--output-dir', type=Path, default=ROOT/'outputs/phase4-demo-learning/browser-check')
+    parser.add_argument('--replay', type=Path, default=ROOT/'outputs/demo-visual-cleanup/replay/offline-demo.html')
+    parser.add_argument('--output-dir', type=Path, default=ROOT/'outputs/demo-visual-cleanup/browser-check')
     parser.add_argument('--browser', help='Optional existing Chromium executable')
     args = parser.parse_args()
     recorded = json.loads((args.replay.parent/'replay.json').read_text())
@@ -66,6 +66,15 @@ def main():
                 page.wait_for_function("Array.from(document.querySelectorAll('#all-stages img')).every(i => i.complete && i.naturalWidth > 0)")
                 for mode in ['frozen','finetune']:
                     assert page.locator(f'#all-stages [data-mode="{mode}"] .predicted-label').inner_text()==recorded['records'][i]['predictions'][mode]['label']
+                # The default view should stay concise while showing all real stages.
+                assert len(page.locator('body').inner_text().split()) < 700
+                assert page.locator('#all-stages .stage-purpose[open]').count()==0
+                assert page.locator('#all-stages .pool-mini span').count()==98
+                assert page.locator('.training-lesson').get_attribute('open') is None
+                if i==5:
+                    page.screenshot(path=str(args.output_dir/f'{kind}-visual-summary.png'),full_page=True)
+                    if kind=='recorded':
+                        page.pdf(path=str(args.output_dir/'visual-summary-backup.pdf'),format='A4',print_background=True,scale=.65)
                 # Lessons must use this photo's captured values without another inference.
                 request_count=len(api_requests)
                 assert page.locator('#dimension-flow > span').count()==7
@@ -83,6 +92,7 @@ def main():
                     for channel in range(4):
                         card.locator('select').select_option(str(channel))
                         assert card.locator('.pool-grid span').count()==49
+                        assert card.locator('.pool-average').inner_text()==f"{learn['pooling'][channel]['observed']:.3f}"
                         assert f"average {learn['pooling'][channel]['observed']:.4f}" in card.locator('.pool-preview').inner_text()
                         assert f"Sum {learn['pooling'][channel]['sum']:.4f}" in card.locator('.pool-equation').inner_text()
                         assert abs(page.locator(f'#all-stages [data-stage="5"] [data-mode="{mode}"] .pooled-marker').evaluate('(n)=>parseFloat(n.style.left)')-channel/24*100)<1e-4

@@ -153,3 +153,36 @@ footer { text-align:center; padding:15px; color:var(--muted); font-size:12px; }
 .contribution-bar .negative { right:50%; background:#2b62b1; }
 @media(max-width:750px) { .dimension-flow-diagram { gap:5px; } .pool-grid span { font-size:10px; } }
 @media print { details.learning-details[open],details.training-lesson[open] { display:block; } .prepared-frame,.pool-grid { break-inside:avoid; } }
+
+/* Keep the projection view visual; explanations remain available on demand. */
+.stage-explanation { background:transparent; padding:0; margin:20px 0 10px; }
+.stage-explanation h3 { font-size:21px; }
+.stage-explanation > p { font-size:15px; margin:5px 0; }
+.stage-purpose { display:inline-block; border:0; padding:0; margin:8px 18px 0 0; vertical-align:top; }
+.stage-purpose summary,.filter-lesson summary { font-weight:normal; color:var(--green); }
+.stage-purpose[open] { display:block; background:#e5ede1; padding:12px; border-radius:7px; }
+.stage-explanation .filter-lesson { display:inline-block; border:0; padding:0; margin:8px 0 0; }
+.stage-explanation .filter-lesson[open] { display:block; padding:12px; background:#e5ede1; border-radius:7px; }
+.stage-explanation .visual-note { font-size:12px; color:var(--muted); }
+.model-heading { font-size:17px; }
+.stage-content { min-height:0; }
+.stage-photo { height:240px; }
+.prepared-frame { width:240px; height:240px; }
+.feature-grid img { border-radius:5px; }
+.feature-info { color:var(--muted); margin-top:0; }
+.legend { margin:12px 0 0; }
+.overview-stage { padding-bottom:10px; border-bottom:1px solid var(--line); }
+.pool-visual { display:grid; grid-template-columns:minmax(70px,1fr) auto minmax(60px,.8fr) auto minmax(95px,1fr); align-items:center; gap:8px; text-align:center; padding:16px 0; }
+.pool-visual small { display:block; margin-top:9px; font-size:11px; color:var(--muted); }
+.pool-mini { display:grid; grid-template-columns:repeat(7,1fr); gap:1px; width:100%; max-width:120px; aspect-ratio:1; margin:auto; background:#f4f5f0; }
+.pool-mini span { min-width:0; }
+.pool-average { display:block; font-size:22px; padding:15px 2px; background:#e5ede1; border-radius:8px; }
+.pool-visual .pooled-frame { width:100%; max-width:120px; height:auto; aspect-ratio:1; margin:auto; }
+.pool-visual .pooled { width:100%; height:auto; }
+.published-results { font-size:14px; margin-top:24px; }
+.published-results aside { margin-top:8px; }
+@media(max-width:750px) {
+  .pool-visual { gap:5px; grid-template-columns:minmax(60px,1fr) auto minmax(55px,.8fr) auto minmax(80px,1fr); }
+  .pool-average { font-size:18px; }
+}
+@media print { .stage-purpose:not([open]) { display:none; } }

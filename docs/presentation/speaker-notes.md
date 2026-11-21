@@ -36,11 +36,11 @@ Suggested speaker: **Troy**. Suggested time: 50 seconds.
 
 Pretrained means the model already learned image patterns on ImageNet before our plant experiment. The frozen baseline reuses these patterns unchanged and only learns the final category layer. Fine-tuning also adjusts the earlier feature weights after one warmup epoch. We replaced the entire original classifier with one linear 576-to-22 layer. Batch-normalization running statistics stayed fixed in both versions. Three seeds repeat training with different initial category weights and image order, using the same split. Maximum ten epochs, AdamW, and source-validation early stopping were fixed. No random augmentation was used for the published experiment; later optional code does not change that.
 
-## 6. Watch the saved models make predictions
+## 6. Watch the processing. Compare the datasets.
 
-Suggested speaker: **Max**. Suggested time: 90 seconds.
+Suggested speaker: **Max**. Suggested time: 120 seconds.
 
-Before class, start python -m plant_disease.demo in the project environment. Open http://localhost:8766. Show example 1 and run both models. Explain the original image, padded input, dataset label, and predictions. Jump to example 5 and run: only fine-tuning matches that annotation. Then example 6: neither matches. A high score is not a guarantee. Explain that these examples were deliberately chosen after evaluation for illustration. They are not a representative sample or a new accuracy test. Seed 551 was chosen because it is the first planned seed, not because it performed best. If live execution fails, say so and open the offline replay; its badge says recorded. Do not present the replay as live inference.
+Before class, double-click Run Demo.cmd. Both PlantVillage and PlantDoc panels are visible; choose a thumbnail and click Run & watch. The models compute real outputs first, then playback shows them slowly. Pause at Early features: each colored square shows actual numerical responses from one feature channel, not an attention map or proof of why the model chose a category. Blue means negative, orange positive; both models share the same color scale at that stage. Step to the summary and scores. The 576 summary values feed the final category layer. Show a PlantDoc mistake as well as a correct PlantVillage example. Open Compare 22 images per dataset and start the comparison; use zero pause if time is short. Each pair contains the same annotated category from two different collections, not the same photographed leaf. One image per category was chosen by a fixed checksum rule without using predictions. Both models happen to score 22/22 on PlantVillage and 5/22 on PlantDoc in this small sample. That does not replace the full evaluation on the next slide. If time is limited, show a few pairs and identify the partial counts. The six walkthrough examples were deliberately selected after evaluation; neither selection is a representative new test. If using the offline file, explicitly identify it as recorded. Seed 551 is the first planned seed, not a best-run selection.
 
 ## 7. Strong source scores did not transfer
 
@@ -70,7 +70,7 @@ Our contribution is an empirical baseline and reproducibility exercise, not a ne
 
 Backup slide; use for questions.
 
-Use this slide only for questions. The original saved checkpoints are fingerprinted and require the original code; the demo loads verified historical modules automatically. Full reproduction uses a separate worktree at 9619975 so optional later training changes do not get mixed into the paper. Raw images, models and private notes are not on GitHub. Reproduction commands generate separate records; exact numerical equality across different devices is not guaranteed.
+Use this slide only for questions. The original saved checkpoints are fingerprinted and require the original code; the demo loads verified historical modules automatically. Full reproduction uses a separate worktree at 9619975 so optional later training changes do not get mixed into the paper. Raw images, models and private notes are not on GitHub. Reproduction commands generate separate records; exact numerical equality across different devices is not guaranteed. The processing display uses temporary observation hooks that copy actual layer outputs. Checks confirm identical category scores with and without those hooks, unchanged weights and buffers, and no retained hooks. Fixed channels and shared stage color scales make the two models easier to compare; these displays do not establish a causal explanation. The running sample is chosen from the original test manifests and recorded with source paths and image hashes in the local replay JSON.
 
 ## 12. Selected references
 

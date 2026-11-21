@@ -7,6 +7,7 @@
   const datasets = ['plantvillage', 'plantdoc'];
   const names = {frozen:'Frozen', finetune:'Fine-tuned', plantvillage:'PlantVillage', plantdoc:'PlantDoc'};
   const replay = window.RECORDED_DEMO;
+  const lessons = window.DemoLessons;
   const stages = [
     ['Original', 'Start with the photograph', 'Both saved models receive the same selected photograph. The dataset label is used only to check the answer; it is not given to the model.'],
     ['Prepared', 'Make the image fit the model', 'Correct orientation, convert to RGB, resize without stretching, and pad to 224 × 224. Pixel values are then normalized using the original training settings.'],
@@ -100,6 +101,7 @@
         content.append(image(step===0 ? pictures[focus].original : pictures[focus].prepared,
           step===0 ? 'Selected original photograph' : 'Actual resized and padded model input','stage-photo'));
         content.append(node('p',step===0 ? 'The same photo enters both models.' : 'Actual preprocessing output, before numerical normalization.','caption'));
+        if(step===1)lessons.preparation(content,pictures[focus]);
       } else if (step<6 && trace) {
         const item=trace.features[mode][step-2];
         if (step<5) {
@@ -114,7 +116,8 @@
         }
         const legend=node('div',undefined,'legend');
         legend.append(node('span',`−${item.scale_limit.toFixed(2)}`),node('span',undefined,'gradient'),node('span',`+${item.scale_limit.toFixed(2)}`));
-        content.append(legend,node('p','Shared scale across both models at this step; pale = zero.','caption'));
+        content.append(legend,node('p',step===5 ? 'Shared scale for the 576-average display above; pale = zero.' : 'Shared scale across both models at this step; pale = zero.','caption'));
+        if(step===5)lessons.pooling(content,trace.predictions[mode].learning,trace.features[mode][2].scale_limit);
       } else if (trace) {
         const value=trace.predictions[mode];
         content.append(node('p',value.label,'predicted-label'),verdict(value));
@@ -122,6 +125,7 @@
         scoreRows(content,scores.slice(0,5));
         const more=node('details');more.append(node('summary','Show the other 17 category scores'));scoreRows(more,scores.slice(5));content.append(more);
         content.append(node('p','Final model scores, not calibrated probabilities or a diagnosis.','score-caption'));
+        lessons.classifier(content,value);
         if(value.matches_recorded_prediction===false)content.append(node('p','This predicted category differs from the original evaluation.','notice'));
       } else {
         content.append(node('p','Run the models to show this stage.','caption'));
@@ -129,6 +133,7 @@
   }
   function renderStage() {
     $('single-stage').hidden=showAll;
+    $('single-lesson').replaceChildren();
     $('all-stages').hidden=!showAll;
     $('all-stages').replaceChildren();
     modes.forEach(mode=>$(`trace-${mode}`).querySelector('.stage-content').replaceChildren());
@@ -139,6 +144,7 @@
         section.dataset.stage=step;
         const heading=node('div',undefined,'stage-explanation');
         heading.append(node('h3',`${step+1}. ${item[1]}`),node('p',item[2]));
+        lessons.explain(heading,step);
         const grid=node('div',undefined,'model-grid');
         modes.forEach(mode=>{
           const card=node('article',undefined,'model-card');card.dataset.mode=mode;
@@ -151,6 +157,7 @@
     } else {
       $('stage-title').textContent=stages[stage][1];
       $('stage-description').textContent=stages[stage][2];
+      lessons.explain($('single-lesson'),stage);
       modes.forEach(mode=>renderModelStage($(`trace-${mode}`).querySelector('.stage-content'),mode,stage));
     }
     walkControls();
@@ -250,7 +257,7 @@
 
   try {
     info=replay ? replay.info : await get('/api/info');
-    if(info.schema_version!==2)throw new Error('old server or backup; restart the launcher or regenerate the backup');
+    if(info.schema_version!==3)throw new Error('old server or backup; restart the launcher or regenerate the backup');
     $('mode').textContent=replay ? 'Recorded replay · offline' : `Live computation · ${info.device.toUpperCase()}`;
     $('mode').classList.toggle('recorded',!!replay);
     $('capture').textContent=replay ? 'Watch recorded processing' : 'Run & watch';
@@ -281,6 +288,6 @@
     $('batch-pause').onclick=pauseBatch;
     $('batch-next').onclick=()=>{pauseBatch();nextPair();};
     $('batch-reset').onclick=()=>{pauseBatch();completed=[];renderBatch();status('Sample reset. Repeating it does not create new test data.');};
-    renderBatch();selectPhoto(0);
+    lessons.flow($('dimension-flow'));renderBatch();selectPhoto(0);
   } catch(error){fail(error);}
 })();

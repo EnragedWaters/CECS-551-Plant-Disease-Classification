@@ -19,6 +19,25 @@ from plant_disease.model import state_fingerprint
 
 
 class DemoTests(unittest.TestCase):
+    def test_preparation_lesson_matches_tensor_for_different_aspect_ratios(self):
+        from plant_disease import data
+        engine = DemoEngine.__new__(DemoEngine)
+        engine.data = data
+        engine.categories = [{'plantvillage':'A___healthy'}]
+        for size in [(50,100),(101,30),(60,60)]:
+            image = Image.new('RGB', size, (20,100,240))
+            engine.load_record = lambda item: image
+            record = engine.picture({'class_id':0,'dataset':'plantvillage','relative_path':'synthetic.png'})
+            lesson = record['preparation']
+            self.assertEqual(lesson['oriented_size'],list(size))
+            self.assertTrue(torch.allclose(torch.tensor(lesson['center_normalized']),
+                                          data.prepare_image(image)[:,112,112],atol=1e-6))
+            if size[0]==size[1]:
+                self.assertEqual(lesson['offset'],[0,0])
+                self.assertEqual(lesson['resized_size'],[224,224])
+            else:
+                self.assertTrue(any(lesson['offset']))
+
     def test_paths_cannot_escape_dataset_root(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -86,6 +105,8 @@ class DemoTests(unittest.TestCase):
             self.assertIn('window.RECORDED_DEMO=', text)
             self.assertIn('\\u003c/script>', text)
             self.assertNotIn('src="/assets/demo.js"', text)
+            self.assertNotIn('src="/assets/lessons.js"', text)
+            self.assertIn('window.DemoLessons', text)
             self.assertEqual(json.loads((destination/'replay.json').read_text())['info']['mode'],'recorded')
             with self.assertRaises(FileExistsError):
                 export_replay(engine, destination)

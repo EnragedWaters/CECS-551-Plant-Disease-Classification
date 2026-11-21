@@ -1,0 +1,152 @@
+{
+  "seed": 551,
+  "original_commit": "9619975a2f64954bc25d056708962eea1895d84b",
+  "selection_policy": "For each dataset and outcome (both match, only fine-tuning matches, neither matches), take the first existing seed-551 example sorted by numeric category ID then relative path. Outcomes are chosen for explanation after evaluation; this is not a representative sample or a new accuracy estimate. Seed 551 is the first declared seed, not the best seed.",
+  "results_sha256": "62200f646116a8b483ce5441751c6a5c0dc8e655327ee68929d90e70723ccb71",
+  "examples": [
+    {
+      "relative_path": "plantvillage/raw/color/Apple___Apple_scab/0261a6e4-21f8-481a-8827-b674e6955644___FREC_Scab 3055.JPG",
+      "sha256": "5d7236ea8400b9b6093b51a860ebf4844d78b961e1505b6e64520a29fcef4427",
+      "class_id": "0",
+      "dataset": "plantvillage",
+      "split": "source_test",
+      "purpose": "Both predictions match",
+      "recorded": {
+        "frozen": {
+          "relative_path": "plantvillage/raw/color/Apple___Apple_scab/0261a6e4-21f8-481a-8827-b674e6955644___FREC_Scab 3055.JPG",
+          "true_class_id": "0",
+          "predicted_class_id": "0",
+          "confidence": "0.9994964599609375",
+          "correct": "True"
+        },
+        "finetune": {
+          "relative_path": "plantvillage/raw/color/Apple___Apple_scab/0261a6e4-21f8-481a-8827-b674e6955644___FREC_Scab 3055.JPG",
+          "true_class_id": "0",
+          "predicted_class_id": "0",
+          "confidence": "0.9999231100082397",
+          "correct": "True"
+        }
+      }
+    },
+    {
+      "relative_path": "plantvillage/raw/color/Apple___Apple_scab/154842bb-6ee3-4176-9007-cf7a43cfe140___FREC_Scab 3434.JPG",
+      "sha256": "0727842c7b1e0717dd8cf4876dcd19ec325442999fec2c89856f03675d7b981d",
+      "class_id": "0",
+      "dataset": "plantvillage",
+      "split": "source_test",
+      "purpose": "Only fine-tuning matches",
+      "recorded": {
+        "frozen": {
+          "relative_path": "plantvillage/raw/color/Apple___Apple_scab/154842bb-6ee3-4176-9007-cf7a43cfe140___FREC_Scab 3434.JPG",
+          "true_class_id": "0",
+          "predicted_class_id": "18",
+          "confidence": "0.9395555853843689",
+          "correct": "False"
+        },
+        "finetune": {
+          "relative_path": "plantvillage/raw/color/Apple___Apple_scab/154842bb-6ee3-4176-9007-cf7a43cfe140___FREC_Scab 3434.JPG",
+          "true_class_id": "0",
+          "predicted_class_id": "0",
+          "confidence": "0.986586332321167",
+          "correct": "True"
+        }
+      }
+    },
+    {
+      "relative_path": "plantvillage/raw/color/Apple___Apple_scab/09e40e4f-f8bc-4537-b20d-0b244760dbf4___FREC_Scab 3216.JPG",
+      "sha256": "97a89659d89e15ffc53e59e221af3c5737c0d6990a04b8e60e4dedd939e2d554",
+      "class_id": "0",
+      "dataset": "plantvillage",
+      "split": "source_test",
+      "purpose": "Neither prediction matches",
+      "recorded": {
+        "frozen": {
+          "relative_path": "plantvillage/raw/color/Apple___Apple_scab/09e40e4f-f8bc-4537-b20d-0b244760dbf4___FREC_Scab 3216.JPG",
+          "true_class_id": "0",
+          "predicted_class_id": "17",
+          "confidence": "0.6069530248641968",
+          "correct": "False"
+        },
+        "finetune": {
+          "relative_path": "plantvillage/raw/color/Apple___Apple_scab/09e40e4f-f8bc-4537-b20d-0b244760dbf4___FREC_Scab 3216.JPG",
+          "true_class_id": "0",
+          "predicted_class_id": "7",
+          "confidence": "0.6726478934288025",
+          "correct": "False"
+        }
+      }
+    },
+    {
+      "relative_path": "plantdoc/test/Apple Scab Leaf/052609%20Hartman%20Crabapple%20scab%20single%20leaf.JPG.jpg",
+      "sha256": "13cfeac779b23fa433e92498086f19b1768b84cab23bc9d25e5b33cbe7ca17db",
+      "class_id": "0",
+      "dataset": "plantdoc",
+      "split": "target_test",
+      "purpose": "Both predictions match",
+      "recorded": {
+        "frozen": {
+          "relative_path": "plantdoc/test/Apple Scab Leaf/052609%20Hartman%20Crabapple%20scab%20single%20leaf.JPG.jpg",
+          "true_class_id": "0",
+          "predicted_class_id": "0",
+          "confidence": "0.9415104985237122",
+          "correct": "True"
+        },
+        "finetune": {
+          "relative_path": "plantdoc/test/Apple Scab Leaf/052609%20Hartman%20Crabapple%20scab%20single%20leaf.JPG.jpg",
+          "true_class_id": "0",
+          "predicted_class_id": "0",
+          "confidence": "0.44300004839897156",
+          "correct": "True"
+        }
+      }
+    },
+    {
+      "relative_path": "plantdoc/test/Apple leaf/apple-leaf-14319997.jpg",
+      "sha256": "ee31497d152703df4f9581a32796cc272181cc0b2bd7be22d5e10ee0f40cac9d",
+      "class_id": "1",
+      "dataset": "plantdoc",
+      "split": "target_test",
+      "purpose": "Only fine-tuning matches",
+      "recorded": {
+        "frozen": {
+          "relative_path": "plantdoc/test/Apple leaf/apple-leaf-14319997.jpg",
+          "true_class_id": "1",
+          "predicted_class_id": "2",
+          "confidence": "0.5063365697860718",
+          "correct": "False"
+        },
+        "finetune": {
+          "relative_path": "plantdoc/test/Apple leaf/apple-leaf-14319997.jpg",
+          "true_class_id": "1",
+          "predicted_class_id": "1",
+          "confidence": "0.832139253616333",
+          "correct": "True"
+        }
+      }
+    },
+    {
+      "relative_path": "plantdoc/test/Apple Scab Leaf/1b321015-6e33-4f18-aade-888f4383fe92.jpeg.jpg",
+      "sha256": "7af1a2678a7114632f0274947888e29794321fc9e5edc25dd78d16d42017d685",
+      "class_id": "0",
+      "dataset": "plantdoc",
+      "split": "target_test",
+      "purpose": "Neither prediction matches",
+      "recorded": {
+        "frozen": {
+          "relative_path": "plantdoc/test/Apple Scab Leaf/1b321015-6e33-4f18-aade-888f4383fe92.jpeg.jpg",
+          "true_class_id": "0",
+          "predicted_class_id": "10",
+          "confidence": "0.793220579624176",
+          "correct": "False"
+        },
+        "finetune": {
+          "relative_path": "plantdoc/test/Apple Scab Leaf/1b321015-6e33-4f18-aade-888f4383fe92.jpeg.jpg",
+          "true_class_id": "0",
+          "predicted_class_id": "16",
+          "confidence": "0.7576680779457092",
+          "correct": "False"
+        }
+      }
+    }
+  ]
+}

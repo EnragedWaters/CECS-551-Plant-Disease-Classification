@@ -1,3 +1,7 @@
 # Document exports should appear as files, not pages of binary text in Git diffs.
 *.pdf binary
 *.pptx binary
+
+# Windows launcher and WSL helper need their native line endings.
+*.cmd text eol=crlf
+*.sh text eol=lf

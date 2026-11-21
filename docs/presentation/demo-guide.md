@@ -4,7 +4,22 @@ The demo shows an original leaf photograph, its prepared input, the dataset's
 label, and predictions from both saved models. It runs locally in a browser.
 It does not train, download anything, or change the submitted results.
 
-## On the prepared laptop
+## Double-click from Windows
+
+Open the repository folder in Windows File Explorer and double-click
+**Run Demo.cmd**. It starts the prepared environment in your default WSL distribution (Ubuntu on this laptop) and opens
+your default Windows browser once the models are loaded. Keep the terminal
+window open; press **Ctrl+C** there to stop the demo. An error leaves the
+window open so you can read it. No environment activation or typed command
+is needed on the prepared laptop.
+
+The launcher finds the repository from its own location, including paths with
+spaces. It still needs the saved models, data and environment listed below.
+The default WSL distribution must be the one containing the project environment
+and datasets. A different Python path can
+be set using `PLANT_DISEASE_PYTHON` inside WSL. Nothing is installed automatically.
+
+## Run from a terminal instead
 
 In a WSL terminal, from the repository folder:
 

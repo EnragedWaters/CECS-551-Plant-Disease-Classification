@@ -8,7 +8,11 @@ existing report, project locations, and guidance on follow-up changes.
 ## Presentation and demonstration
 
 The [presentation guide](docs/presentation/README.md) links the editable
-PowerPoint, PDF, speaker notes, visual demo, and rubric coverage. From the
+PowerPoint, PDF, speaker notes, visual demo, and rubric coverage.
+On the prepared Windows laptop, double-click **Run Demo.cmd** in File Explorer
+to start the demo and open the browser automatically.
+
+Alternatively, from the
 prepared project environment, start the local demo with:
 
 ```bash

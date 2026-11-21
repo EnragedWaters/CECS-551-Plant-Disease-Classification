@@ -10,7 +10,8 @@ for Windows, macOS, or Linux/WSL. Keep the terminal open while using the demo.
 
 Choose a photograph and click **Run & show all stages** for a scrollable comparison
 of both models. The second tab runs a 22-image sample from each dataset; those
-counts are separate from the published full evaluation.
+counts are separate from the published full evaluation. The summary explains
+what each stage changes, with optional filter, averaging and score lessons.
 
 A new computer needs the Python environment, datasets, and saved models first.
 See [setup and demo instructions](docs/presentation/demo-guide.md), including the

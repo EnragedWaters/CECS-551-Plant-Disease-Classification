@@ -11,6 +11,8 @@ The commands below describe the original source-only method. Augmentation and
 PlantDoc training are off by default. See [optional experiments](optional-experiments.md)
 for explicit options and separate output folders. Existing checkpoints must be
 verified with their original code (`9619975`); new code fingerprints will differ.
+See [reproduction instructions](reproduction.md) for the exact original-version
+commands, including separate worktrees and fresh-run selection records.
 
 ## Run a small trial
 
@@ -142,8 +144,8 @@ pairs, mean validation accuracy is 97.54% for frozen features and 98.98% for
 fine-tuning. Fine-tuning scored higher in every pair, but its accuracy varied
 more across seeds (sample standard deviation 0.38 versus 0.18 percentage points).
 This is a descriptive validation comparison, not a significance test or final
-generalization result. Final test evaluation has since completed; the Phase 4
-report remains.
+generalization result. Final test evaluation and the
+[IEEE report](phase4-report/Phase-4-Plant-Disease-Classification.md) are complete.
 
 ## Read a completed full-source run
 
@@ -161,7 +163,7 @@ an incomplete comparison, a trial run, or a changed selected-image list.
 The table shows the validation metrics from the selected checkpoint. The last
 epoch may be worse, and the highest-accuracy epoch is not necessarily the one
 with lowest validation loss. Keeping that distinction makes the report describe
-the actual model we will later evaluate.
+the actual model selected for evaluation.
 
 ## Repetition budget
 

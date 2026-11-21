@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plant disease · model comparison</title>
+<link rel="stylesheet" href="/assets/demo.css">
+</head>
+<body>
+<header><div class="brand"><span class="mark">P</span><div>Plant disease classification<small>Phase 4 · coolTeamName.ipynb</small></div></div><span id="mode" class="mode">Loading models…</span></header>
+<main>
+<div class="intro"><div><p class="eyebrow">FROM FAMILIAR IMAGES TO A DIFFERENT DATASET</p><h1>Same photograph. Two models.</h1><p>Compare a frozen feature extractor with a fine-tuned model.</p></div><div class="seed">MobileNetV3-Small<span>Seed 551 · 22 categories</span></div></div>
+<div class="toolbar"><button id="previous" disabled>← Previous</button><label for="example">Example</label><select id="example" disabled></select><button id="next" disabled>Next →</button><span id="counter"></span></div>
+<p id="status" role="status" aria-live="polite">Checking original model records…</p>
+<section class="images" aria-label="Image preparation">
+<article class="card"><div class="card-title"><h2>1 · Original photograph</h2><span id="dataset" class="tag"></span></div><div class="photo"><img id="original" alt="Original dataset leaf photograph"></div><p id="dimensions" class="caption"></p></article>
+<article class="card"><div class="card-title"><h2>2 · Model input</h2><span class="tag">224 × 224</span></div><div class="photo prepared"><img id="prepared" alt="Leaf resized with padding for the model"></div><p class="caption">Resized without stretching; padded at the edges. Pixel normalization follows.</p></article>
+</section>
+<div class="truth"><span>Dataset label</span><strong id="label">—</strong><small>An annotation, not an independently verified diagnosis.</small></div>
+<div class="prediction-heading"><h2>3 · Compare predictions</h2><button id="run" class="primary" disabled>Run both models</button></div>
+<section class="predictions" aria-label="Model predictions">
+<article id="frozen" class="card prediction"><p class="eyebrow">FROZEN FEATURES</p><p class="explain">Only the final category layer learned.</p><h3 class="guess">Ready to run</h3><div class="verdict">—</div><p class="score"></p></article>
+<article id="finetune" class="card prediction"><p class="eyebrow">FINE-TUNED FEATURES</p><p class="explain">The category layer and earlier features learned.</p><h3 class="guess">Ready to run</h3><div class="verdict">—</div><p class="score"></p></article>
+</section>
+<p class="caution">A high model score can still accompany a wrong answer. Scores are not calibrated probabilities or diagnoses.</p>
+<aside><strong>Examples explain behavior; they do not estimate accuracy.</strong><p>These six examples were selected after evaluation to include successes and mistakes. Full results use three seeds and all 5,487 PlantVillage / 183 PlantDoc test images.</p><div class="results"><span>Frozen: <b>97.59% / 21.68%</b></span><span>Fine-tuned: <b>99.07% / 25.87%</b></span><small>PlantVillage / PlantDoc · mean accuracy over three seeds</small></div></aside>
+<details><summary>Example selection and image attribution</summary><p id="selection"></p><p id="source"></p><p>PlantVillage: S. P. Mohanty, author-hosted distribution, CC BY-SA 3.0. PlantDoc: D. Singh et al. / P. Kayal repository, CC BY 4.0. Display copies are resized; the model preview is padded. See <code>demo/ATTRIBUTION.md</code> for source and license links. No images or predictions leave this computer.</p></details>
+</main>
+<footer>Research demonstration · Original experiment 9619975 · No training or model updates</footer>
+<script src="/assets/demo.js" defer></script>
+</body></html>

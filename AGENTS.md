@@ -9,6 +9,10 @@ introduction, literature review, methods, measured results, discussion, and
 conclusion. The team can review it and propose improvements; there is no need
 to start a second paper or invent findings to fill it.
 
+The Phase 4 presentation and visual demo are now prepared; see
+[the presentation guide](docs/presentation/README.md) before creating another
+deck or demo. Confirm the class schedule and rehearse the existing materials.
+
 Read these before planning work:
 
 1. [Existing IEEE paper — Markdown](docs/phase4-report/Phase-4-Plant-Disease-Classification.md)
@@ -26,6 +30,9 @@ explain the current status and establish which improvement is wanted.
 
 | Location | What it contains |
 | --- | --- |
+| [docs/presentation/](docs/presentation/) | Phase 4 PowerPoint/PDF, speaker notes, demo instructions and rubric coverage. Start here for presentation work. |
+| [demo/](demo/) and [plant_disease/demo.py](plant_disease/demo.py) | Local visual demonstration of verified original saved models. Image-bearing replay/backup files remain in ignored outputs. |
+| [docs/reproduction.md](docs/reproduction.md) | Exact commands for the paper’s original code version and a separate fresh reproduction. |
 | [docs/phase4-report/](docs/phase4-report/) | The existing IEEE paper in Markdown and PDF. The PDF preserves the first submission. |
 | [docs/evaluation/](docs/evaluation/) | Final results, JSON evidence, per-category CSV scores, and plots. Use these to check numerical claims. |
 | [docs/training-runs/](docs/training-runs/) | Individual seed reports, the combined training report, and selected-checkpoint records. These validation scores are separate from final test scores. |

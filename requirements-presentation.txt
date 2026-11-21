@@ -1,0 +1,4 @@
+# Optional authoring and browser-check tools; not needed to run the live demo.
+python-pptx==1.0.2
+reportlab==5.1.0
+playwright==1.65.2

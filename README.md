@@ -5,7 +5,23 @@ A semester project exploring plant disease classification across PlantVillage an
 Before starting team or AI-assisted work, read [AGENTS.md](AGENTS.md) for the
 existing report, project locations, and guidance on follow-up changes.
 
-## Current focus
+## Presentation and demonstration
+
+The [presentation guide](docs/presentation/README.md) links the editable
+PowerPoint, PDF, speaker notes, visual demo, and rubric coverage. From the
+prepared project environment, start the local demo with:
+
+```bash
+python -m plant_disease.demo
+```
+
+Then open **http://localhost:8766**. It uses the original saved models and
+requires local datasets/checkpoints; these are not bundled in a fresh clone.
+See the [demo guide](docs/presentation/demo-guide.md) for prerequisites and
+the clearly labeled offline backup. [Reproduction instructions](docs/reproduction.md)
+cover the original code snapshot and a fresh training/evaluation run.
+
+## Completed experiment
 
 Phase 4: compare frozen-feature and fine-tuned MobileNetV3-Small models.
 Training and final testing are complete. See the [final test results](docs/evaluation/final-results.md):

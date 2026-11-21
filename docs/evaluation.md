@@ -35,6 +35,9 @@ the code-fingerprint checks deliberately reject changed training code. For new
 experiments, use their own runs, selection, splits, and output folders as described
 in [optional experiments](optional-experiments.md).
 
+For exact commands to open the original version without changing your current
+branch, see [reproduction instructions](reproduction.md).
+
 Follow [setup](setup.md), [data preparation](experiment-data.md), and
 [training](training.md) first. The selected model files must exist locally.
 From the repository root with the project environment active:
@@ -99,7 +102,8 @@ variation between training seeds on the same images, not uncertainty from new
 test samples. PlantDoc has only 3–12 images per selected category. Label quality,
 missing leaf metadata, and undetected altered duplicates remain limitations.
 
-The next step is the IEEE-style Phase 4 report: describe the fixed method,
-present all seeds and both datasets, interpret the gap, and discuss limitations
-and future work. Final test results should be reported as measured rather than
-retraining until the test score looks better.
+The [existing IEEE report](phase4-report/Phase-4-Plant-Disease-Classification.md)
+already describes the fixed method, all seeds, both datasets, the gap and its
+limitations. [Presentation materials](presentation/README.md) explain these
+findings for class. Preserve measured results rather than retraining until the
+test score looks better.

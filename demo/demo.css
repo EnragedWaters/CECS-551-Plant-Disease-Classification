@@ -112,3 +112,9 @@ footer { text-align:center; padding:15px; color:var(--muted); font-size:12px; }
 }
 
 .source-path { overflow-wrap:anywhere; }
+
+#show-all[aria-pressed=true] { background:var(--green); color:white; }
+.overview-stage { margin-bottom:24px; }
+@media print {
+  .overview-stage { break-inside:avoid; }
+}

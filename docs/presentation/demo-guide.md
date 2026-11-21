@@ -28,18 +28,24 @@ Use browser full-screen for class; scroll or adjust zoom for the projector.
 
 ## Inside the models
 
-Choose a thumbnail in either dataset panel, then click **Run & watch**. This
-runs both saved models and captures real outputs. It then plays those outputs
-slowly so there is time to explain them. **Play**, **Pause**, **Back**, **Next**,
-the numbered stages, and the speed control let you explore at your own pace.
-This is explanatory playback, not a claim that inference takes that long.
+Choose a thumbnail in either dataset panel, then click **Run & show all stages**.
+The default **All stages summary** displays all seven stages together in one
+scrollable page, with frozen and fine-tuned outputs side by side at every stage.
+There is no need to click each stage separately. Selecting another photograph
+clears the old results until you run it.
+
+**Play** switches to slowed explanatory playback. **Pause**, **Back**, **Next**,
+the numbered stage buttons, and the speed control still work for individual
+steps. **All stages summary** stops playback and returns to the complete view
+without running the models again. Playback reveals captured outputs; it does
+not mean inference takes that long.
 
 | Stage | What it means |
 | --- | --- |
 | Original | The dataset photograph and its annotation (the expected category). |
 | Prepared input | The actual image preparation used by the experiment: fit and pad to 224 × 224, then normalize numbers for the model. The visible preview shows the image before numeric normalization. |
 | Early, middle, late features | Actual responses captured after MobileNetV3 feature blocks 0, 4, and 12. Each tile displays one channel: a grid of numbers produced by the model. |
-| Summary | The model averages each of its 576 final channels into one number. All 576 numbers are arranged as a square for display; their positions are not locations in the photograph. |
+| Pooling | The model averages each of its 576 final channels into one number. All 576 numbers are arranged as a square for display; their positions are not locations in the photograph. |
 | Category scores | The final layer produces 22 scores, converted with softmax. The highest score is the prediction. The top five are visible; expand the rest to see all categories. A large score does not guarantee correctness. |
 
 Feature pictures use channels **0–3**, fixed in advance. Blue shows negative
@@ -82,8 +88,8 @@ to make one approach look better.
 ## Suggested classroom sequence (about two minutes)
 
 1. Point out both dataset panels. Select a PlantVillage photograph and run the
-   walkthrough. Pause at Early features and explain one channel and the colors.
-2. Step to Summary and Scores. Select PlantDoc example 6 to show a mistake;
+   summary. Scroll to Early features and explain one channel and the colors.
+2. Scroll to Pooling and Scores. Select PlantDoc example 6 to show a mistake;
    example 5 illustrates a case where only fine-tuning matches the annotation.
 3. Start the running comparison. Use zero pause or show only a few pairs if time
    is short. Identify partial counts as partial. Explain the selection rule.
@@ -130,19 +136,19 @@ results are never overwritten. See [PyTorch's hook documentation](https://docs.p
 The prepared portable replay is:
 
 ```text
-outputs/phase4-demo-v2/replay-final/offline-demo.html
+outputs/phase4-demo-v2/summary-replay/offline-demo.html
 ```
 
 Double-click it in File Explorer. It contains both views, all six processing
 captures and all 22 sample pairs. It needs no Python or network. Its badge says
-**Recorded replay · offline**. Explicitly identify it as a recorded backup in
+**Recorded replay · offline**; click **Show recorded stages** for the full summary. Explicitly identify it as a recorded backup in
 class. Copy the HTML and neighboring `ATTRIBUTION.md` to your flash drive.
 
 Static PDFs and screenshots are under:
 
 ```text
-outputs/phase4-demo-v2/browser-check-final/
-outputs/phase4-demo-v2/Demo-Backup.pdf
+outputs/phase4-demo-v2/summary-check/
+outputs/phase4-demo-v2/Demo-All-Stages-Backup.pdf
 ```
 
 These contain dataset images and stay Git-ignored. The combined PDF includes
@@ -164,7 +170,7 @@ python -m playwright install chromium --only-shell
 python scripts/check_demo_browser.py --output-dir outputs/phase4-demo-v2/browser-check-new
 ```
 
-The default replay path is the prepared `replay-final` above. Override `--url`,
+The default replay path is the prepared `summary-replay` above. Override `--url`,
 `--replay`, or `--browser` for other locations. Checks exercise all seven stages
 of all six examples, both datasets, playback, sample counts, pause/resume/reset,
 and narrow windows. Offline checks block HTTP. Screenshots and printable PDFs

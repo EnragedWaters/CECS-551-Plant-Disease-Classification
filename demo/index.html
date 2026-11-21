@@ -19,12 +19,15 @@
 <p class="caption">Choose a thumbnail or “Explore this photo”. These six illustrative photos include selected successes and mistakes; they do not estimate accuracy.</p>
 <section class="walkthrough" aria-label="Layer processing walkthrough">
 <div class="section-heading"><div><p class="eyebrow" id="focus-dataset">PLANTVILLAGE WALKTHROUGH</p><h2 id="focus-label">—</h2></div><button id="capture" class="primary" disabled>Run &amp; watch</button></div>
-<div class="playback"><button id="back" disabled>← Back</button><button id="play" disabled>Play</button><button id="pause" disabled>Pause</button><button id="forward" disabled>Next →</button><label for="speed">Playback</label><select id="speed"><option value="3000">Slow</option><option value="1600" selected>Normal</option><option value="800">Fast</option></select><span id="step-counter">Step 1 of 7</span></div>
+<div class="playback"><button id="show-all" aria-pressed="true">All stages summary</button><button id="back" disabled>← Back</button><button id="play" disabled>Play</button><button id="pause" disabled>Pause</button><button id="forward" disabled>Next →</button><label for="speed">Playback</label><select id="speed"><option value="3000">Slow</option><option value="1600" selected>Normal</option><option value="800">Fast</option></select><span id="step-counter">Step 1 of 7</span></div>
 <div id="steps" class="steps" aria-label="Processing stages"></div>
+<div id="all-stages" aria-label="All seven processing stages"></div>
+<div id="single-stage" hidden>
 <div class="stage-explanation"><h3 id="stage-title"></h3><p id="stage-description"></p></div>
 <div class="model-grid">
 <article class="model-card" id="trace-frozen"><div class="model-heading"><h3>Frozen features</h3><span>Only the final category layer learned.</span></div><div class="stage-content"></div></article>
 <article class="model-card" id="trace-finetune"><div class="model-heading"><h3>Fine-tuned features</h3><span>Earlier features also learned after warmup.</span></div><div class="stage-content"></div></article>
+</div>
 </div>
 <p id="trace-note" class="notice">Run the models to capture their actual intermediate outputs. Playback is slowed for explanation, not a live measure of thinking or inference speed.</p>
 </section>

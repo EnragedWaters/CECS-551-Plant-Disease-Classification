@@ -53,8 +53,8 @@ computer/projector that will be used in class.
 2. Agree on speaking portions and rehearse the handoffs once with a timer.
 3. Start the demo before class. Try both dataset panels, the processing stages,
    and the running sample; see the demo guide for a short sequence.
-4. Keep `outputs/phase4-demo-v2/replay-final/offline-demo.html` and
-   `outputs/phase4-demo-v2/Demo-Backup.pdf` available locally/on a flash drive.
+4. Keep `outputs/phase4-demo-v2/summary-replay/offline-demo.html` and
+   `outputs/phase4-demo-v2/Demo-All-Stages-Backup.pdf` available locally/on a flash drive.
    They contain dataset photographs and are deliberately ignored by Git.
 5. If a backup is used, identify it as recorded. Do not claim training occurred
    during the demo or that either the six walkthrough examples or the 44-image teaching sample

@@ -13,11 +13,11 @@
     ['Early', 'Early layer responses', 'These are real feature maps: grids of numbers produced inside the network. We show fixed channels 0–3, not handpicked “best-looking” maps.'],
     ['Middle', 'Middle layer responses', 'Later blocks combine earlier responses. Each map is smaller and carries a different learned pattern; we cannot simply name a channel “leaf” or “disease”.'],
     ['Late', 'Late layer responses', 'The final feature block produces 576 small maps. Only the first four are displayed. Their colors are feature responses, not attention or proof of why the model chose a label.'],
-    ['Summary', 'Average each feature map into one number', 'Average pooling converts 576 maps into 576 numbers. The grid below arranges those numbers for display; its cells are not locations in the original photograph.'],
+    ['Pooling', 'Average each feature map into one number', 'Average pooling converts 576 maps into 576 numbers. The grid below arranges those numbers for display; its cells are not locations in the original photograph.'],
     ['Scores', 'Turn those features into category scores', 'The final linear layer scores 22 categories. Softmax converts those scores into values that sum to one. The largest gives the prediction; a high value can still be wrong.']
   ];
   let info, pictures = [], selected = {}, focus = 0, stage = 0, trace = null;
-  let capturing = false, playing = false, playTimer = null;
+  let capturing = false, playing = false, playTimer = null, showAll = true;
   let batchRunning = false, batchBusy = false, batchTimer = null, completed = [];
 
   const node = (tag, text, className) => {
@@ -52,16 +52,19 @@
   function pauseWalk() { playing=false; clearTimeout(playTimer); playTimer=null; walkControls(); }
   function walkControls() {
     $('capture').disabled = capturing;
-    $('play').disabled = capturing || !trace || playing || stage===6;
+    $('capture').textContent = replay ? 'Show recorded stages' : (showAll ? 'Run & show all stages' : 'Run & watch');
+    $('show-all').disabled = capturing;
+    $('show-all').setAttribute('aria-pressed',String(showAll));
+    $('play').disabled = capturing || !trace || playing || (!showAll && stage===6);
     $('pause').disabled = !playing;
-    $('back').disabled = capturing || stage===0;
-    $('forward').disabled = capturing || stage===(trace ? 6 : 1);
+    $('back').disabled = capturing || showAll || stage===0;
+    $('forward').disabled = capturing || showAll || stage===(trace ? 6 : 1);
     $('walk-tab').disabled = capturing;
     $('batch-tab').disabled = capturing;
     document.querySelectorAll('.focus-button,.thumb').forEach(button => button.disabled=capturing);
     [...$('steps').children].forEach((button,i) => {
       button.disabled=capturing || (!trace && i>1);
-      button.setAttribute('aria-current',i===stage ? 'step':'false');
+      button.setAttribute('aria-current',!showAll && i===stage ? 'step':'false');
     });
   }
   function selectPhoto(index) {
@@ -91,19 +94,15 @@
       container.append(row);
     });
   }
-  function renderStage() {
-    $('stage-title').textContent=stages[stage][1];
-    $('stage-description').textContent=stages[stage][2];
-    $('step-counter').textContent=`Step ${stage+1} of 7`;
-    modes.forEach(mode=>{
-      const content=$(`trace-${mode}`).querySelector('.stage-content');content.replaceChildren();
-      if (stage<2) {
-        content.append(image(stage===0 ? pictures[focus].original : pictures[focus].prepared,
-          stage===0 ? 'Selected original photograph' : 'Actual resized and padded model input','stage-photo'));
-        content.append(node('p',stage===0 ? 'The same photo enters both models.' : 'Actual preprocessing output, before numerical normalization.','caption'));
-      } else if (stage<6 && trace) {
-        const item=trace.features[mode][stage-2];
-        if (stage<5) {
+  // Single-step and all-stage views share exactly the same captured outputs.
+  function renderModelStage(content, mode, step) {
+      if (step<2) {
+        content.append(image(step===0 ? pictures[focus].original : pictures[focus].prepared,
+          step===0 ? 'Selected original photograph' : 'Actual resized and padded model input','stage-photo'));
+        content.append(node('p',step===0 ? 'The same photo enters both models.' : 'Actual preprocessing output, before numerical normalization.','caption'));
+      } else if (step<6 && trace) {
+        const item=trace.features[mode][step-2];
+        if (step<5) {
           content.append(node('p',`${item.shape[0]} channels × ${item.shape[1]} × ${item.shape[2]} positions; showing channels 0–3.`,'feature-info'));
           const grid=node('div',undefined,'feature-grid');
           item.maps.forEach((src,i)=>{
@@ -115,7 +114,7 @@
         }
         const legend=node('div',undefined,'legend');
         legend.append(node('span',`−${item.scale_limit.toFixed(2)}`),node('span',undefined,'gradient'),node('span',`+${item.scale_limit.toFixed(2)}`));
-        content.append(legend,node('p','Shared scale across both models at this stage; pale = zero.','caption'));
+        content.append(legend,node('p','Shared scale across both models at this step; pale = zero.','caption'));
       } else if (trace) {
         const value=trace.predictions[mode];
         content.append(node('p',value.label,'predicted-label'),verdict(value));
@@ -124,8 +123,36 @@
         const more=node('details');more.append(node('summary','Show the other 17 category scores'));scoreRows(more,scores.slice(5));content.append(more);
         content.append(node('p','Final model scores, not calibrated probabilities or a diagnosis.','score-caption'));
         if(value.matches_recorded_prediction===false)content.append(node('p','This predicted category differs from the original evaluation.','notice'));
+      } else {
+        content.append(node('p','Run the models to show this stage.','caption'));
       }
-    });
+  }
+  function renderStage() {
+    $('single-stage').hidden=showAll;
+    $('all-stages').hidden=!showAll;
+    $('all-stages').replaceChildren();
+    modes.forEach(mode=>$(`trace-${mode}`).querySelector('.stage-content').replaceChildren());
+    $('step-counter').textContent=showAll ? 'All 7 stages' : `Step ${stage+1} of 7`;
+    if(showAll) {
+      stages.forEach((item,step)=>{
+        const section=node('section',undefined,'overview-stage');
+        section.dataset.stage=step;
+        const heading=node('div',undefined,'stage-explanation');
+        heading.append(node('h3',`${step+1}. ${item[1]}`),node('p',item[2]));
+        const grid=node('div',undefined,'model-grid');
+        modes.forEach(mode=>{
+          const card=node('article',undefined,'model-card');card.dataset.mode=mode;
+          card.append(node('h3',`${names[mode]} features`,'model-heading'));
+          const content=node('div',undefined,'stage-content');
+          renderModelStage(content,mode,step);card.append(content);grid.append(card);
+        });
+        section.append(heading,grid);$('all-stages').append(section);
+      });
+    } else {
+      $('stage-title').textContent=stages[stage][1];
+      $('stage-description').textContent=stages[stage][2];
+      modes.forEach(mode=>renderModelStage($(`trace-${mode}`).querySelector('.stage-content'),mode,stage));
+    }
     walkControls();
   }
   function advance() {
@@ -136,8 +163,9 @@
     playTimer=setTimeout(advance,Number($('speed').value));
   }
   function playWalk() {
-    if(!trace || capturing || stage===6)return;
-    clearTimeout(playTimer);playing=true;walkControls();
+    if(!trace || capturing || (!showAll && stage===6))return;
+    if(showAll){showAll=false;stage=0;}
+    clearTimeout(playTimer);playing=true;renderStage();
     playTimer=setTimeout(advance,Number($('speed').value));
   }
   async function capture() {
@@ -149,7 +177,7 @@
       if(!trace.observed_logits_equal_plain || !trace.model_states_unchanged)throw new Error('observation checks failed');
       $('trace-note').textContent=replay ? 'Recorded model outputs · explanatory playback · no live inference in this backup.' : 'Real outputs captured now. Observed and ordinary predictions match; weights are unchanged. Playback speed is for explanation.';
       status(replay ? 'Recorded outputs ready. Pause or step through them.' : 'Live computation finished. Explore the captured outputs using playback or step controls.');
-      capturing=false;renderStage();playWalk();
+      capturing=false;renderStage();if(!showAll)playWalk();
     } catch(error) {capturing=false;trace=null;renderStage();fail(error);}
   }
   function batchControls() {
@@ -242,7 +270,8 @@
       });
       panel.querySelector('.focus-button').onclick=()=>selectPhoto(selected[dataset]);renderDataset(dataset);
     });
-    stages.forEach((s,i)=>{const button=node('button',s[0]);button.onclick=()=>{pauseWalk();stage=i;renderStage();};$('steps').append(button);});
+    stages.forEach((s,i)=>{const button=node('button',s[0]);button.onclick=()=>{pauseWalk();showAll=false;stage=i;renderStage();};$('steps').append(button);});
+    $('show-all').onclick=()=>{pauseWalk();showAll=true;renderStage();};
     $('capture').onclick=capture;$('play').onclick=playWalk;$('pause').onclick=pauseWalk;
     $('back').onclick=()=>{pauseWalk();stage=Math.max(0,stage-1);renderStage();};
     $('forward').onclick=()=>{pauseWalk();stage=Math.min(trace ? 6 : 1,stage+1);renderStage();};

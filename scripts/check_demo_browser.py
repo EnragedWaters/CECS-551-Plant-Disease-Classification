@@ -15,8 +15,8 @@ ROOT = Path(__file__).resolve().parents[1]
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--url', default='http://localhost:8766')
-    parser.add_argument('--replay', type=Path, default=ROOT/'outputs/phase4-demo-v2/replay-final/offline-demo.html')
-    parser.add_argument('--output-dir', type=Path, default=ROOT/'outputs/phase4-demo-v2/browser-check-final')
+    parser.add_argument('--replay', type=Path, default=ROOT/'outputs/phase4-demo-v2/summary-replay/offline-demo.html')
+    parser.add_argument('--output-dir', type=Path, default=ROOT/'outputs/phase4-demo-v2/summary-check')
     parser.add_argument('--browser', help='Optional existing Chromium executable')
     args = parser.parse_args()
     recorded = json.loads((args.replay.parent/'replay.json').read_text())
@@ -53,7 +53,26 @@ def main():
                 page.click('#walk-tab')
             for i in range(6):
                 page.click(f'.thumb[data-index="{i}"]')
+                page.click('#show-all')
+                # Selecting a different photo must clear the previous trace.
+                assert page.locator('#all-stages .feature-grid img').count()==0
                 page.click('#capture')
+                page.locator('#all-stages .predicted-label').first.wait_for()
+                assert page.locator('#all-stages .overview-stage').count()==7
+                assert page.locator('#all-stages .feature-grid img').count()==24
+                assert page.locator('#all-stages .pooled').count()==2
+                assert page.locator('#all-stages .score-row').count()==44
+                page.wait_for_function("Array.from(document.querySelectorAll('#all-stages img')).every(i => i.complete && i.naturalWidth > 0)")
+                for mode in ['frozen','finetune']:
+                    assert page.locator(f'#all-stages [data-mode="{mode}"] .predicted-label').inner_text()==recorded['records'][i]['predictions'][mode]['label']
+                if i==5:
+                    page.screenshot(path=str(args.output_dir/f'{kind}-all-stages.png'),full_page=True)
+                    if kind=='recorded':
+                        page.pdf(path=str(args.output_dir/'all-stages-backup.pdf'),format='A4',print_background=True,scale=.65)
+                page.set_viewport_size({'width':390,'height':844})
+                assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+                page.set_viewport_size({'width':1440,'height':1100})
+                page.click('#play')
                 page.locator('#pause:enabled').wait_for()
                 page.click('#pause')
                 for step in range(7):
@@ -73,7 +92,11 @@ def main():
                         page.screenshot(path=str(args.output_dir/f'{kind}-stage-{step}.png'),full_page=True)
                         if kind=='recorded':
                             page.pdf(path=str(args.output_dir/f'processing-stage-{step}.pdf'),format='A4',print_background=True,scale=.65)
-                checks.append({'mode':kind,'example':i+1,'seven_stages_checked':True})
+                checks.append({'mode':kind,'example':i+1,'seven_stages_checked':True,'all_stages_summary_checked':True})
+            # Returning to the summary stops playback without losing the captured results.
+            page.click('#show-all')
+            assert page.locator('#step-counter').inner_text()=='All 7 stages'
+            assert page.locator('#all-stages .feature-grid img').count()==24
             # Play advances; Pause freezes; manual stepping works at the ends.
             page.locator('#steps button').nth(0).click()
             assert page.locator('#back').is_disabled()

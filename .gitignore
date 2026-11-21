@@ -29,3 +29,6 @@ dataset-paths.local.txt
 # Operating system metadata
 .DS_Store
 Thumbs.db
+
+# Personal demo paths and preferences (native Windows/Linux/macOS/WSL)
+/demo-settings.local.json

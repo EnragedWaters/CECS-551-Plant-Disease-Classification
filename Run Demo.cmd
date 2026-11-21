@@ -1,14 +1,14 @@
 @echo off
-rem Double-click in Windows File Explorer to start the demo in default WSL.
+rem Double-click in Windows File Explorer to start the demo using native Windows Python or WSL.
 setlocal
 title Plant Disease Demo
 pushd "%~dp0"
 if errorlevel 1 goto failed
-echo Starting the demo in your default WSL distribution...
+echo Finding a ready Python environment...
 echo Keep this window open. Press Ctrl+C here to stop the demo.
 echo.
-rem WSL inherits this directory, so repository paths with spaces need no escaping.
-wsl.exe --exec bash scripts/start_demo.sh %*
+rem Policy bypass applies only to this local launcher process, not system settings.
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/start_demo.ps1 %*
 if errorlevel 1 goto failed
 popd
 exit /b 0

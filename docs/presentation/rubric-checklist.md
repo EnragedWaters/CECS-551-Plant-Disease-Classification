@@ -8,11 +8,11 @@ presentation has already happened.
 
 | Rubric item | Points | Evidence and status |
 | --- | ---: | --- |
-| Demonstration | 5 | Local visual demo runs both original saved models, displays preprocessing and predictions. Browser checks cover all six examples; recorded HTML/PDF backups are prepared. Still needs delivery in class. |
+| Demonstration | 5 | Local visual demo runs both original saved models, displays both datasets, actual feature maps and predictions. Browser checks cover seven stages for six examples and the 22-pair running sample; recorded HTML/PDF backups are prepared. Still needs delivery in class. |
 | Organization and clarity | 4 | Ten main slides cover problem → data → method → demo → findings → limits. Two backup slides cover reproduction and selected references. |
 | Technical explanation | 3 | Speaker notes explain pretrained/frozen/fine-tuned models, splits, category mapping, metrics, repeated seeds and limitations. Team still needs to practice answering questions. |
 | Delivery and team participation | 3 | Suggested speaking portions for four people are provided. Agreement, rehearsal and balanced live participation remain team actions. |
-| Complete and correct code | 5 | Existing pipeline plus verified-checkpoint demo; 58 automated tests passed. Original experiment code is identified as 9619975. No new training was needed. |
+| Complete and correct code | 5 | Existing pipeline plus verified-checkpoint demo; 62 automated tests passed. Original experiment code is identified as 9619975. No new training was needed. |
 | README and reproduction steps | 4 | README links setup, data access, demo and exact original-code reproduction commands with expected outputs. Local saved files and fresh-clone prerequisites are distinguished. |
 | Organization and documentation | 3 | Shared AGENTS.md and presentation index identify the existing paper, results, code, demo and notes. New code has purpose/usage comments. |
 | Results and project history | 3 | Original tables, plots, seed records and useful commit history are preserved. Models, data, image-bearing backups, private notes and evaluations stay out of Git. |
@@ -51,15 +51,17 @@ six-page paper remains within it anyway.
 
 ## What was verified locally
 
-- 58 automated tests: original suite plus six demo checks for changed images,
-  historical-code hashes, safe paths, inference without state changes, HTTP routes
-  and a clearly labeled replay that refuses to overwrite an existing backup.
-- Real seed-551 checkpoint hashes and original-code hashes checked at demo startup.
-- Twelve example predictions (six photographs × two models) match the original
-  evaluation's predicted categories on CPU. Scores can vary with device/batch size;
-  the maximum observed absolute score difference was about 0.0067 (0.67 percentage points).
-- Browser controls, image loading, live predictions, offline replay and narrow
-  viewport checked; no JavaScript errors. Six single-page PDF backups prepared.
+- 62 automated tests, including original checks and demo checks for historical
+  code/image integrity, safe routes, replay export, real feature hooks, exact
+  logits, unchanged model state, hook cleanup, shared color scales, and stable
+  sample selection without prediction-based filtering.
+- Original seed-551 checkpoint and code hashes checked at demo startup.
+- Twelve curated predictions and 88 running-sample predictions match the original
+  evaluation's predicted categories on CPU. Scores can vary with device/batch size.
+- Both datasets, all seven processing stages, playback controls, sample counters,
+  pause/resume/reset, and narrow windows checked in a real browser. Offline replay
+  works with HTTP blocked. Image-bearing screenshots and PDF backups remain local.
+- Double-click Windows launcher retained and exercised against the upgraded demo.
 - PPTX contains twelve slides and speaker notes for all twelve. Text and shapes
   are editable; the chart is an embedded copy of the published result plot.
 - Twelve-page PDF companion visually reviewed. Google Slides import and actual

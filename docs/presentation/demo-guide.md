@@ -1,152 +1,180 @@
 # Run the visual demonstration
 
-The demo shows an original leaf photograph, its prepared input, the dataset's
-label, and predictions from both saved models. It runs locally in a browser.
-It does not train, download anything, or change the submitted results.
+The demo has two views: **Inside the models** shows real processing outputs;
+**Compare 22 images per dataset** runs a fixed teaching sample. PlantVillage and
+PlantDoc have separate, visible thumbnail panels. Both use the same original
+seed-551 frozen and fine-tuned models. No training or downloads occur.
 
 ## Double-click from Windows
 
-Open the repository folder in Windows File Explorer and double-click
-**Run Demo.cmd**. It starts the prepared environment in your default WSL distribution (Ubuntu on this laptop) and opens
-your default Windows browser once the models are loaded. Keep the terminal
-window open; press **Ctrl+C** there to stop the demo. An error leaves the
-window open so you can read it. No environment activation or typed command
-is needed on the prepared laptop.
+In the repository folder in Windows File Explorer, double-click **Run Demo.cmd**.
+It starts the prepared environment in your default WSL distribution (Ubuntu on
+this laptop) and opens your Windows browser. Keep its terminal window open;
+press **Ctrl+C** there to stop. An error leaves the window open to read.
+The launcher works from its own folder, including paths with spaces.
 
-The launcher finds the repository from its own location, including paths with
-spaces. It still needs the saved models, data and environment listed below.
-The default WSL distribution must be the one containing the project environment
-and datasets. A different Python path can
-be set using `PLANT_DISEASE_PYTHON` inside WSL. Nothing is installed automatically.
-
-## Run from a terminal instead
-
-In a WSL terminal, from the repository folder:
+The default WSL distribution must contain the environment and saved files below.
+A different Python path can be set through `PLANT_DISEASE_PYTHON` inside WSL.
+Nothing is installed automatically. Alternatively, from a WSL terminal:
 
 ```bash
 source ~/.venvs/cecs551-plant-disease/bin/activate
 python -m plant_disease.demo
 ```
 
-Wait for **Open http://localhost:8766**, then open that address in your browser.
-Keep the terminal running. **Ctrl+C** stops it. CPU is the default, so a working
-GPU is not needed. If the port is occupied, use `--port 8767` and that address.
-For a small projector, use browser full-screen and reduce zoom enough to show
-both photographs and the prediction cards together.
+Open **http://localhost:8766** after the startup message. CPU is the default;
+a GPU is not needed. Use `--port 8767` if another program occupies the port.
+Use browser full-screen for class; scroll or adjust zoom for the projector.
 
-Choose an example, then click **Run both models**. This computes predictions
-at that moment; it does not just display the old prediction table. Previous,
-Next, the dropdown, and the left/right arrow keys move between examples.
+## Inside the models
 
-A simple 60–90 second demonstration:
+Choose a thumbnail in either dataset panel, then click **Run & watch**. This
+runs both saved models and captures real outputs. It then plays those outputs
+slowly so there is time to explain them. **Play**, **Pause**, **Back**, **Next**,
+the numbered stages, and the speed control let you explore at your own pace.
+This is explanatory playback, not a claim that inference takes that long.
 
-1. Example 1: both models match the PlantVillage annotation. Point out the
-   original photo, the padded input, and the two predictions.
-2. Example 5: only the fine-tuned model matches this PlantDoc annotation.
-3. Example 6: neither model matches. A high model score does not guarantee a
-   correct answer. Return to the slide showing the full test results.
+| Stage | What it means |
+| --- | --- |
+| Original | The dataset photograph and its annotation (the expected category). |
+| Prepared input | The actual image preparation used by the experiment: fit and pad to 224 × 224, then normalize numbers for the model. The visible preview shows the image before numeric normalization. |
+| Early, middle, late features | Actual responses captured after MobileNetV3 feature blocks 0, 4, and 12. Each tile displays one channel: a grid of numbers produced by the model. |
+| Summary | The model averages each of its 576 final channels into one number. All 576 numbers are arranged as a square for display; their positions are not locations in the photograph. |
+| Category scores | The final layer produces 22 scores, converted with softmax. The highest score is the prediction. The top five are visible; expand the rest to see all categories. A large score does not guarantee correctness. |
 
-These examples were deliberately selected **after** evaluation to illustrate
-successes and mistakes. They are not representative or a new estimate of accuracy.
-Both models use **seed 551**, the first declared seed, not the best-performing one.
-The full paper uses all three seeds and all 5,487 / 183 selected test images.
+Feature pictures use channels **0–3**, fixed in advance. Blue shows negative
+responses, orange positive, and pale colors values near zero. At each stage,
+both models use **one shared scale** based on the displayed channels’ largest absolute response;
+the displayed shape and scale describe the captured numbers. Earlier and later
+stages can have different scales. These are feature responses, **not attention
+maps, highlighted disease diagnoses, or proof of why a category was selected**.
+There are no invented intermediate category guesses.
+
+The six thumbnails include correct and incorrect predictions selected after the
+original evaluation. They are illustrations, not a representative accuracy test.
+Seed 551 is the first declared seed, not a best-performing seed selection.
+
+## Running comparison across both datasets
+
+Open **Compare 22 images per dataset**. **Start comparison** processes one image
+from each dataset at a time, through both models. Progress, the current images,
+correct/incorrect counts and running accuracy update as each pair finishes.
+**Pause** finishes the current pair and then stops; **Next pair** advances once.
+**Resume** continues; **Reset** clears only the demonstration counts. Adjust the
+pause between pairs, including zero pause for a quick classroom run.
+
+Selection is reproducible and independent of predictions: within each of the
+22 shared categories, select the lowest image SHA-256 checksum, then relative
+path to break ties, from each original test manifest. This yields **44 images
+and 88 predictions**. A pair has the same annotated category, not the same leaf.
+Source paths, image hashes, labels, and outputs are stored in the local replay's
+`replay.json`. The UI also shows the current source path and a result log.
+
+On the prepared CPU run, both models matched **22/22 PlantVillage** annotations
+and **5/22 PlantDoc** annotations. All 88 predicted categories matched their
+original saved evaluation records. This small, category-balanced sample differs
+from the full test distribution. It does not estimate general accuracy or replace
+the published evaluation of 5,487 PlantVillage and 183 PlantDoc images over three
+seeds. In particular, its equal counts do not contradict the full evaluation's
+average improvement after fine-tuning. Do not choose different samples simply
+to make one approach look better.
+
+## Suggested classroom sequence (about two minutes)
+
+1. Point out both dataset panels. Select a PlantVillage photograph and run the
+   walkthrough. Pause at Early features and explain one channel and the colors.
+2. Step to Summary and Scores. Select PlantDoc example 6 to show a mistake;
+   example 5 illustrates a case where only fine-tuning matches the annotation.
+3. Start the running comparison. Use zero pause or show only a few pairs if time
+   is short. Identify partial counts as partial. Explain the selection rule.
+4. Return to the full-results slide. The sample and feature pictures illustrate
+   behavior; the published evaluation supports the research conclusions.
 
 ## What must exist locally
 
-A fresh GitHub clone does not include datasets or saved models. This demo uses:
+A fresh GitHub clone does not contain datasets or saved models. Required:
 
-- The original repository history containing commit `9619975` (use a normal
-  Git clone; a downloaded ZIP or shallow clone may lack this history).
-- The pinned raw images and ImageNet weights under
+- Git history containing original commit `9619975`; a ZIP or shallow clone may
+  lack it.
+- The pinned datasets and ImageNet weights under
   `~/datasets/cecs551-plant-disease/`.
-- Original `outputs/splits/source_test.csv` and `target_test.csv`.
+- `outputs/splits/source_test.csv` and `target_test.csv`.
 - Original `outputs/runs/source-seed-551/frozen/best.pt` and
   `outputs/runs/source-seed-551/finetune/best.pt`.
-- The existing project Python environment and packages. No extra web framework
-  or presentation-authoring package is needed for the live demo.
+- The project Python environment and packages; no web framework is needed.
 
-Use `--data-root`, `--runs-root`, and `--splits-dir` for other local locations.
-Keep the same directory structure beneath each supplied root.
-For missing datasets/environment, follow [setup](../setup.md) and
-[data access](../data-downloads.md). [Reproduction](../reproduction.md) explains
-fresh training separately. The demo intentionally accepts the **original saved
-checkpoints**, not arbitrary retrained checkpoints whose hashes differ.
-Use the prepared laptop or transfer the exact trusted files privately for a
-second presenting machine; do not put weights or raw images in Git.
+Use `--data-root`, `--runs-root`, and `--splits-dir` for other locations, keeping
+the directory structure beneath each root. See [setup](../setup.md),
+[data access](../data-downloads.md), and [reproduction](../reproduction.md).
+The demo accepts the exact original checkpoints, not arbitrary retrained files.
+Use the prepared laptop or transfer trusted original files privately for another
+presenting machine. Keep weights and images out of Git.
 
-## Why old code is loaded automatically
+## How the real outputs are checked
 
-The paper's saved models were trained before optional experiment changes.
-The demo reads the original model and image-processing files from Git history
-into a temporary directory, verifies their hashes against the saved run, and
-loads them under an isolated name. It does **not** switch your branch, alter
-current training code, disable fingerprint checks, or edit checkpoint metadata.
+The demo loads original model and preprocessing code from Git history into an
+isolated temporary package. It verifies code fingerprints, checkpoint hashes,
+category order, test manifests, and image bytes. It does not switch branches or
+relax the original checks.
 
-It checks the checkpoint files, category order, test-list hashes, and each
-example's image bytes. Inference uses evaluation mode and no gradients; a state
-check confirms that model weights and buffers stay unchanged. CPU/single-image
-scores can differ slightly from the original GPU/batch evaluation. The live
-prediction is displayed honestly, including a notice if its predicted category
-changes. These demo outputs never replace the original measured results.
+Observation hooks copy outputs from actual feature blocks and average pooling;
+they do not replace outputs. Each captured run is compared with an ordinary
+forward pass: logits must be exactly equal on that device. Weights and buffers
+are checked before and after inference, gradients are disabled, and hooks are
+removed even if processing fails. Unit tests cover these properties. CPU scores
+can differ slightly from original GPU/batched scores; the original measured
+results are never overwritten. See [PyTorch's hook documentation](https://docs.pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module.register_forward_hook).
 
-## Offline backup
+## Recorded and static backups
 
-On the prepared laptop, the portable backup is:
+The prepared portable replay is:
 
 ```text
-outputs/phase4-demo/replay/offline-demo.html
+outputs/phase4-demo-v2/replay-final/offline-demo.html
 ```
 
-Double-click it from Windows File Explorer. It contains the images and recorded
-outputs, works without Python, and needs no network. Its badge says **Recorded
-replay · offline**, and its button says **Show recorded predictions**. If used
-in class, explicitly say this is a recorded backup, not a live model run.
-Copy the HTML and `ATTRIBUTION.md` together to your flash drive.
+Double-click it in File Explorer. It contains both views, all six processing
+captures and all 22 sample pairs. It needs no Python or network. Its badge says
+**Recorded replay · offline**. Explicitly identify it as a recorded backup in
+class. Copy the HTML and neighboring `ATTRIBUTION.md` to your flash drive.
 
-To create a new backup from the verified saved models:
+Static PDFs and screenshots are under:
+
+```text
+outputs/phase4-demo-v2/browser-check-final/
+outputs/phase4-demo-v2/Demo-Backup.pdf
+```
+
+These contain dataset images and stay Git-ignored. The combined PDF includes
+processing stages and completed sample counts. Earlier backups remain available
+but show the older interface; use the paths above for this version.
+
+To generate another replay, choose a NEW folder (existing exports are protected):
 
 ```bash
-python -m plant_disease.demo --export outputs/phase4-demo/replay-new
+python -m plant_disease.demo --export outputs/phase4-demo-v2/replay-new
 ```
 
-Use a new destination; existing backups are not overwritten. Export computes
-both models' outputs for all six examples and embeds them in one HTML file.
-The image-bearing backups are kept out of Git. Source paths, selection policy,
-and attribution are in `demo/examples.json` and `demo/ATTRIBUTION.md`.
-
-## Optional browser verification and static backups
-
-This step is for maintainers; it is not needed to run the demo. Install the
-optional tools and Chromium once:
+For browser verification, install the optional tools once, start the live demo,
+and use a new output directory for each run:
 
 ```bash
 python -m pip install -r requirements-presentation.txt
 python -m playwright install chromium --only-shell
+python scripts/check_demo_browser.py --output-dir outputs/phase4-demo-v2/browser-check-new
 ```
 
-With the demo running in another terminal and the replay exported:
-
-```bash
-python scripts/check_demo_browser.py --output-dir outputs/phase4-demo/browser-check-new
-```
-
-The check clicks through all six examples live and offline, checks that images
-load and predictions appear, checks navigation and narrow windows, and saves
-screenshots plus six printable PDF backups. Use `--url`, `--replay`, or
-`--browser` if the server, backup, or Chromium executable is elsewhere.
-These tools do not upload the project or contact teammates.
-
-On the prepared laptop, the reviewed screenshots and PDFs are under
-`outputs/phase4-demo/browser-check-03/`; `outputs/phase4-demo/Demo-Backup.pdf`
-combines the six printable examples. They are recorded illustrations.
+The default replay path is the prepared `replay-final` above. Override `--url`,
+`--replay`, or `--browser` for other locations. Checks exercise all seven stages
+of all six examples, both datasets, playback, sample counts, pause/resume/reset,
+and narrow windows. Offline checks block HTTP. Screenshots and printable PDFs
+are saved in the specified ignored folder. Nothing is uploaded.
 
 ## If something fails
 
-- **Missing history:** fetch the original commit/history from origin; do not
-  replace old code with current code to silence a check.
-- **Missing models/data:** use the prepared machine or the offline backup.
-- **Changed file / fingerprint mismatch:** stop and locate the original files;
-  do not edit expected hashes to make a different experiment pass.
-- **Address already in use:** choose another port; leave the unrelated process alone.
-- **Browser cannot connect:** wait for the startup URL, keep the terminal open,
-  and try `http://127.0.0.1:8766` inside WSL if Windows localhost forwarding fails.
+- **Missing history:** fetch the original history; do not substitute current code.
+- **Missing models/data:** use the prepared laptop or recorded replay.
+- **Fingerprint mismatch:** locate the original files; do not edit expected hashes.
+- **Address occupied:** choose another port; leave unrelated processes alone.
+- **Browser cannot connect:** wait for startup and keep the terminal open. Try
+  `http://127.0.0.1:8766` inside WSL if Windows localhost forwarding fails.

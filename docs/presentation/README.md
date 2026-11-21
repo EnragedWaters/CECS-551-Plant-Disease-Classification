@@ -16,8 +16,8 @@ that existing work; they do not add new training results or replace the paper.
 ## Presentation shape
 
 There are **ten main slides and two backup slides**. The suggested speaking
-sequence is about 7½ minutes, with extra time for handoffs; allow roughly
-8–9 minutes in rehearsal. This is a provisional structure, not an instructor
+sequence is about 8 minutes, with extra time for handoffs; allow roughly
+9–10 minutes in rehearsal. This is a provisional structure, not an instructor
 assigned time limit. Notes also suggest how to shorten it to around five minutes.
 
 | Suggested speaker | Portion |
@@ -51,12 +51,14 @@ computer/projector that will be used in class.
 
 1. Confirm the official date and time allowance; see the checklist's open questions.
 2. Agree on speaking portions and rehearse the handoffs once with a timer.
-3. Start the demo before class and test examples 1, 5 and 6.
-4. Keep `outputs/phase4-demo/replay/offline-demo.html` and
-   `outputs/phase4-demo/Demo-Backup.pdf` available locally/on a flash drive.
+3. Start the demo before class. Try both dataset panels, the processing stages,
+   and the running sample; see the demo guide for a short sequence.
+4. Keep `outputs/phase4-demo-v2/replay-final/offline-demo.html` and
+   `outputs/phase4-demo-v2/Demo-Backup.pdf` available locally/on a flash drive.
    They contain dataset photographs and are deliberately ignored by Git.
 5. If a backup is used, identify it as recorded. Do not claim training occurred
-   during the demo or that these six examples represent the full test results.
+   during the demo or that either the six walkthrough examples or the 44-image teaching sample
+   represents the full test results.
 
 No additional model training is required for this presentation.
 The first paper PDF and original evidence remain unchanged. Any later paper

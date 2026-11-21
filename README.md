@@ -10,7 +10,9 @@ existing report, project locations, and guidance on follow-up changes.
 The [presentation guide](docs/presentation/README.md) links the editable
 PowerPoint, PDF, speaker notes, visual demo, and rubric coverage.
 On the prepared Windows laptop, double-click **Run Demo.cmd** in File Explorer
-to start the demo and open the browser automatically.
+to start the demo and open the browser automatically. Explore both datasets,
+step through real model feature maps, or watch a 22-image sample from each
+dataset pass through both models. Sample counts are separate from the full evaluation.
 
 Alternatively, from the
 prepared project environment, start the local demo with:

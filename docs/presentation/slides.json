@@ -109,23 +109,23 @@
     },
     {
       "kind": "demo",
-      "title": "Watch the saved models make predictions",
-      "subtitle": "Original photograph → resized input → two predictions",
+      "title": "Watch the processing. Compare the datasets.",
+      "subtitle": "Real layer outputs and a running teaching sample",
       "cards": [
         [
-          "Open the local demo",
-          "http://localhost:8766\nRun both models on the displayed image."
+          "Inside the models",
+          "Original photo → prepared input → feature maps → category scores. Pause or step through."
         ],
         [
-          "Show success and failure",
-          "Compare a PlantVillage example with PlantDoc. Include a wrong prediction."
+          "Across two datasets",
+          "Watch 22 images per dataset pass through both models. Compare successes and mistakes."
         ]
       ],
-      "bottom": "Seed 551 examples are illustrative, selected after evaluation—not an accuracy estimate.",
-      "source": "demo/examples.json; original selected checkpoints; full results follow.",
+      "bottom": "Slowed playback explains captured outputs. Sample counts are separate from full-test results.",
+      "source": "Original seed-551 models; docs/presentation/demo-guide.md; full results follow.",
       "presenter": "Max",
-      "seconds": 90,
-      "notes": "Before class, start python -m plant_disease.demo in the project environment. Open http://localhost:8766. Show example 1 and run both models. Explain the original image, padded input, dataset label, and predictions. Jump to example 5 and run: only fine-tuning matches that annotation. Then example 6: neither matches. A high score is not a guarantee. Explain that these examples were deliberately chosen after evaluation for illustration. They are not a representative sample or a new accuracy test. Seed 551 was chosen because it is the first planned seed, not because it performed best. If live execution fails, say so and open the offline replay; its badge says recorded. Do not present the replay as live inference."
+      "seconds": 120,
+      "notes": "Before class, double-click Run Demo.cmd. Both PlantVillage and PlantDoc panels are visible; choose a thumbnail and click Run & watch. The models compute real outputs first, then playback shows them slowly. Pause at Early features: each colored square shows actual numerical responses from one feature channel, not an attention map or proof of why the model chose a category. Blue means negative, orange positive; both models share the same color scale at that stage. Step to the summary and scores. The 576 summary values feed the final category layer. Show a PlantDoc mistake as well as a correct PlantVillage example. Open Compare 22 images per dataset and start the comparison; use zero pause if time is short. Each pair contains the same annotated category from two different collections, not the same photographed leaf. One image per category was chosen by a fixed checksum rule without using predictions. Both models happen to score 22/22 on PlantVillage and 5/22 on PlantDoc in this small sample. That does not replace the full evaluation on the next slide. If time is limited, show a few pairs and identify the partial counts. The six walkthrough examples were deliberately selected after evaluation; neither selection is a representative new test. If using the offline file, explicitly identify it as recorded. Seed 551 is the first planned seed, not a best-run selection."
     },
     {
       "kind": "results",
@@ -221,7 +221,7 @@
       "source": "github.com/EnragedWaters/CECS-551-Plant-Disease-Classification",
       "presenter": "Any speaker",
       "seconds": 0,
-      "notes": "Use this slide only for questions. The original saved checkpoints are fingerprinted and require the original code; the demo loads verified historical modules automatically. Full reproduction uses a separate worktree at 9619975 so optional later training changes do not get mixed into the paper. Raw images, models and private notes are not on GitHub. Reproduction commands generate separate records; exact numerical equality across different devices is not guaranteed."
+      "notes": "Use this slide only for questions. The original saved checkpoints are fingerprinted and require the original code; the demo loads verified historical modules automatically. Full reproduction uses a separate worktree at 9619975 so optional later training changes do not get mixed into the paper. Raw images, models and private notes are not on GitHub. Reproduction commands generate separate records; exact numerical equality across different devices is not guaranteed. The processing display uses temporary observation hooks that copy actual layer outputs. Checks confirm identical category scores with and without those hooks, unchanged weights and buffers, and no retained hooks. Fixed channels and shared stage color scales make the two models easier to compare; these displays do not establish a causal explanation. The running sample is chosen from the original test manifests and recorded with source paths and image hashes in the local replay JSON."
     },
     {
       "kind": "references",

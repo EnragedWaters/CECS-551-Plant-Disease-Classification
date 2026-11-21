@@ -79,9 +79,9 @@ six-page paper remains within it anyway.
   the prior replay exactly. Largest explanatory reconstruction differences on the
   six real images: 4.42e-7 for pooled averages and 4.77e-6 for raw category scores.
   These checks preserve the original findings; no additional training occurred.
-- The updated local backup is `outputs/phase4-demo-learning/replay-final/offline-demo.html`;
+- The updated local backup is `outputs/demo-visual-cleanup/replay/offline-demo.html`;
   screenshots, numerical checks and PDF backups are beside it under the ignored
-  `outputs/phase4-demo-learning/` folder.
+  `outputs/demo-visual-cleanup/` folder.
 - PPTX contains twelve slides and speaker notes for all twelve. Text and shapes
   are editable; the chart is an embedded copy of the published result plot.
 - Twelve-page PDF companion visually reviewed. Google Slides import and actual

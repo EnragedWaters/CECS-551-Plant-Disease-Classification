@@ -16,10 +16,11 @@ window.DemoLessons = (() => {
     ['576 averages → 22 raw scores → 22 softmax scores', 'Each category has its own learned weights. The largest final score selects a category; it can still be confidently wrong.']
   ];
   function explain(container, step) {
-    const box=el('div',undefined,'stage-purpose');
-    box.append(el('p',why[step][0],'dimension-flow'),el('p',`Why this step matters: ${why[step][1]}`));
+    const box=el('details',undefined,'stage-purpose');
+    box.append(el('summary','Why this step?'));
+    box.append(el('p',why[step][0],'dimension-flow'),el('p',why[step][1]));
     container.append(box);
-    if(step===2)container.append(filterLesson());
+    if(step===2)container.append(el('p','Colors show responses, not disease regions. Scale is shared between models.','visual-note'),filterLesson());
   }
   function flow(container) {
     container.replaceChildren();
@@ -35,16 +36,17 @@ window.DemoLessons = (() => {
     const outline=el('div',undefined,'content-outline');
     outline.style.left=`${p.offset[0]/224*100}%`;outline.style.top=`${p.offset[1]/224*100}%`;
     outline.style.width=`${p.resized_size[0]/224*100}%`;outline.style.height=`${p.resized_size[1]/224*100}%`;frame.append(outline);
-    container.append(el('p',`${p.oriented_size.join(' × ')} original → ${p.resized_size.join(' × ')} photo inside 224 × 224. Outline = photo; outside it = added padding. A square photo needs no padding.`, 'caption preparation-geometry'));
-    const details=el('details',undefined,'learning-details'); details.append(el('summary','What happens to the red, green and blue numbers?'));
+    container.append(el('p','Outline = photo · outside = padding', 'caption preparation-geometry'));
+    const details=el('details',undefined,'learning-details'); details.append(el('summary','Pixel values & resizing'));
+    details.append(el('p',`${p.oriented_size.join(' × ')} → ${p.resized_size.join(' × ')} inside 224 × 224.`));
     details.append(el('p','Each color value goes from 0–255 to 0–1, then is centered and scaled with the same ImageNet settings used during training. This changes the numbers the network receives, not the geometry. The displayed photo stays in ordinary colors.'));
     ['Red','Green','Blue'].forEach((channel,i)=>details.append(el('p',`${channel} at pixel (112, 112): (${p.center_rgb[i]} / 255 − ${p.mean[i]}) / ${p.std[i]} = ${number(p.center_normalized[i])}`, 'math-line')));
     container.append(details);
   }
   function filterLesson() {
     const details=el('details',undefined,'filter-lesson learning-details');
-    details.append(el('summary','Try a tiny filter: why do patterns produce different numbers?'));
-    details.append(el('p','Separate teaching example — this hand-written filter is NOT a MobileNet filter and does not alter the selected photograph or prediction. Real filters learn their numbers from training and combine multiple channels.'));
+    details.append(el('summary','Try a toy filter (separate example)'));
+    details.append(el('p','Hand-written teaching filter, not MobileNet. The real models stay unchanged.'));
     const select=el('select'); select.setAttribute('aria-label','Toy patch pattern');
     [['flat','Uniform patch'],['edge','Dark left, bright right'],['reverse','Bright left, dark right']].forEach(([v,t])=>{const o=el('option',t);o.value=v;select.append(o);});
     const content=el('div',undefined,'toy-calculation');details.append(select,content);
@@ -58,7 +60,7 @@ window.DemoLessons = (() => {
         values.forEach(v=>{const cell=el('span',String(v));cell.dataset.sign=String(Math.sign(v));grid.append(cell);});part.append(grid);columns.append(part);
       });
       const sum=pixels.reduce((s,p,i)=>s+p*kernel[i],0);
-      content.append(columns,el('p',`Add the nine products → response = ${sum}`,'toy-result math-line'),el('p','Uniform areas cancel out here. Reversing the edge reverses the sign. Moving a filter across an image makes a map of these responses. This explains the mechanism, not the meaning of any real channel.'));
+      content.append(columns,el('p',`Add the nine products → response = ${sum}`,'toy-result math-line'),el('p','Uniform → zero. Reversed edge → opposite sign.'));
     }
     select.onchange=render;render();return details;
   }
@@ -66,16 +68,25 @@ window.DemoLessons = (() => {
     const existing=container.querySelector('.pooled'), frame=el('div',undefined,'pooled-frame');
     existing.replaceWith(frame);frame.append(existing);
     const marker=el('span',undefined,'pooled-marker');frame.append(marker);
-    const preview=el('p',undefined,'pool-preview math-line');container.append(preview);
+    // A real map -> its average -> the existing vector is visible without arithmetic.
+    const visual=el('div',undefined,'pool-visual');
+    const mapPart=el('div'), mini=el('div',undefined,'pool-mini'), mapLabel=el('small','Channel 0 · 7 × 7');
+    mapPart.append(mini,mapLabel);
+    const averagePart=el('div'), average=el('strong',undefined,'pool-average');averagePart.append(average,el('small','Average'));
+    const vectorPart=el('div');vectorPart.append(frame,el('small','576 values'));
+    visual.append(mapPart,el('b','→'),averagePart,el('b','→'),vectorPart);container.prepend(visual);
+    const preview=el('p',undefined,'pool-preview math-line');
     const details=el('details',undefined,'pool-lesson learning-details');
-    details.append(el('summary','Follow 49 actual values into one of the 576 averages'));
+    details.append(el('summary','Inspect the numbers'));
     const select=el('select');select.setAttribute('aria-label','Pooling channel');
     learning.pooling.forEach(p=>{const o=el('option',`Channel ${p.channel}`);o.value=String(p.channel);select.append(o);});
     const grid=el('div',undefined,'pool-grid'), equation=el('p',undefined,'pool-equation math-line');
-    details.append(select,el('p','These are the actual 7 × 7 late-stage responses. All 49 values count equally. Colors use the shared late-stage scale from the feature maps.'),grid,equation,el('p','The outlined cell in the 576-value display above is this average. That display is arranged into rows for convenience; it is not a picture of the leaf.'));
+    details.append(select,preview,grid,equation,el('p','49 equally weighted positions. Map and average displays use separate scales, each shared between models. The 576-value layout is not image coordinates.'));
+    const legend=container.querySelector('.legend');if(legend)details.append(el('p','Scale for the 576-value display:'),legend);
     function render(){
-      const p=learning.pooling.find(p=>p.channel===Number(select.value));grid.replaceChildren();
-      p.grid.flat().forEach(v=>{const cell=el('span',v.toFixed(2));cell.title=String(v);cell.style.background=`rgba(${v<0?'43,98,177':'207,102,33'},${Math.min(1,Math.abs(v)/limit)*.4})`;grid.append(cell);});
+      const p=learning.pooling.find(p=>p.channel===Number(select.value));grid.replaceChildren();mini.replaceChildren();
+      average.textContent=p.observed.toFixed(3);mapLabel.textContent=`Channel ${p.channel} · 7 × 7`;
+      p.grid.flat().forEach(v=>{const cell=el('span',v.toFixed(2));cell.title=String(v);cell.style.background=`rgba(${v<0?'43,98,177':'207,102,33'},${Math.min(1,Math.abs(v)/limit)*.4})`;grid.append(cell);const tile=el('span');tile.style.background=cell.style.background;tile.title=v.toFixed(4);mini.append(tile);});
       marker.style.left=`${p.channel%24/24*100}%`;marker.style.top=`${Math.floor(p.channel/24)/24*100}%`;
       preview.textContent=`Channel ${p.channel}: 49 positions → average ${number(p.observed)} → one feature value.`;
       equation.textContent=`Sum ${number(p.sum)} ÷ 49 = ${number(p.mean)}. Observed model average: ${number(p.observed)}.`;
@@ -83,15 +94,15 @@ window.DemoLessons = (() => {
     select.onchange=render;render();container.append(details);
   }
   function classifier(container, prediction) {
-    const details=el('details',undefined,'classifier-lesson learning-details');details.append(el('summary','How do the 576 averages vote for a category?'));
-    details.append(el('p','A raw score is the sum of feature value × category weight, plus a learned offset (bias). Positive contributions raise this score; negative ones lower it. These are arithmetic contributions, not proof that a visible leaf feature caused the diagnosis.'));
+    const details=el('details',undefined,'classifier-lesson learning-details');details.append(el('summary','Inspect score contributions'));
+    details.append(el('p','Feature × weight, summed with a bias (offset). These are arithmetic contributions, not a diagnosis explanation.'));
     const select=el('select');select.setAttribute('aria-label','Classifier category');
     prediction.learning.classifier.forEach(c=>{
       const label=prediction.scores.find(s=>s.class_id===c.class_id).label;
       const option=el('option',`${c.roles.join(' / ')}: ${label}`);option.value=String(c.class_id);select.append(option);
     });
-    const terms=el('div',undefined,'contribution-terms'),total=el('p',undefined,'classifier-total math-line');details.append(select,el('p','Bars scale within the selected category: left lowers its raw score, right raises it. Use the printed values to compare categories or models.','caption'),terms,total);
-    details.append(el('p','Softmax compares ALL 22 raw scores: exp(score − largest score) divided by the sum of those exponentials. The score bars show the resulting shares, which add to 100%. A large share is not a guarantee of correctness.'));
+    const terms=el('div',undefined,'contribution-terms'),total=el('p',undefined,'classifier-total math-line');details.append(select,el('p','← Lowers score · Raises score →. Bar scale resets per category.','caption'),terms,total);
+    details.append(el('p','Softmax compares all 22 raw scores to create the percentage bars. High scores can still be wrong.'));
     function render(){
       const c=prediction.learning.classifier.find(c=>c.class_id===Number(select.value));terms.replaceChildren();
       const max=Math.max(...c.terms.map(t=>Math.abs(t.product)),1e-9);

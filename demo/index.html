@@ -8,37 +8,37 @@
 <body>
 <header><div class="brand"><span class="mark">P</span><div>Plant disease classification<small>Phase 4 · coolTeamName.ipynb</small></div></div><span id="mode" class="mode">Loading models…</span></header>
 <main>
-<div class="intro"><p class="eyebrow">ONE TRAINING COLLECTION · TWO TEST COLLECTIONS</p><h1>See how the models process a photograph.</h1><p>Both models learned from <strong>PlantVillage</strong>. We test both on <strong>PlantVillage and PlantDoc</strong>.</p></div>
+<div class="intro"><p class="eyebrow">ONE TRAINING COLLECTION · TWO TEST COLLECTIONS</p><h1>From photo to prediction.</h1><p>Trained on PlantVillage. Tested on both collections below.</p></div>
 <nav class="tabs" aria-label="Demo views"><button id="walk-tab" aria-pressed="true">Inside the models</button><button id="batch-tab" aria-pressed="false">Compare 22 images per dataset</button></nav>
 <p id="status" role="status" aria-live="polite">Loading image examples…</p>
 <section id="walk-view">
 <div class="dataset-grid" aria-label="Both datasets">
-<article class="dataset-panel active" id="panel-plantvillage"><div class="panel-heading"><h2>PlantVillage</h2><span class="tag">Source test</span></div><div class="dataset-content"><img class="selected-photo" alt="Selected PlantVillage photograph"><div><p class="dataset-description">A separate test portion of the collection used for training.</p><strong class="selected-label"></strong><button class="focus-button" data-dataset="plantvillage">Explore this photo</button></div></div><div class="thumbnails" role="group" aria-label="PlantVillage examples"></div></article>
-<article class="dataset-panel" id="panel-plantdoc"><div class="panel-heading"><h2>PlantDoc</h2><span class="tag">External test</span></div><div class="dataset-content"><img class="selected-photo" alt="Selected PlantDoc photograph"><div><p class="dataset-description">A different collection; not used to train these models.</p><strong class="selected-label"></strong><button class="focus-button" data-dataset="plantdoc">Explore this photo</button></div></div><div class="thumbnails" role="group" aria-label="PlantDoc examples"></div></article>
+<article class="dataset-panel active" id="panel-plantvillage"><div class="panel-heading"><h2>PlantVillage</h2><span class="tag">Source test</span></div><div class="dataset-content"><img class="selected-photo" alt="Selected PlantVillage photograph"><div><p class="dataset-description">Unseen test photos from the training collection.</p><strong class="selected-label"></strong><button class="focus-button" data-dataset="plantvillage">Explore this photo</button></div></div><div class="thumbnails" role="group" aria-label="PlantVillage examples"></div></article>
+<article class="dataset-panel" id="panel-plantdoc"><div class="panel-heading"><h2>PlantDoc</h2><span class="tag">External test</span></div><div class="dataset-content"><img class="selected-photo" alt="Selected PlantDoc photograph"><div><p class="dataset-description">Different collection. Never used in training.</p><strong class="selected-label"></strong><button class="focus-button" data-dataset="plantdoc">Explore this photo</button></div></div><div class="thumbnails" role="group" aria-label="PlantDoc examples"></div></article>
 </div>
-<p class="caption">Choose a thumbnail or “Explore this photo”. These six illustrative photos include selected successes and mistakes; they do not estimate accuracy.</p>
+<p class="caption">Six selected examples · successes and mistakes · not an accuracy test.</p>
 <section class="walkthrough" aria-label="Layer processing walkthrough">
 <div class="section-heading"><div><p class="eyebrow" id="focus-dataset">PLANTVILLAGE WALKTHROUGH</p><h2 id="focus-label">—</h2></div><button id="capture" class="primary" disabled>Run &amp; watch</button></div>
 <div class="playback"><button id="show-all" aria-pressed="true">All stages summary</button><button id="back" disabled>← Back</button><button id="play" disabled>Play</button><button id="pause" disabled>Pause</button><button id="forward" disabled>Next →</button><label for="speed">Playback</label><select id="speed"><option value="3000">Slow</option><option value="1600" selected>Normal</option><option value="800">Fast</option></select><span id="step-counter">Step 1 of 7</span></div>
-<details class="training-lesson"><summary>Frozen versus fine-tuned: what changed during training?</summary>
+<details class="training-lesson"><summary>Model setup & dimensions</summary>
 <div class="model-grid"><div><h3>Frozen features</h3><p class="training-diagram">ImageNet feature weights: fixed → Category weights: trained</p><p>Reuse the patterns learned from ImageNet. Only the final layer learned how to combine the 576 values into our 22 plant categories.</p></div><div><h3>Fine-tuned features</h3><p class="training-diagram">ImageNet feature weights: trained too → Category weights: trained</p><p>After one warmup epoch, earlier feature weights also adjusted to PlantVillage. The same photo can now produce different responses and scores.</p></div></div>
-<p><strong>Right now both models are fixed.</strong> Looking at a new photo changes their responses, not their weights. No learning happens in this demo. Batch-normalization running statistics stayed fixed during both original training methods.</p></details>
-<p class="caption">Reading the shapes: channels × height × width. A channel is one grid of responses. Arrows below skip intervening network blocks; these are four selected observation points, not every internal layer.</p>
+<p><strong>Right now both models are fixed.</strong> Looking at a new photo changes their responses, not their weights. No learning happens in this demo. Batch-normalization running statistics stayed fixed during both original training methods.</p><p class="caption">Shapes: response maps × height × width. Selected stages, not every internal layer.</p>
 <div id="dimension-flow" class="dimension-flow-diagram" aria-label="Actual model dimensions"></div>
+</details>
 <div id="steps" class="steps" aria-label="Processing stages"></div>
 <div id="all-stages" aria-label="All seven processing stages"></div>
 <div id="single-stage" hidden>
 <div class="stage-explanation"><h3 id="stage-title"></h3><p id="stage-description"></p><div id="single-lesson"></div></div>
 <div class="model-grid">
-<article class="model-card" id="trace-frozen"><div class="model-heading"><h3>Frozen features</h3><span>Only the final category layer learned.</span></div><div class="stage-content"></div></article>
-<article class="model-card" id="trace-finetune"><div class="model-heading"><h3>Fine-tuned features</h3><span>Earlier features also learned after warmup.</span></div><div class="stage-content"></div></article>
+<article class="model-card" id="trace-frozen"><div class="model-heading"><h3>Frozen</h3></div><div class="stage-content"></div></article>
+<article class="model-card" id="trace-finetune"><div class="model-heading"><h3>Fine-tuned</h3></div><div class="stage-content"></div></article>
 </div>
 </div>
-<p id="trace-note" class="notice">Run the models to capture their actual intermediate outputs. Playback is slowed for explanation, not a live measure of thinking or inference speed.</p>
+<p id="trace-note" class="notice">Playback is slowed for explanation. No learning happens here.</p>
 </section>
 </section>
 <section id="batch-view" hidden>
-<div class="section-heading"><div><p class="eyebrow">BALANCED TEACHING SAMPLE · SEED 551</p><h2>Watch both datasets pass through both models.</h2></div></div>
+<div class="section-heading"><div><p class="eyebrow">BALANCED TEACHING SAMPLE · SEED 551</p><h2>Compare both datasets.</h2></div></div>
 <p id="batch-policy" class="caption"></p>
 <div class="playback"><button id="batch-start" class="primary" disabled>Start comparison</button><button id="batch-pause" disabled>Pause</button><button id="batch-next" disabled>Next pair</button><button id="batch-reset" disabled>Reset</button><label for="batch-speed">Pause between pairs</label><select id="batch-speed"><option value="1600" selected>1.6 seconds</option><option value="3000">3 seconds</option><option value="0">No added pause</option></select><span id="batch-progress">0 / 22 per dataset</span></div>
 <progress id="progress" max="22" value="0" aria-label="Sample comparison progress"></progress>
@@ -46,10 +46,10 @@
 <article class="batch-panel" id="batch-plantvillage"><div class="panel-heading"><h2>PlantVillage</h2><span class="tag">Source test</span></div><img class="batch-photo" alt="Current PlantVillage sample" hidden><p class="batch-label">Waiting to start</p><div class="batch-predictions"></div><div class="batch-totals"></div></article>
 <article class="batch-panel" id="batch-plantdoc"><div class="panel-heading"><h2>PlantDoc</h2><span class="tag">External test</span></div><img class="batch-photo" alt="Current PlantDoc sample" hidden><p class="batch-label">Waiting to start</p><div class="batch-predictions"></div><div class="batch-totals"></div></article>
 </div>
-<p class="notice">Each step tests one category’s photograph from each dataset. They are different photographs—not matched views of the same leaf. These counts are for this sample only.</p>
+<p class="notice">Same category, different photos. Counts apply only to this sample.</p>
 <details><summary>Images already processed and their predictions</summary><div class="table-scroll"><table><thead><tr><th>Pair</th><th>Dataset</th><th>Dataset label</th><th>Frozen prediction</th><th>Fine-tuned prediction</th></tr></thead><tbody id="batch-log"></tbody></table></div></details>
 </section>
-<aside><strong>Published full evaluation — separate from this demonstration</strong><p>Three training seeds · 5,487 PlantVillage test images · 183 PlantDoc test images</p><div class="results"><span>Frozen: <b>97.59% / 21.68%</b></span><span>Fine-tuned: <b>99.07% / 25.87%</b></span><small>PlantVillage / PlantDoc · mean accuracy. The smaller balanced demo sample is not representative of these full sets.</small></div></aside>
+<details class="published-results"><summary>Published results · separate from this sample</summary><aside><p>Three training seeds · 5,487 PlantVillage test images · 183 PlantDoc test images</p><div class="results"><span>Frozen: <b>97.59% / 21.68%</b></span><span>Fine-tuned: <b>99.07% / 25.87%</b></span><small>PlantVillage / PlantDoc · mean accuracy. The smaller balanced demo sample is not representative of these full sets.</small></div></aside></details>
 <details><summary>What the visuals mean, selection policy, and attribution</summary><p>Feature maps show numerical responses inside the network. Colors are not attention, a disease mask, or proof of why a prediction happened. Channels 0–3 are fixed; a pale tile may simply be quiet for this photo. Within each stage, both models share the same scale: blue is negative, pale is zero, orange is positive. Scales differ between stages.</p><p id="selection"></p><p id="source"></p><p>The 576-value summary grid is a display arrangement, not image coordinates. Category bars are final softmax scores, not intermediate guesses or calibrated probabilities. Dataset labels are annotations, not independently verified diagnoses.</p><p>PlantVillage: S. P. Mohanty, CC BY-SA 3.0. Cropped PlantDoc: D. Singh et al. / P. Kayal, CC BY 4.0. Source paths and license links are in demo/ATTRIBUTION.md. Display copies are resized; model inputs are padded. No images or predictions leave this computer.</p></details>
 </main><footer>Original experiment 9619975 · Saved seed-551 models · No training or weight changes</footer>
 <script src="/assets/lessons.js" defer></script>

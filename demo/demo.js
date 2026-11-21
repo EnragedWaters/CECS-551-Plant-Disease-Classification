@@ -9,13 +9,13 @@
   const replay = window.RECORDED_DEMO;
   const lessons = window.DemoLessons;
   const stages = [
-    ['Original', 'Start with the photograph', 'Both saved models receive the same selected photograph. The dataset label is used only to check the answer; it is not given to the model.'],
-    ['Prepared', 'Make the image fit the model', 'Correct orientation, convert to RGB, resize without stretching, and pad to 224 × 224. Pixel values are then normalized using the original training settings.'],
-    ['Early', 'Early layer responses', 'These are real feature maps: grids of numbers produced inside the network. We show fixed channels 0–3, not handpicked “best-looking” maps.'],
-    ['Middle', 'Middle layer responses', 'Later blocks combine earlier responses. Each map is smaller and carries a different learned pattern; we cannot simply name a channel “leaf” or “disease”.'],
-    ['Late', 'Late layer responses', 'The final feature block produces 576 small maps. Only the first four are displayed. Their colors are feature responses, not attention or proof of why the model chose a label.'],
-    ['Pooling', 'Average each feature map into one number', 'Average pooling converts 576 maps into 576 numbers. The grid below arranges those numbers for display; its cells are not locations in the original photograph.'],
-    ['Scores', 'Turn those features into category scores', 'The final linear layer scores 22 categories. Softmax converts those scores into values that sum to one. The largest gives the prediction; a high value can still be wrong.']
+    ['Original', 'The photograph', 'Same photo → both models.'],
+    ['Prepared', 'Fit the input', 'Keep the whole photo; pad instead of stretching.'],
+    ['Early', 'Find local patterns', 'Pixels become pattern responses.'],
+    ['Middle', 'Combine patterns', 'Smaller maps combine information from larger areas.'],
+    ['Late', 'Build a compact description', '576 small maps feed the classifier.'],
+    ['Pooling', 'Many positions → one average', 'Each map becomes one number.'],
+    ['Scores', 'Choose a category', 'Highest score wins — even when wrong.']
   ];
   let info, pictures = [], selected = {}, focus = 0, stage = 0, trace = null;
   let capturing = false, playing = false, playTimer = null, showAll = true;
@@ -38,7 +38,7 @@
     return response.json();
   }
   function verdict(value) {
-    return node('span',value.matches_label ? 'Matches dataset label' : 'Does not match dataset label',
+    return node('span',value.matches_label ? '✓ Matches label' : '✕ Different label',
       `verdict ${value.matches_label ? 'match' : 'mismatch'}`);
   }
   function bar(score) {
@@ -78,9 +78,9 @@
     $('focus-dataset').textContent=`${names[dataset]} walkthrough`;
     $('focus-label').textContent=`Dataset label: ${pictures[index].label}`;
     $('source').textContent=`Selected source: ${pictures[index].source_path}`;
-    $('trace-note').textContent='Run the models to capture actual layer outputs. Playback is slowed for explanation; it is not inference timing.';
+    $('trace-note').textContent='Playback is slowed for explanation. No learning happens here.';
     renderStage();
-    status(replay ? 'Recorded backup selected. No models run in this mode.' : 'Choose a dataset photograph, then run and watch its processing.');
+    status(replay ? 'Recorded examples ready.' : 'Choose a photo, then run both models.');
   }
   function renderDataset(dataset) {
     const panel=$(`panel-${dataset}`), data=pictures[selected[dataset]];
@@ -100,31 +100,29 @@
       if (step<2) {
         content.append(image(step===0 ? pictures[focus].original : pictures[focus].prepared,
           step===0 ? 'Selected original photograph' : 'Actual resized and padded model input','stage-photo'));
-        content.append(node('p',step===0 ? 'The same photo enters both models.' : 'Actual preprocessing output, before numerical normalization.','caption'));
         if(step===1)lessons.preparation(content,pictures[focus]);
       } else if (step<6 && trace) {
         const item=trace.features[mode][step-2];
         if (step<5) {
-          content.append(node('p',`${item.shape[0]} channels × ${item.shape[1]} × ${item.shape[2]} positions; showing channels 0–3.`,'feature-info'));
+          content.append(node('p',`4 of ${item.shape[0]} maps · ${item.shape[1]} × ${item.shape[2]} each`,'feature-info'));
           const grid=node('div',undefined,'feature-grid');
           item.maps.forEach((src,i)=>{
             const figure=node('figure');figure.append(image(src,`${names[mode]} ${item.key} feature channel ${item.channels[i]}`),node('figcaption',`Channel ${item.channels[i]}`));grid.append(figure);
           });content.append(grid);
         } else {
           content.append(image(item.maps[0],'576 pooled feature values arranged as a display grid','pooled'));
-          content.append(node('p',item.layout_note,'caption'));
+          // The display layout is explained inside the optional pooling details.
         }
         const legend=node('div',undefined,'legend');
         legend.append(node('span',`−${item.scale_limit.toFixed(2)}`),node('span',undefined,'gradient'),node('span',`+${item.scale_limit.toFixed(2)}`));
-        content.append(legend,node('p',step===5 ? 'Shared scale for the 576-average display above; pale = zero.' : 'Shared scale across both models at this step; pale = zero.','caption'));
+        content.append(legend);
         if(step===5)lessons.pooling(content,trace.predictions[mode].learning,trace.features[mode][2].scale_limit);
       } else if (trace) {
         const value=trace.predictions[mode];
         content.append(node('p',value.label,'predicted-label'),verdict(value));
         const scores=[...value.scores].sort((a,b)=>b.score-a.score);
         scoreRows(content,scores.slice(0,5));
-        const more=node('details');more.append(node('summary','Show the other 17 category scores'));scoreRows(more,scores.slice(5));content.append(more);
-        content.append(node('p','Final model scores, not calibrated probabilities or a diagnosis.','score-caption'));
+        const more=node('details');more.append(node('summary','All 22 scores'));scoreRows(more,scores.slice(5));content.append(more);
         lessons.classifier(content,value);
         if(value.matches_recorded_prediction===false)content.append(node('p','This predicted category differs from the original evaluation.','notice'));
       } else {
@@ -148,7 +146,7 @@
         const grid=node('div',undefined,'model-grid');
         modes.forEach(mode=>{
           const card=node('article',undefined,'model-card');card.dataset.mode=mode;
-          card.append(node('h3',`${names[mode]} features`,'model-heading'));
+          card.append(node('h3',names[mode],'model-heading'));
           const content=node('div',undefined,'stage-content');
           renderModelStage(content,mode,step);card.append(content);grid.append(card);
         });
@@ -182,8 +180,8 @@
     try {
       trace=replay ? replay.records[focus] : await get(`/api/trace/${focus}`);
       if(!trace.observed_logits_equal_plain || !trace.model_states_unchanged)throw new Error('observation checks failed');
-      $('trace-note').textContent=replay ? 'Recorded model outputs · explanatory playback · no live inference in this backup.' : 'Real outputs captured now. Observed and ordinary predictions match; weights are unchanged. Playback speed is for explanation.';
-      status(replay ? 'Recorded outputs ready. Pause or step through them.' : 'Live computation finished. Explore the captured outputs using playback or step controls.');
+      $('trace-note').textContent=replay ? 'Recorded outputs · explanatory playback.' : 'Real outputs · explanatory playback · weights unchanged.';
+      status(replay ? 'Recorded stages ready.' : 'Done. Scroll through the stages.');
       capturing=false;renderStage();if(!showAll)playWalk();
     } catch(error) {capturing=false;trace=null;renderStage();fail(error);}
   }
@@ -213,7 +211,7 @@
       const predictions=panel.querySelector('.batch-predictions');predictions.replaceChildren();
       if(last) {
         photo.src=last.original;
-        predictions.append(node('p',`Source: ${last.source_path}`,'caption source-path'));
+        const source=node('details');source.append(node('summary','Image source'),node('p',last.source_path,'source-path'));predictions.append(source);
         modes.forEach(mode=>{
           const p=node('p');p.append(node('strong',`${names[mode]}: `),node('span',last.predictions[mode].label),node('br'),verdict(last.predictions[mode]));predictions.append(p);
         });
@@ -242,9 +240,9 @@
       const record=replay ? replay.batch[index] : await get(`/api/batch/${index}`);
       if(record.index!==index)throw new Error('unexpected sample order');
       completed.push(record);batchBusy=false;renderBatch();
-      if(completed.length===info.batch_steps){batchRunning=false;batchControls();status('Sample complete. These counts are for 22 images per dataset and one seed—not the published full evaluation.');}
+      if(completed.length===info.batch_steps){batchRunning=false;batchControls();status('Sample complete · 22 images per dataset, not the full evaluation.');}
       else if(batchRunning)batchTimer=setTimeout(nextPair,Number($('batch-speed').value));
-      else status('Pair complete. Comparison paused; use Resume or Next pair.');
+      else status('Pair complete. Resume or choose Next pair.');
     } catch(error){batchBusy=false;batchRunning=false;batchControls();fail(error);}
   }
   function switchView(batch) {
@@ -252,7 +250,7 @@
     pauseWalk();if(batchRunning)pauseBatch();
     $('walk-view').hidden=batch;$('batch-view').hidden=!batch;
     $('walk-tab').setAttribute('aria-pressed',String(!batch));$('batch-tab').setAttribute('aria-pressed',String(batch));
-    status(batch ? 'This sample uses the same two models on both datasets. Start it or advance one pair at a time.' : 'Select a photograph in either dataset panel to explore its processing.');
+    status(batch ? 'Start or step through the sample.' : 'Choose a photo to explore.');
   }
 
   try {
@@ -262,7 +260,7 @@
     $('mode').classList.toggle('recorded',!!replay);
     $('capture').textContent=replay ? 'Watch recorded processing' : 'Run & watch';
     $('selection').textContent=info.selection_policy;
-    $('batch-policy').textContent=info.batch_policy;
+    $('batch-policy').textContent='One image per category per dataset · selected without using predictions.';
     $('progress').max=info.batch_steps;
     pictures=await Promise.all(info.examples.map((e,i)=>replay ? replay.records[i] : get(`/api/example/${i}`)));
     datasets.forEach(dataset=>{

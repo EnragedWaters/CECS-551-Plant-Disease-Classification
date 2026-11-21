@@ -13,6 +13,9 @@ For presenting, start in [ONE-CLICK-LAUNCHERS](ONE-CLICK-LAUNCHERS/README.md) an
 choose the OS-labeled launcher. Windows supports native Python with optional WSL;
 macOS and Linux/WSL have separate launchers. The demo defaults to all seven
 processing stages together and also offers a running two-dataset sample.
+Keep the default view visual: one short caption per stage, photos/maps/diagrams
+first, and explanations/calculations behind optional details. Do not repeat
+paragraphs beneath both models or expand every lesson by default.
 `demo/lessons.js` adds stage purposes, preprocessing geometry, a separate toy
 filter, actual pooling arithmetic and classifier contributions. The toy must
 remain clearly separate from the real model. `demo_trace.py` verifies the real
@@ -44,6 +47,7 @@ explain the current status and establish which improvement is wanted.
 
 | Location | What it contains |
 | --- | --- |
+| [Phase-4-Submission/](Phase-4-Submission/README.md) | Ready-to-use repository-link TXT, IEEE paper and presentation files. Keep copies synchronized with their sources in docs/. |
 | [ONE-CLICK-LAUNCHERS/](ONE-CLICK-LAUNCHERS/README.md) | Presenter entry point: choose your OS and start the existing demo. |
 | [docs/presentation/](docs/presentation/) | Phase 4 PowerPoint/PDF, speaker notes, demo instructions and rubric coverage. Start here for presentation work. |
 | [demo/](demo/) and [plant_disease/demo.py](plant_disease/demo.py) | Local demonstration of both datasets, actual intermediate features, and a fixed teaching sample using verified original models. Image-bearing replay/backup files remain in ignored outputs. |

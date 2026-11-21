@@ -1,6 +1,9 @@
 # Local Python setup
 
-The project uses Python 3.12 in WSL with an NVIDIA GPU. The environment is kept
+The original training environment uses Python 3.12 in WSL with an NVIDIA GPU.
+The demo can also run on native Windows, Linux, or macOS; see the
+[cross-platform launcher guide](presentation/demo-guide.md#open-from-your-operating-system)
+for a CPU setup. WSL is not required for teammates to run the demo. The environment is kept
 outside the OneDrive project folder, at `~/.venvs/cecs551-plant-disease`.
 The package files in the repository describe the installation; the environment
 itself is local and is not uploaded to GitHub.

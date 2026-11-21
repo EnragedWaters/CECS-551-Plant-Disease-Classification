@@ -5,25 +5,89 @@ The demo has two views: **Inside the models** shows real processing outputs;
 PlantDoc have separate, visible thumbnail panels. Both use the same original
 seed-551 frozen and fine-tuned models. No training or downloads occur.
 
-## Double-click from Windows
+## Open from your operating system
 
-In the repository folder in Windows File Explorer, double-click **Run Demo.cmd**.
-It starts the prepared environment in your default WSL distribution (Ubuntu on
-this laptop) and opens your Windows browser. Keep its terminal window open;
-press **Ctrl+C** there to stop. An error leaves the window open to read.
-The launcher works from its own folder, including paths with spaces.
+| System | Launcher in the repository folder |
+| --- | --- |
+| Windows (with or without WSL) | Double-click **Run Demo.cmd**. |
+| macOS | Double-click **Run Demo.command**. |
+| Linux / WSL | Run **Run Demo.sh**; from a terminal use `./"Run Demo.sh"`. A desktop file manager may ask to execute it or open it as text. |
 
-The default WSL distribution must contain the environment and saved files below.
-A different Python path can be set through `PLANT_DISEASE_PYTHON` inside WSL.
-Nothing is installed automatically. Alternatively, from a WSL terminal:
+The launchers locate the repository from their own location, even when the path
+contains spaces. They find a ready Python environment, start the demo, and open
+**http://localhost:8766**. Keep the terminal open; **Ctrl+C** stops the server.
+CPU is the default; a GPU is not required. No packages or data are downloaded.
 
-```bash
-source ~/.venvs/cecs551-plant-disease/bin/activate
-python -m plant_disease.demo
+On Windows, a ready **native Windows** environment is preferred. WSL is checked
+only if no native environment is ready. On Linux/macOS/WSL, Python runs natively.
+The search checks `.venv` or `venv` inside the repository, an activated environment,
+and Python on the system path; Linux/macOS/WSL also checks the original
+`~/.venvs/cecs551-plant-disease` location. Windows can also use `py -3`.
+A ready environment needs the packages, original files, and Git history below.
+A real demo failure is reported; it does not silently start another model run.
+
+Set **PLANT_DISEASE_PYTHON** to a specific Python executable if needed. An explicit
+choice is respected: a bad path is reported instead of silently falling back.
+Use Windows paths in Windows and POSIX paths in Linux/macOS/WSL. Environments
+cannot be shared between Windows and WSL; create one for the OS where it runs.
+
+## First-time setup on another computer
+
+The launchers work after setup; a fresh clone does not include the environment,
+weights or dataset photographs. Use a normal Git clone with history and install
+Git and Python (3.12 was used for the original experiment).
+
+Create a local environment from the repository folder:
+
+```powershell
+# Native Windows, with Python installed:
+py -3 -m venv .venv
+.venv\Scripts\python.exe -m pip install --upgrade pip
 ```
 
-Open **http://localhost:8766** after the startup message. CPU is the default;
-a GPU is not needed. Use `--port 8767` if another program occupies the port.
+```bash
+# Linux or macOS:
+python3 -m venv .venv
+.venv/bin/python -m pip install --upgrade pip
+```
+
+Install PyTorch and torchvision using the [official OS/CPU installation selector](https://pytorch.org/get-started/locally/)
+into that environment, then install NumPy and Pillow. Use `.venv\Scripts\python.exe -m pip`
+on Windows or `.venv/bin/python -m pip` on Linux/macOS in place of the selector's
+`pip` command. Existing project environments may already have these packages.
+The original verified versions are recorded in [setup](../setup.md); package or
+device differences can affect numerical scores. No new training is needed to
+use the existing trusted models. [Python's environment guide](https://docs.python.org/3/library/venv.html)
+explains why each OS needs its own environment.
+
+Copy the exact saved models, test manifests, and pinned datasets listed below
+privately onto the presenting computer. If their paths differ from the defaults,
+create **demo-settings.local.json** in the repository folder, for example:
+
+```json
+{
+  "data_root": "D:/datasets/cecs551-plant-disease",
+  "runs_root": "outputs/runs",
+  "splits_dir": "outputs/splits",
+  "port": 8766,
+  "device": "cpu"
+}
+```
+
+Replace `data_root` with the actual local location. Windows forward slashes avoid
+JSON backslash escaping. Paths can also be relative to the repository; `~` means
+the current OS user's home. Omit settings to use defaults. The file is Git-ignored
+so teammates do not inherit your personal paths. Launcher command-line arguments
+such as `--port 8767` override these settings. Direct `python -m plant_disease.demo`
+uses its own defaults/arguments; local JSON is a launcher convenience.
+
+Windows native checkouts preserve the fingerprinted JSON and code line endings
+through `.gitattributes`. If an older checkout reports changed evidence, inspect
+local changes or use a fresh clone; do not edit hashes to bypass verification.
+The launcher reports missing packages, data or history before starting. The
+recorded HTML backup below needs none of those prerequisites and can be copied
+with its attribution file to another computer.
+
 Use browser full-screen for class; scroll or adjust zoom for the projector.
 
 ## Inside the models

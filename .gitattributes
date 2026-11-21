@@ -5,3 +5,9 @@
 # Windows launcher and WSL helper need their native line endings.
 *.cmd text eol=crlf
 *.sh text eol=lf
+*.command text eol=lf
+*.ps1 text eol=crlf
+# Experiment fingerprints require identical bytes in native Windows checkouts.
+*.json text eol=lf
+*.py text eol=lf
+*.csv text eol=lf

@@ -9,8 +9,10 @@ existing report, project locations, and guidance on follow-up changes.
 
 The [presentation guide](docs/presentation/README.md) links the editable
 PowerPoint, PDF, speaker notes, visual demo, and rubric coverage.
-On the prepared Windows laptop, double-click **Run Demo.cmd** in File Explorer
-to start the demo and open the browser automatically. Explore both datasets,
+On Windows, double-click **Run Demo.cmd**; it prefers native Python and can
+fall back to WSL. On macOS use **Run Demo.command**; on Linux/WSL use
+**Run Demo.sh**. Each launcher opens the browser after finding a ready local
+environment. See the demo guide for first-time setup and personal data paths. Explore both datasets,
 step through real model feature maps, or watch a 22-image sample from each
 dataset pass through both models. Sample counts are separate from the full evaluation.
 

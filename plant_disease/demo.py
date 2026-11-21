@@ -20,6 +20,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import webbrowser
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path, PurePosixPath
 from urllib.parse import urlparse
@@ -290,6 +291,24 @@ def make_handler(engine):
     return Handler
 
 
+
+def open_demo_browser(port):
+    """Open the Windows default browser from WSL, otherwise the local browser."""
+    url = f'http://localhost:{port}'
+    powershell = shutil.which('powershell.exe')
+    try:
+        if powershell:
+            # The URL contains only a validated integer port, not shell input.
+            subprocess.run([powershell, '-NoProfile', '-NonInteractive', '-Command',
+                            f"Start-Process '{url}'"], check=True, timeout=15,
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        elif not webbrowser.open(url):
+            print(f'Open {url} manually; no browser was detected.', flush=True)
+    except (OSError, subprocess.SubprocessError):
+        # Browser launch failure must not prevent the model server from running.
+        print(f'The browser did not open automatically. Open {url} manually.', flush=True)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--data-root', type=Path, default=Path.home() / 'datasets/cecs551-plant-disease')
@@ -297,8 +316,11 @@ def main():
     parser.add_argument('--splits-dir', type=Path, default=ROOT / 'outputs/splits')
     parser.add_argument('--device', choices=['cpu', 'cuda'], default='cpu')
     parser.add_argument('--port', type=int, default=8766)
+    parser.add_argument('--open-browser', action='store_true', help='Open the browser when the server is ready')
     parser.add_argument('--export', type=Path, help='Create a NEW local replay folder instead of serving')
     args = parser.parse_args()
+    if not 1 <= args.port <= 65535:
+        parser.error("--port must be between 1 and 65535")
     engine = None
     try:
         engine = DemoEngine(args.data_root, args.runs_root, args.splits_dir, args.device)
@@ -308,6 +330,8 @@ def main():
         else:
             server = HTTPServer(('127.0.0.1', args.port), make_handler(engine))
             print(f'Open http://localhost:{args.port} (Ctrl+C stops the demo). CPU works; no training.', flush=True)
+            if args.open_browser:
+                open_demo_browser(server.server_port)
             try:
                 server.serve_forever()
             finally:

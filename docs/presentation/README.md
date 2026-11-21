@@ -51,7 +51,8 @@ computer/projector that will be used in class.
 
 1. Confirm the official date and time allowance; see the checklist's open questions.
 2. Agree on speaking portions and rehearse the handoffs once with a timer.
-3. Start the demo before class. Try both dataset panels, the processing stages,
+3. Open [ONE-CLICK-LAUNCHERS](../../ONE-CLICK-LAUNCHERS/README.md), choose your OS,
+   and start the demo before class. Try both dataset panels, the processing stages,
    and the running sample; see the demo guide for a short sequence.
 4. Keep `outputs/phase4-demo-v2/summary-replay/offline-demo.html` and
    `outputs/phase4-demo-v2/Demo-All-Stages-Backup.pdf` available locally/on a flash drive.

@@ -7,11 +7,13 @@ seed-551 frozen and fine-tuned models. No training or downloads occur.
 
 ## Open from your operating system
 
-| System | Launcher in the repository folder |
+Open **[ONE-CLICK-LAUNCHERS](../../ONE-CLICK-LAUNCHERS/README.md)** in the repository.
+
+| System | Launcher in that folder |
 | --- | --- |
-| Windows (with or without WSL) | Double-click **Run Demo.cmd**. |
-| macOS | Double-click **Run Demo.command**. |
-| Linux / WSL | Run **Run Demo.sh**; from a terminal use `./"Run Demo.sh"`. A desktop file manager may ask to execute it or open it as text. |
+| Windows (with or without WSL) | Double-click **Windows - Run Demo.cmd**. |
+| macOS | Double-click **macOS - Run Demo.command**. |
+| Linux / WSL | Run **Linux or WSL - Run Demo.sh**; from that folder use `bash "Linux or WSL - Run Demo.sh"`. A desktop file manager may ask to execute it or open it as text. |
 
 The launchers locate the repository from their own location, even when the path
 contains spaces. They find a ready Python environment, start the demo, and open

@@ -1,64 +1,39 @@
-# CECS-551-Plant-Disease-Classification
+# Plant Disease Classification Across Image Datasets
 
-A semester project exploring plant disease classification across PlantVillage and PlantDoc images.
+A semester project comparing frozen and fine-tuned models on PlantVillage and
+PlantDoc. The experiment, IEEE paper draft, presentation, and visual demo are prepared.
 
-Before starting team or AI-assisted work, read [AGENTS.md](AGENTS.md) for the
-existing report, project locations, and guidance on follow-up changes.
+## Run the demo
 
-## Presentation and demonstration
+Open **[ONE-CLICK-LAUNCHERS](ONE-CLICK-LAUNCHERS/README.md)** and choose the file
+for Windows, macOS, or Linux/WSL. Keep the terminal open while using the demo.
 
-The [presentation guide](docs/presentation/README.md) links the editable
-PowerPoint, PDF, speaker notes, visual demo, and rubric coverage.
-On Windows, double-click **Run Demo.cmd**; it prefers native Python and can
-fall back to WSL. On macOS use **Run Demo.command**; on Linux/WSL use
-**Run Demo.sh**. Each launcher opens the browser after finding a ready local
-environment. See the demo guide for first-time setup and personal data paths. Explore both datasets,
-step through real model feature maps, or watch a 22-image sample from each
-dataset pass through both models. Sample counts are separate from the full evaluation.
+Choose a photograph and click **Run & show all stages** for a scrollable comparison
+of both models. The second tab runs a 22-image sample from each dataset; those
+counts are separate from the published full evaluation.
 
-Alternatively, from the
-prepared project environment, start the local demo with:
+A new computer needs the Python environment, datasets, and saved models first.
+See [setup and demo instructions](docs/presentation/demo-guide.md), including the
+recorded offline backup. WSL is optional on Windows.
 
-```bash
-python -m plant_disease.demo
-```
+## Open the slides and notes
 
-Then open **http://localhost:8766**. It uses the original saved models and
-requires local datasets/checkpoints; these are not bundled in a fresh clone.
-See the [demo guide](docs/presentation/demo-guide.md) for prerequisites and
-the clearly labeled offline backup. [Reproduction instructions](docs/reproduction.md)
-cover the original code snapshot and a fresh training/evaluation run.
+[Presentation guide](docs/presentation/README.md) — editable PowerPoint, PDF,
+speaker notes, and the suggested four-person speaking portions.
 
-## Completed experiment
+## Read the paper and results
 
-Phase 4: compare frozen-feature and fine-tuned MobileNetV3-Small models.
-Training and final testing are complete. See the [final test results](docs/evaluation/final-results.md):
-accuracy was high on PlantVillage and much lower on PlantDoc. The submitted
-Phase 4 IEEE report is available as a [PDF](docs/phase4-report/Phase-4-Plant-Disease-Classification.pdf)
-and [readable Markdown](docs/phase4-report/Phase-4-Plant-Disease-Classification.md).
-It describes the original experiment at commit `9619975`; later optional
-experiments are not part of this submission. The [evaluation guide](docs/evaluation.md)
-explains how to reproduce the tests and regenerate tables and plots.
+- [IEEE paper — readable Markdown](docs/phase4-report/Phase-4-Plant-Disease-Classification.md)
+- [IEEE paper — PDF](docs/phase4-report/Phase-4-Plant-Disease-Classification.pdf)
+- [Full evaluation results](docs/evaluation/final-results.md)
 
-After following the setup guide and downloading the data, run from this folder:
+The original experiment is complete. Accuracy was high on PlantVillage and much
+lower on PlantDoc. The paper describes code version `9619975`; optional later
+experiments do not replace those findings.
 
-```bash
-python scripts/analyze_data.py
-python scripts/build_splits.py
-python -m unittest discover -s tests -v
-python -m plant_disease.train --trial --output-dir outputs/trials/my-first-trial
-```
+## Working on the project
 
-The [experiment data guide](docs/experiment-data.md) explains the 22 selected
-categories, exclusions, and generated training/validation/test lists. Raw images
-stay untouched; generated lists are stored locally in `outputs/splits/`.
-
-The [training guide](docs/training.md) explains the two versions, run settings,
-saved outputs, and trial findings. The comparison is described in
-[the model plan](docs/model-plan.md).
-The [setup guide](docs/setup.md) covers the Python environment, GPU check, and
-when dataset downloads are needed.
-
-Optional augmentation and PlantDoc-training experiments are described in the
-[follow-up guide](docs/optional-experiments.md). They use separate records and
-do not replace the original results.
+Read [AGENTS.md](AGENTS.md) before team or AI-assisted changes. It maps the
+existing files and explains what must be preserved.
+[Reproduction instructions](docs/reproduction.md) cover the original experiment;
+[optional experiments](docs/optional-experiments.md) are separate follow-up work.

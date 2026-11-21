@@ -62,6 +62,9 @@ six-page paper remains within it anyway.
   playback controls, sample counters,
   pause/resume/reset, and narrow windows checked in a real browser. Offline replay
   works with HTTP blocked. Image-bearing screenshots and PDF backups remain local.
+- OS-labeled launchers are grouped in ONE-CLICK-LAUNCHERS; the main README
+  points presenters to the demo, slides and paper. Relocated launchers were
+  checked from unrelated working directories and paths containing spaces.
 - Native Windows and Windows-to-WSL launcher paths exercised with real saved-model
   inference. Linux/macOS shell dispatch checked under Linux; macOS Finder launch
   remains unverified on an actual Mac. Six launcher tests cover local settings,

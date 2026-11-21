@@ -1,6 +1,7 @@
 """Launcher checks use fake prerequisites; they do not download or train models."""
 import json
 import os
+import shutil
 from pathlib import Path
 import subprocess
 import sys
@@ -70,17 +71,28 @@ class DemoLauncherTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root=Path(directory);fake=root/'python with spaces';log=root/'arguments.jsonl'
             fake.write_text('#!'+sys.executable+'\nimport json,os,sys\n'
-                'with open(os.environ["DEMO_TEST_LOG"],"a") as f:f.write(json.dumps(sys.argv[1:])+"\\n")\n'
+                'with open(os.environ["DEMO_TEST_LOG"],"a") as f:f.write(json.dumps({"args":sys.argv[1:],"cwd":os.getcwd()})+"\\n")\n'
                 'sys.exit(0 if "--check" in sys.argv else 7)\n')
             fake.chmod(0o755)
             env=dict(os.environ,PLANT_DISEASE_PYTHON=str(fake),DEMO_TEST_LOG=str(log))
-            result=subprocess.run(['bash',str(launch_demo.ROOT/'Run Demo.sh'),
-                '--data-root',str(root/'data with spaces')],cwd=directory,env=env,capture_output=True)
-            self.assertEqual(result.returncode,7)
-            calls=[json.loads(line) for line in log.read_text().splitlines()]
-            self.assertEqual(len(calls),2)
-            self.assertEqual(calls[0][-1],str(root/'data with spaces'))
-            self.assertIn('--check',calls[0]);self.assertNotIn('--check',calls[1])
+            project=root/'project with spaces'
+            (project/'ONE-CLICK-LAUNCHERS').mkdir(parents=True)
+            (project/'scripts').mkdir()
+            shutil.copyfile(launch_demo.ROOT/'scripts/start_demo.sh',project/'scripts/start_demo.sh')
+            for name in ['Linux or WSL - Run Demo.sh','macOS - Run Demo.command']:
+                launcher=project/'ONE-CLICK-LAUNCHERS'/name
+                shutil.copyfile(launch_demo.ROOT/'ONE-CLICK-LAUNCHERS'/name,launcher)
+                log.write_text('')
+                result=subprocess.run(['bash',str(launcher),
+                    '--data-root',str(root/'data with spaces')],cwd=directory,env=env,
+                    input='\n',text=True,capture_output=True)
+                self.assertEqual(result.returncode,7,result.stderr)
+                calls=[json.loads(line) for line in log.read_text().splitlines()]
+                self.assertEqual(len(calls),2)
+                self.assertEqual(calls[0]['args'][-1],str(root/'data with spaces'))
+                self.assertIn('--check',calls[0]['args']);self.assertNotIn('--check',calls[1]['args'])
+                self.assertTrue(all(Path(call['cwd'])==project for call in calls))
+
 
 
 if __name__=='__main__':unittest.main()

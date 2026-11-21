@@ -9,6 +9,13 @@ introduction, literature review, methods, measured results, discussion, and
 conclusion. The team can review it and propose improvements; there is no need
 to start a second paper or invent findings to fill it.
 
+For presenting, start in [ONE-CLICK-LAUNCHERS](ONE-CLICK-LAUNCHERS/README.md) and
+choose the OS-labeled launcher. Windows supports native Python with optional WSL;
+macOS and Linux/WSL have separate launchers. The demo defaults to all seven
+processing stages together and also offers a running two-dataset sample.
+Keep launcher helpers in `scripts/`; do not recreate launchers at the repo root.
+Personal `demo-settings.local.json` stays at the root and is Git-ignored.
+
 The Phase 4 presentation and visual demo are now prepared; see
 [the presentation guide](docs/presentation/README.md) before creating another
 deck or demo. Confirm the class schedule and rehearse the existing materials.
@@ -30,6 +37,7 @@ explain the current status and establish which improvement is wanted.
 
 | Location | What it contains |
 | --- | --- |
+| [ONE-CLICK-LAUNCHERS/](ONE-CLICK-LAUNCHERS/README.md) | Presenter entry point: choose your OS and start the existing demo. |
 | [docs/presentation/](docs/presentation/) | Phase 4 PowerPoint/PDF, speaker notes, demo instructions and rubric coverage. Start here for presentation work. |
 | [demo/](demo/) and [plant_disease/demo.py](plant_disease/demo.py) | Local demonstration of both datasets, actual intermediate features, and a fixed teaching sample using verified original models. Image-bearing replay/backup files remain in ignored outputs. |
 | [docs/reproduction.md](docs/reproduction.md) | Exact commands for the paper’s original code version and a separate fresh reproduction. |

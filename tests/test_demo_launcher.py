@@ -62,9 +62,9 @@ class DemoLauncherTests(unittest.TestCase):
             self.assertEqual(launch_demo.main(['--check','--port','8780']),0)
             check.assert_called_with(['--port','8766','--port','8780'])
             run.assert_not_called()
-            self.assertEqual(launch_demo.main(['--port','8780']),7)
+            self.assertEqual(launch_demo.main(['--port','8780','--no-open-browser']),7)
             self.assertEqual(run.call_args.args[0],
-                [sys.executable,'-m','plant_disease.demo','--open-browser','--port','8766','--port','8780'])
+                [sys.executable,'-m','plant_disease.demo','--open-browser','--port','8766','--port','8780','--no-open-browser'])
 
     @unittest.skipUnless(os.name=='posix','Checks the POSIX wrapper using a stand-in interpreter')
     def test_shell_preserves_spaces_and_does_not_retry_after_launch_failure(self):
@@ -84,11 +84,12 @@ class DemoLauncherTests(unittest.TestCase):
                 shutil.copyfile(launch_demo.ROOT/'ONE-CLICK-LAUNCHERS'/name,launcher)
                 log.write_text('')
                 result=subprocess.run(['bash',str(launcher),
-                    '--data-root',str(root/'data with spaces')],cwd=directory,env=env,
+                    '--no-open-browser','--data-root',str(root/'data with spaces')],cwd=directory,env=env,
                     input='\n',text=True,capture_output=True)
                 self.assertEqual(result.returncode,7,result.stderr)
                 calls=[json.loads(line) for line in log.read_text().splitlines()]
                 self.assertEqual(len(calls),2)
+                self.assertTrue(all('--no-open-browser' in call['args'] for call in calls))
                 self.assertEqual(calls[0]['args'][-1],str(root/'data with spaces'))
                 self.assertIn('--check',calls[0]['args']);self.assertNotIn('--check',calls[1]['args'])
                 self.assertTrue(all(Path(call['cwd'])==project for call in calls))

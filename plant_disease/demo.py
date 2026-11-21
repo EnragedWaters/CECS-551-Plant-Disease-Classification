@@ -365,6 +365,8 @@ def main():
     parser.add_argument('--device', choices=['cpu', 'cuda'], default='cpu')
     parser.add_argument('--port', type=int, default=8766)
     parser.add_argument('--open-browser', action='store_true', help='Open the browser when the server is ready')
+    parser.add_argument('--no-open-browser', action='store_true',
+                        help='Never open a browser, including when a launcher requests it')
     parser.add_argument('--export', type=Path, help='Create a NEW local replay folder instead of serving')
     args = parser.parse_args()
     if not 1 <= args.port <= 65535:
@@ -378,7 +380,7 @@ def main():
         else:
             server = HTTPServer(('127.0.0.1', args.port), make_handler(engine))
             print(f'Open http://localhost:{args.port} (Ctrl+C stops the demo). CPU works; no training.', flush=True)
-            if args.open_browser:
+            if args.open_browser and not args.no_open_browser:
                 open_demo_browser(server.server_port)
             try:
                 server.serve_forever()

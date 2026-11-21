@@ -1,6 +1,6 @@
 """Exercise the processing walkthrough and sample comparison in a real browser.
 
-Start the demo and export a v2 replay first, then run this script. Requires the
+Start the demo and export a learning replay first, then run this script. Requires the
 optional Playwright browser tools. All screenshots/PDFs contain dataset images
 and are written to a NEW ignored output folder. No training or uploads occur.
 """
@@ -15,17 +15,18 @@ ROOT = Path(__file__).resolve().parents[1]
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--url', default='http://localhost:8766')
-    parser.add_argument('--replay', type=Path, default=ROOT/'outputs/phase4-demo-v2/summary-replay/offline-demo.html')
-    parser.add_argument('--output-dir', type=Path, default=ROOT/'outputs/phase4-demo-v2/summary-check')
+    parser.add_argument('--replay', type=Path, default=ROOT/'outputs/phase4-demo-learning/replay-final/offline-demo.html')
+    parser.add_argument('--output-dir', type=Path, default=ROOT/'outputs/phase4-demo-learning/browser-check')
     parser.add_argument('--browser', help='Optional existing Chromium executable')
     args = parser.parse_args()
     recorded = json.loads((args.replay.parent/'replay.json').read_text())
     args.output_dir.mkdir(parents=True, exist_ok=False)
-    errors, checks = [], []
+    errors, checks, api_requests = [], [], []
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True, **({'executable_path':args.browser} if args.browser else {}))
         page = browser.new_page(viewport={'width':1440,'height':1100},device_scale_factor=1)
         page.on('pageerror',lambda error:errors.append(str(error)))
+        page.on('request', lambda request: api_requests.append(request.url) if '/api/' in request.url else None)
         for kind,url in [('live',args.url),('recorded',args.replay.resolve().as_uri())]:
             # The file:// replay must function even when all HTTP is blocked.
             if kind=='recorded': page.route('http://**/*',lambda route:route.abort())
@@ -65,6 +66,42 @@ def main():
                 page.wait_for_function("Array.from(document.querySelectorAll('#all-stages img')).every(i => i.complete && i.naturalWidth > 0)")
                 for mode in ['frozen','finetune']:
                     assert page.locator(f'#all-stages [data-mode="{mode}"] .predicted-label').inner_text()==recorded['records'][i]['predictions'][mode]['label']
+                # Lessons must use this photo's captured values without another inference.
+                request_count=len(api_requests)
+                assert page.locator('#dimension-flow > span').count()==7
+                assert page.locator('#all-stages .stage-purpose').count()==7
+                assert page.locator('#all-stages .content-outline').count()==2
+                toy=page.locator('#all-stages .filter-lesson')
+                toy.locator('summary').click()
+                for pattern,response in [('flat',0),('edge',3),('reverse',-3)]:
+                    toy.locator('select').select_option(pattern)
+                    assert toy.locator('.toy-result').inner_text().endswith(str(response))
+                for mode in ['frozen','finetune']:
+                    learn=recorded['records'][i]['predictions'][mode]['learning']
+                    card=page.locator(f'#all-stages [data-stage="5"] [data-mode="{mode}"]')
+                    card.locator('.pool-lesson summary').click()
+                    for channel in range(4):
+                        card.locator('select').select_option(str(channel))
+                        assert card.locator('.pool-grid span').count()==49
+                        assert f"average {learn['pooling'][channel]['observed']:.4f}" in card.locator('.pool-preview').inner_text()
+                        assert f"Sum {learn['pooling'][channel]['sum']:.4f}" in card.locator('.pool-equation').inner_text()
+                        assert abs(page.locator(f'#all-stages [data-stage="5"] [data-mode="{mode}"] .pooled-marker').evaluate('(n)=>parseFloat(n.style.left)')-channel/24*100)<1e-4
+                    classifier=page.locator(f'#all-stages [data-stage="6"] [data-mode="{mode}"] .classifier-lesson')
+                    classifier.locator('summary').click()
+                    for category in learn['classifier']:
+                        classifier.locator('select').select_option(str(category['class_id']))
+                        assert classifier.locator('.contribution-row').count()==5
+                        assert f"Actual raw score: {category['actual_logit']:.4f}" in classifier.locator('.classifier-total').inner_text()
+                    prep=page.locator(f'#all-stages [data-stage="1"] [data-mode="{mode}"] .learning-details')
+                    prep.locator('summary').click()
+                    assert prep.locator('.math-line').count()==3
+                assert len(api_requests)==request_count
+                page.locator('.training-lesson summary').click()
+                assert 'Right now both models are fixed.' in page.locator('.training-lesson').inner_text()
+                page.set_viewport_size({'width':390,'height':844})
+                assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+                page.set_viewport_size({'width':1440,'height':1100})
+                page.locator('.training-lesson summary').click()
                 if i==5:
                     page.screenshot(path=str(args.output_dir/f'{kind}-all-stages.png'),full_page=True)
                     if kind=='recorded':
@@ -144,7 +181,7 @@ def main():
         assert not errors,errors
         browser.close()
     result={'checks':checks,'batch_pairs_per_mode':22,'batch_counter_checks':True,
-            'play_pause_step_reset_checked':True,'failed_requests_recover_without_counts':True,'offline_http_blocked':True,'browser_errors':errors}
+            'play_pause_step_reset_checked':True,'failed_requests_recover_without_counts':True,'offline_http_blocked':True,'learning_controls_and_arithmetic_checked':True,'lessons_need_no_extra_inference':True,'headless_only':True,'browser_errors':errors}
     (args.output_dir/'checks.json').write_text(json.dumps(result,indent=2)+'\n')
     print(f'Walkthrough stages, both datasets, batch counts, pause/resume/reset and offline replay passed: {args.output_dir}')
 

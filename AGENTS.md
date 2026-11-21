@@ -13,6 +13,13 @@ For presenting, start in [ONE-CLICK-LAUNCHERS](ONE-CLICK-LAUNCHERS/README.md) an
 choose the OS-labeled launcher. Windows supports native Python with optional WSL;
 macOS and Linux/WSL have separate launchers. The demo defaults to all seven
 processing stages together and also offers a running two-dataset sample.
+`demo/lessons.js` adds stage purposes, preprocessing geometry, a separate toy
+filter, actual pooling arithmetic and classifier contributions. The toy must
+remain clearly separate from the real model. `demo_trace.py` verifies the real
+numerical reconstructions without changing predictions. Keep these controls
+working in the self-contained offline export too.
+Use `--no-open-browser` for launcher/server checks and headless browsers for UI
+verification; do not take window focus during automated work.
 Keep launcher helpers in `scripts/`; do not recreate launchers at the repo root.
 Personal `demo-settings.local.json` stays at the root and is Git-ignored.
 

@@ -14,11 +14,30 @@ from urllib.request import Request, urlopen
 import torch
 from PIL import Image
 from plant_disease.demo import (DemoEngine, checked_path, export_replay,
-                                make_handler, original_package)
+                                make_handler, original_package, main)
 from plant_disease.model import state_fingerprint
 
 
 class DemoTests(unittest.TestCase):
+    def test_preparation_lesson_matches_tensor_for_different_aspect_ratios(self):
+        from plant_disease import data
+        engine = DemoEngine.__new__(DemoEngine)
+        engine.data = data
+        engine.categories = [{'plantvillage':'A___healthy'}]
+        for size in [(50,100),(101,30),(60,60)]:
+            image = Image.new('RGB', size, (20,100,240))
+            engine.load_record = lambda item: image
+            record = engine.picture({'class_id':0,'dataset':'plantvillage','relative_path':'synthetic.png'})
+            lesson = record['preparation']
+            self.assertEqual(lesson['oriented_size'],list(size))
+            self.assertTrue(torch.allclose(torch.tensor(lesson['center_normalized']),
+                                          data.prepare_image(image)[:,112,112],atol=1e-6))
+            if size[0]==size[1]:
+                self.assertEqual(lesson['offset'],[0,0])
+                self.assertEqual(lesson['resized_size'],[224,224])
+            else:
+                self.assertTrue(any(lesson['offset']))
+
     def test_paths_cannot_escape_dataset_root(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -86,9 +105,27 @@ class DemoTests(unittest.TestCase):
             self.assertIn('window.RECORDED_DEMO=', text)
             self.assertIn('\\u003c/script>', text)
             self.assertNotIn('src="/assets/demo.js"', text)
+            self.assertNotIn('src="/assets/lessons.js"', text)
+            self.assertIn('window.DemoLessons', text)
             self.assertEqual(json.loads((destination/'replay.json').read_text())['info']['mode'],'recorded')
             with self.assertRaises(FileExistsError):
                 export_replay(engine, destination)
+
+    def test_no_browser_override_wins_in_either_argument_order(self):
+        for arguments,opens in [([],False),(['--open-browser'],True),
+                (['--no-open-browser'],False),
+                (['--open-browser','--no-open-browser'],False),
+                (['--no-open-browser','--open-browser'],False)]:
+            with self.subTest(arguments=arguments), \
+                    patch('sys.argv',['demo',*arguments]), \
+                    patch('plant_disease.demo.DemoEngine'), \
+                    patch('plant_disease.demo.HTTPServer') as server, \
+                    patch('plant_disease.demo.open_demo_browser') as browser:
+                server.return_value.server_port=8766
+                main()
+                self.assertEqual(browser.call_count,int(opens))
+                server.return_value.serve_forever.assert_called_once()
+                server.return_value.server_close.assert_called_once()
 
     def test_http_serves_only_known_routes_and_rejects_bad_indexes(self):
         engine = SimpleNamespace(examples=[{}], batch=[{}], info=lambda:{'count':1},

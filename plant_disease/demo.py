@@ -176,7 +176,7 @@ class DemoEngine:
 
     def info(self):
         return {'mode': 'live', 'seed': 551, 'device': str(self.device),
-            'original_commit': ORIGINAL_COMMIT, 'count': len(self.examples), 'schema_version': 2,
+            'original_commit': ORIGINAL_COMMIT, 'count': len(self.examples), 'schema_version': 3,
             'batch_steps': len(self.batch), 'batch_per_dataset': len(self.batch),
             'batch_policy': 'One test image per shared category per dataset, chosen by lowest SHA-256 then relative path. No prediction outcomes were used. This balanced teaching sample is not representative of the full test sets.',
             'selection_policy': self.config['selection_policy'], 'checkpoint_sha256': self.hashes,
@@ -203,13 +203,23 @@ class DemoEngine:
 
     def picture(self, item):
         image = self.load_record(item)
-        from PIL import ImageOps
+        from PIL import Image, ImageOps
         original = ImageOps.exif_transpose(image).convert("RGB")
+        oriented_size = list(original.size)
+        # Geometry is descriptive only; prediction still uses the original module.
+        resized = ImageOps.contain(original, (224, 224), Image.Resampling.BILINEAR)
+        prepared = self.data.resize_with_padding(image)
+        center = list(prepared.getpixel((112, 112)))
         original.thumbnail((850, 650))
         return {'dataset': item['dataset'], 'purpose': item.get('purpose','Balanced teaching sample'),
             'label': label_name(self.categories[int(item['class_id'])]),
             'source_path': item['relative_path'], 'original_size': list(image.size),
-            'original': image_url(original), 'prepared': image_url(self.data.resize_with_padding(image))}
+            'original': image_url(original), 'prepared': image_url(prepared),
+            'preparation': {'oriented_size': oriented_size, 'resized_size': list(resized.size),
+                'offset': [(224-resized.width)//2, (224-resized.height)//2],
+                'mean': list(self.data.MEAN), 'std': list(self.data.STD),
+                'center_rgb': center,
+                'center_normalized': [(v/255-m)/s for v,m,s in zip(center,self.data.MEAN,self.data.STD)]}}
 
     def predict(self, index):
         if not 0 <= index < len(self.examples):
@@ -220,7 +230,7 @@ class DemoEngine:
 
     def infer(self, image, item, trace=False):
         """Run unchanged saved models; optional observers only copy layer outputs."""
-        from .demo_trace import observe, describe_pair
+        from .demo_trace import observe, describe_pair, learning_values
         tensor = self.data.prepare_image(image).unsqueeze(0).to(self.device)
         predictions, captures = {}, {}
         for mode, model in self.models.items():
@@ -247,6 +257,8 @@ class DemoEngine:
                 recorded = item['recorded'][mode]
                 prediction.update(matches_recorded_prediction=guess == int(recorded['predicted_class_id']),
                                   recorded_score_difference=abs(score - float(recorded['confidence'])))
+            if trace:
+                prediction['learning'] = learning_values(model, captures[mode], logits, int(item['class_id']))
             predictions[mode] = prediction
         return predictions, describe_pair(captures) if trace else None
 
@@ -279,13 +291,15 @@ def export_replay(engine, destination):
     destination.mkdir(parents=True, exist_ok=False)
     payload = {'info': dict(engine.info(), mode='recorded'), 'records': records, 'batch': batch}
     # A self-contained HTML file works from a flash drive with no server/network.
-    page = (ROOT / 'demo/index.html').read_text()
+    page = (ROOT / 'demo/index.html').read_text(encoding='utf-8')
     page = page.replace('<link rel="stylesheet" href="/assets/demo.css">',
-                        '<style>' + (ROOT / 'demo/demo.css').read_text() + '</style>')
+                        '<style>' + (ROOT / 'demo/demo.css').read_text(encoding='utf-8') + '</style>')
+    page = page.replace('<script src="/assets/lessons.js" defer></script>',
+        '<script>' + (ROOT / 'demo/lessons.js').read_text(encoding='utf-8') + '</script>')
     data = json.dumps(payload).replace('<', '\\u003c')
     page = page.replace('<script src="/assets/demo.js" defer></script>',
         '<script>window.RECORDED_DEMO=' + data + ';</script><script defer>'
-        + (ROOT / 'demo/demo.js').read_text() + '</script>')
+        + (ROOT / 'demo/demo.js').read_text(encoding='utf-8') + '</script>')
     (destination / 'offline-demo.html').write_text(page, encoding='utf-8')
     (destination / 'replay.json').write_text(json.dumps(payload, indent=2) + '\n', encoding='utf-8')
     shutil.copyfile(ROOT / 'demo/ATTRIBUTION.md', destination / 'ATTRIBUTION.md')
@@ -302,7 +316,7 @@ def make_handler(engine):
                                                    f'localhost:{self.server.server_port}'):
                     self.send_error(403, 'Open the local URL printed in the terminal')
                     return
-                if route in ('/', '/assets/demo.css', '/assets/demo.js'):
+                if route in ('/', '/assets/demo.css', '/assets/demo.js', '/assets/lessons.js'):
                     name = 'index.html' if route == '/' else route.rsplit('/', 1)[1]
                     content = (ROOT / 'demo' / name).read_bytes()
                     mime = {'html': 'text/html', 'css': 'text/css', 'js': 'text/javascript'}[name.split('.')[-1]]
@@ -365,6 +379,8 @@ def main():
     parser.add_argument('--device', choices=['cpu', 'cuda'], default='cpu')
     parser.add_argument('--port', type=int, default=8766)
     parser.add_argument('--open-browser', action='store_true', help='Open the browser when the server is ready')
+    parser.add_argument('--no-open-browser', action='store_true',
+                        help='Never open a browser, including when a launcher requests it')
     parser.add_argument('--export', type=Path, help='Create a NEW local replay folder instead of serving')
     args = parser.parse_args()
     if not 1 <= args.port <= 65535:
@@ -378,7 +394,7 @@ def main():
         else:
             server = HTTPServer(('127.0.0.1', args.port), make_handler(engine))
             print(f'Open http://localhost:{args.port} (Ctrl+C stops the demo). CPU works; no training.', flush=True)
-            if args.open_browser:
+            if args.open_browser and not args.no_open_browser:
                 open_demo_browser(server.server_port)
             try:
                 server.serve_forever()

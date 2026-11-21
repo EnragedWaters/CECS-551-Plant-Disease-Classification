@@ -1,7 +1,7 @@
 """Verify that teaching visuals are genuine observations, not model changes."""
 import unittest
 import torch
-from plant_disease.demo_trace import observe, describe_pair, choose_batch, color_image
+from plant_disease.demo_trace import observe, describe_pair, choose_batch, color_image, learning_values
 from plant_disease.model import state_fingerprint
 
 
@@ -18,6 +18,35 @@ class TinyFeatures(torch.nn.Module):
 
 
 class TraceTests(unittest.TestCase):
+    def test_learning_sums_reconstruct_real_pooling_and_logits(self):
+        torch.manual_seed(551)
+        model = TinyFeatures().eval()
+        before = state_fingerprint(model.state_dict())
+        logits, captures = observe(model, torch.rand(1,3,7,7))
+        result = learning_values(model, captures, logits, 0)
+        self.assertTrue(result['all_576_averages_verified'])
+        self.assertTrue(result['all_logits_verified'])
+        self.assertEqual(len(result['classifier']), 2)  # Repeated roles share one category.
+        for entry in result['pooling']:
+            self.assertAlmostEqual(sum(map(sum, entry['grid']))/49, entry['observed'], places=5)
+        for entry in result['classifier']:
+            for term in entry['terms']:
+                self.assertAlmostEqual(term['value']*term['weight'], term['product'])
+            total = sum(t['product'] for t in entry['terms']) + entry['remaining_sum'] + entry['bias']
+            self.assertAlmostEqual(total, entry['actual_logit'], places=5)
+            self.assertEqual(entry['remaining_count'], 571)
+        self.assertEqual(before, state_fingerprint(model.state_dict()))
+
+    def test_learning_rejects_mismatched_captures_and_scores(self):
+        model = TinyFeatures().eval()
+        logits, captures = observe(model, torch.rand(1,3,7,7))
+        with self.assertRaisesRegex(ValueError, 'Classifier reconstruction'):
+            learning_values(model, captures, logits+1, 0)
+        captures['pooled'] = captures['pooled'].clone()
+        captures['pooled'][0,0] += 1
+        with self.assertRaisesRegex(ValueError, 'Pooling reconstruction'):
+            learning_values(model, captures, logits, 0)
+
     def test_observation_preserves_logits_state_and_cleans_hooks(self):
         model = TinyFeatures().eval()
         image = torch.rand(1,3,8,8)

@@ -11,6 +11,8 @@ Choose the file for your computer:
 Keep the terminal open while presenting. The browser opens automatically.
 Choose a photograph and click **Run & show all stages** to see the full summary.
 The **Compare 22 images per dataset** tab runs the sample comparison.
+For a quiet terminal launch, add `--no-open-browser`; it starts the server
+without opening or focusing a browser. Normal double-click still opens it.
 Press **Ctrl+C** in the terminal when finished.
 
 First time on this computer? The Python environment, datasets and saved models

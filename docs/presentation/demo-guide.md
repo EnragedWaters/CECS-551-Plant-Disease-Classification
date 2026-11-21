@@ -92,6 +92,24 @@ with its attribution file to another computer.
 
 Use browser full-screen for class; scroll or adjust zoom for the projector.
 
+## Start without opening or focusing a browser
+
+Every launcher accepts `--no-open-browser`. Normal double-click behavior still
+opens the browser. For a quiet start from the repository root:
+
+```powershell
+& ".\ONE-CLICK-LAUNCHERS\Windows - Run Demo.cmd" --no-open-browser
+```
+
+```bash
+bash "ONE-CLICK-LAUNCHERS/Linux or WSL - Run Demo.sh" --no-open-browser
+# macOS uses the same flag with "macOS - Run Demo.command".
+```
+
+The server prints its local address; open it yourself when ready. The flag wins
+even if `--open-browser` is also present. Automated browser checks run headlessly,
+so they do not create visible windows or take focus.
+
 ## Inside the models
 
 Choose a thumbnail in either dataset panel, then click **Run & show all stages**.
@@ -121,6 +139,44 @@ the displayed shape and scale describe the captured numbers. Earlier and later
 stages can have different scales. These are feature responses, **not attention
 maps, highlighted disease diagnoses, or proof of why a category was selected**.
 There are no invented intermediate category guesses.
+
+### Learn what changes and why
+
+Each stage includes its input/output dimensions and a plain-English purpose.
+The dimension strip reads **channels × height × width**: for example, 576 × 7 × 7
+means 576 separate grids, each with 49 positions. These are selected observation
+points, not every internal layer.
+
+- **Prepared:** the outline marks the resized photograph; space outside it is
+  padding. Square photographs need no padding. Expand the color-number lesson
+  to follow a real center pixel through the original normalization settings.
+  The ordinary-color preview is not a picture of the normalized numbers.
+- **Early:** expand **Try a tiny filter** and switch from a uniform patch to
+  opposite edges. Multiplication and addition explain how a pattern produces a
+  response. This hand-written toy is separate from MobileNet and never changes
+  the photograph or model. It does not identify what a real channel detects.
+- **Pooling:** expand **Follow 49 actual values**. Choose channels 0–3 and follow
+  their actual 7 × 7 grid, sum, division by 49, and observed average. The outlined
+  cell in the 576-value display follows that channel. Averaging keeps a summary
+  while losing exact spatial layout. The numeric grid uses the shared late-stage
+  color scale; the 576-value display uses the pooled stage's own shared scale.
+- **Scores:** expand **How do the 576 averages vote?** Choose the prediction,
+  runner-up, or dataset label. Repeated roles share one option. Five largest
+  absolute contributions are shown as feature × weight, with the other 571
+  added together and the learned bias included. Positive and negative bars raise
+  or lower that category's raw score; they do not establish a biological cause.
+  Bar lengths scale within the selected category; compare printed numbers
+  across models or categories.
+  Softmax uses all 22 raw scores to produce the final shares, not just these
+  expanded categories.
+- **Frozen versus fine-tuned:** expand the training comparison above the stages.
+  Frozen feature weights stayed unchanged during plant training; fine-tuned
+  weights could adapt after warmup. Both models are fixed during this demo.
+  A new image changes responses, not weights.
+
+Lesson controls read captured outputs without rerunning inference. Switching
+photographs clears old calculations. Expanded numbers are rounded for reading;
+backend checks use unrounded values. All stages remain together in the summary.
 
 The six thumbnails include correct and incorrect predictions selected after the
 original evaluation. They are illustrations, not a representative accuracy test.
@@ -153,14 +209,19 @@ to make one approach look better.
 
 ## Suggested classroom sequence (about two minutes)
 
-1. Point out both dataset panels. Select a PlantVillage photograph and run the
-   summary. Scroll to Early features and explain one channel and the colors.
-2. Scroll to Pooling and Scores. Select PlantDoc example 6 to show a mistake;
-   example 5 illustrates a case where only fine-tuning matches the annotation.
-3. Start the running comparison. Use zero pause or show only a few pairs if time
-   is short. Identify partial counts as partial. Explain the selection rule.
-4. Return to the full-results slide. The sample and feature pictures illustrate
-   behavior; the published evaluation supports the research conclusions.
+1. Identify both datasets and the frozen/fine-tuned difference. Run one
+   PlantVillage image and follow the dimension strip.
+2. Point out the prepared-photo outline, then the smaller response maps. Open
+   one pooling channel to show 49 numbers becoming one. Explain the score
+   calculation; expand its arithmetic only if time permits.
+3. Show a PlantDoc mistake (example 6), or example 5 where only fine-tuning
+   matches the annotation. Start a few sample pairs; call partial counts partial.
+4. Return to the full-results slide. These lessons illustrate computation;
+   published evaluation supports the research conclusions.
+
+The toy filter and deeper arithmetic are useful for questions or a longer
+learning session. Do not try to explain every control within two minutes.
+Confirm the actual presentation time allowance before rehearsing.
 
 ## What must exist locally
 
@@ -193,7 +254,10 @@ Observation hooks copy outputs from actual feature blocks and average pooling;
 they do not replace outputs. Each captured run is compared with an ordinary
 forward pass: logits must be exactly equal on that device. Weights and buffers
 are checked before and after inference, gradients are disabled, and hooks are
-removed even if processing fails. Unit tests cover these properties. CPU scores
+removed even if processing fails. Unit tests cover these properties. The learning capture checks all 576 means
+against observed pooling, then all 22 logits against `sum(feature × weight) + bias`.
+Double-precision teaching arithmetic is compared with float32 inference using
+small numerical tolerances; it does not replace the actual prediction. CPU scores
 can differ slightly from original GPU/batched scores; the original measured
 results are never overwritten. See [PyTorch's hook documentation](https://docs.pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module.register_forward_hook).
 
@@ -202,7 +266,7 @@ results are never overwritten. See [PyTorch's hook documentation](https://docs.p
 The prepared portable replay is:
 
 ```text
-outputs/phase4-demo-v2/summary-replay/offline-demo.html
+outputs/phase4-demo-learning/replay-final/offline-demo.html
 ```
 
 Double-click it in File Explorer. It contains both views, all six processing
@@ -213,8 +277,8 @@ class. Copy the HTML and neighboring `ATTRIBUTION.md` to your flash drive.
 Static PDFs and screenshots are under:
 
 ```text
-outputs/phase4-demo-v2/summary-check/
-outputs/phase4-demo-v2/Demo-All-Stages-Backup.pdf
+outputs/phase4-demo-learning/browser-check-verified/
+outputs/phase4-demo-learning/Demo-Learning-Backup.pdf
 ```
 
 These contain dataset images and stay Git-ignored. The combined PDF includes
@@ -224,7 +288,7 @@ but show the older interface; use the paths above for this version.
 To generate another replay, choose a NEW folder (existing exports are protected):
 
 ```bash
-python -m plant_disease.demo --export outputs/phase4-demo-v2/replay-new
+python -m plant_disease.demo --no-open-browser --export outputs/phase4-demo-learning/replay-new
 ```
 
 For browser verification, install the optional tools once, start the live demo,
@@ -233,13 +297,13 @@ and use a new output directory for each run:
 ```bash
 python -m pip install -r requirements-presentation.txt
 python -m playwright install chromium --only-shell
-python scripts/check_demo_browser.py --output-dir outputs/phase4-demo-v2/browser-check-new
+python scripts/check_demo_browser.py --output-dir outputs/phase4-demo-learning/browser-check-new
 ```
 
-The default replay path is the prepared `summary-replay` above. Override `--url`,
+The default replay path is the prepared `replay-final` above. Override `--url`,
 `--replay`, or `--browser` for other locations. Checks exercise all seven stages
 of all six examples, both datasets, playback, sample counts, pause/resume/reset,
-and narrow windows. Offline checks block HTTP. Screenshots and printable PDFs
+learning controls, real arithmetic, and narrow windows. Offline checks block HTTP. Screenshots and printable PDFs
 are saved in the specified ignored folder. Nothing is uploaded.
 
 ## If something fails

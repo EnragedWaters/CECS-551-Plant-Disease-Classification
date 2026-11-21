@@ -87,6 +87,53 @@ def describe_pair(captures):
     return result
 
 
+def learning_values(model, captures, logits, true_class):
+    """Reconstruct the original pooling and linear head for a numerical lesson.
+
+    Double precision makes the displayed sums readable and stable. The actual
+    prediction still comes from the untouched float32 forward pass. We verify
+    all channels/classes, not just the few expanded in the interface.
+    """
+    late = captures['late'][0].double()
+    pooled = captures['pooled'][0].flatten().double()
+    if tuple(late.shape) != (576, 7, 7) or pooled.numel() != 576:
+        raise ValueError('Teaching lesson requires the original 576 by 7 by 7 features')
+    means = late.mean(dim=(1, 2))
+    if not torch.allclose(means, pooled, atol=2e-6, rtol=1e-5):
+        raise ValueError('Pooling reconstruction does not match the observed averages')
+    if not isinstance(model.classifier, torch.nn.Linear):
+        raise ValueError('Teaching lesson requires the original single linear classifier')
+    weights = model.classifier.weight.detach().cpu().double()
+    bias = model.classifier.bias.detach().cpu().double()
+    products = weights * pooled.unsqueeze(0)
+    reconstructed = products.sum(dim=1) + bias
+    actual = logits[0].detach().cpu().double()
+    if not torch.isfinite(reconstructed).all() or not torch.allclose(reconstructed, actual, atol=2e-5, rtol=1e-4):
+        raise ValueError('Classifier reconstruction does not match the observed logits')
+    ranked = torch.argsort(actual, descending=True).tolist()
+    roles = [('Prediction', ranked[0]), ('Runner-up', ranked[1]), ('Dataset label', true_class)]
+    classes = []
+    for category in dict.fromkeys(category for _, category in roles):
+        contribution = products[category]
+        indexes = torch.argsort(contribution.abs(), descending=True)[:5].tolist()
+        remaining = contribution.clone()
+        remaining[indexes] = 0
+        classes.append({'class_id': category,
+            'roles': [name for name, i in roles if i == category],
+            'terms': [{'channel': i, 'value': float(pooled[i]),
+                       'weight': float(weights[category, i]), 'product': float(contribution[i])}
+                      for i in indexes],
+            'remaining_count': pooled.numel() - len(indexes),
+            'remaining_sum': float(remaining.sum()), 'bias': float(bias[category]),
+            'reconstructed_logit': float(reconstructed[category]), 'actual_logit': float(actual[category])})
+    return {'pooling': [{'channel': i, 'grid': late[i].tolist(), 'sum': float(late[i].sum()),
+                        'mean': float(means[i]), 'observed': float(pooled[i])} for i in range(4)],
+            'classifier': classes,
+            'pooling_max_error': float((means-pooled).abs().max()),
+            'classifier_max_error': float((reconstructed-actual).abs().max()),
+            'all_576_averages_verified': True, 'all_logits_verified': True}
+
+
 def choose_batch(rows, class_count):
     """One example per class per dataset, by lowest byte hash then relative path.
 

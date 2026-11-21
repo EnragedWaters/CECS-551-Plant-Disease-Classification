@@ -2,7 +2,8 @@
 rem Double-click in Windows File Explorer to start the demo using native Windows Python or WSL.
 setlocal
 title Plant Disease Demo
-pushd "%~dp0"
+rem Launchers live one folder below the repository root.
+pushd "%~dp0.."
 if errorlevel 1 goto failed
 echo Finding a ready Python environment...
 echo Keep this window open. Press Ctrl+C here to stop the demo.

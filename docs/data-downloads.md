@@ -9,9 +9,9 @@ Downloaded and verified October 23, 2026:
 | PlantDoc test | 236 | All decoded successfully |
 
 The pretrained weight file passed its published hash-prefix check and loaded
-into MobileNetV3-Small successfully. No training or prediction scoring was done.
-Total local storage is about **4.9 GiB**, including retained ZIP archives;
-about **111 GiB** remained free on C: after setup. The repository keeps a small
+into MobileNetV3-Small successfully. That download check did not train or score
+models; the later completed experiment is recorded in [the final results](evaluation/final-results.md).
+The downloaded files occupy about **4.9 GiB**, including retained ZIP archives. The repository keeps a small
 [copy of the download record](download-manifest.json), containing no images or
 model weights. Counts describe this downloaded version, not paper headline
 totals or final eligible experiment counts.
@@ -34,17 +34,27 @@ like this; replace `<your-linux-username>` with your WSL username:
 | `archives/` | Original dataset ZIP downloads |
 | `download-manifest.json` | Download URLs, source revisions, file fingerprints, and check results |
 
-To prepare the same data on another WSL/Linux machine, activate the project
-Python environment and run from the repository:
+To prepare the same data on Windows, Linux/WSL or macOS, activate a compatible
+Python environment (see [setup](setup.md)) and run from the repository:
 
 ```bash
 python scripts/prepare_data.py
+# Optional: choose a local folder outside the repository and cloud sync.
+python scripts/prepare_data.py --data-root "/path/to/datasets/cecs551-plant-disease"
 ```
+
+Run only the command for your chosen location. On native Windows use a Windows
+path such as `D:/datasets/cecs551-plant-disease`; the default is under your user
+home folder on each OS. Other scripts and the demo must use that same data root.
 
 The script downloads roughly 3 GB and extracts only PlantVillage's color
 variant. It checks readability of the images and loads the pretrained weights
 without training. Running it again reuses completed downloads, re-extracts the
 original files, and repeats the checks. Keep manual edits out of these raw folders.
+Each file replaces its prior copy only after its ZIP checksum passes. Unsafe
+archive paths and redirects outside the destination are rejected. This protects
+individual files during an interrupted extraction; it is not a rollback of the
+whole archive or a verification of dataset labels.
 
 `scripts/CECS551DatasetsResearch.ipynb` reads these existing folders without
 downloading another copy. Use the project Python environment as its notebook

@@ -35,6 +35,12 @@ experiments do not replace those findings.
 
 ## Working on the project
 
+Use a branch and open a draft pull request early so work is visible.
+Changes reach `main` through a pull request after Windows and Linux checks pass.
+Normal commits to your branch are unchanged.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the workflow, local checks and fixes
+for rejected pushes or failed checks.
+
 Read [AGENTS.md](AGENTS.md) before team or AI-assisted changes. It maps the
 existing files and explains what must be preserved.
 [Reproduction instructions](docs/reproduction.md) cover the original experiment;

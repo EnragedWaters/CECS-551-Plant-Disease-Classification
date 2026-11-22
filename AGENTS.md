@@ -140,3 +140,31 @@ The tests use invented data and small models; they do not require downloading
 the real image datasets. Do not launch full training or large downloads merely
 to review the report. Explain code changes with useful comments and report what
 was checked, what changed, and any remaining limitations.
+
+## Required checks and visible contributions
+
+Read [CONTRIBUTING.md](CONTRIBUTING.md) before changing the shared branch.
+Use a feature branch, push progress, and open a draft pull request early. Shared
+repository branches are preferred; forks are allowed and face the same merge
+checks. Do not assume a commit or pushed branch means the work is on main.
+
+Run `python scripts/check_project.py` with the documented test environment.
+GitHub requires the Windows and Linux jobs to pass against the latest main.
+Ordinary local commits and feature-branch pushes remain available; main rejects
+direct pushes, force pushes and deletion. No local commit-blocking hook is needed.
+If someone asks “why won't it commit?”, distinguish a local Git/editor error,
+a protected-main push rejection, and a failed pull-request check. Read the actual
+error and failed job log before recommending a fix.
+
+Fix the underlying problem. Do not disable tests, swallow failures, remove
+required jobs, weaken rules or bypass checks to merge. For a necessary change
+to automation, explain it in the pull request, verify the guard still detects
+failures, and ask the owner to review. Keep required check names stable. This
+review convention does not impose a reviewer gate on every owner-authored PR.
+The owner retains settings access for deliberate recovery, not routine bypass.
+
+Use headless browsers and invented CPU fixtures for CI. Do not require private
+datasets, research weights, GPU hardware or research training. Never treat fixture
+scores as findings. Checkers catch common accidental local-file additions, not
+all secrets or scientific errors. Preserve the original evidence and make any
+new experiment or paper revision explicitly separate.

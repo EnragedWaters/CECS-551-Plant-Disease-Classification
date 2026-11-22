@@ -47,7 +47,7 @@ class DemoTests(unittest.TestCase):
             (root / 'escape').symlink_to(root.parent, target_is_directory=True)
             with self.assertRaises(ValueError):
                 checked_path(root, 'escape/secret')
-            self.assertEqual(checked_path(root, 'plantdoc/test/photo.jpg'), root / 'plantdoc/test/photo.jpg')
+            self.assertEqual(checked_path(root, 'plantdoc/test/photo.jpg'), root.resolve() / 'plantdoc/test/photo.jpg')
 
     def test_changed_historical_code_is_rejected_before_import(self):
         with patch('plant_disease.demo.subprocess.run', return_value=SimpleNamespace(stdout=b'changed')):

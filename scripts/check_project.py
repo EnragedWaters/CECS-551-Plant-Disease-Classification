@@ -44,7 +44,7 @@ def private_file_reason(name, size):
     if path.name == '.env' or (path.name.startswith('.env.') and path.name != '.env.example'):
         return 'Environment secrets belong outside Git'
     compact = re.sub(r'[^a-z]', '', name.lower())
-    if any(term in compact for term in ('teamevaluation', 'teammemberchecklist', 'teammemberassessment', 'personalratings')):
+    if any(term in compact for term in ('teamevaluation', 'teammemberevaluation', 'teammemberchecklist', 'teammemberassessment', 'personalratings')):
         return 'Personal assessment documents belong outside Git'
     if size > 10 * 1024 * 1024:
         return 'Files over 10 MiB need a reviewed distribution plan, not an accidental commit'
@@ -118,6 +118,41 @@ def check_files(root=ROOT):
     return names
 
 
+def check_presentation_sources(root=ROOT):
+    """Catch changed slide wording/notes that have not reached the exported deck.
+
+    This is a text consistency check, not a replacement for rendered-page review.
+    It uses only committed files and does not require Office or original photos.
+    """
+    from pptx import Presentation
+    folder = root / 'docs/presentation'
+    source = read_json(folder / 'slides.json')
+    slides = source['slides']
+    deck = Presentation(folder / 'Phase-4-Presentation.pptx')
+    notes = (folder / 'speaker-notes.md').read_text(encoding='utf-8')
+    normalize = lambda text: ' '.join(text.split())
+    require(slides and len(deck.slides) == len(slides),
+            'Presentation source and PPTX slide counts differ; rebuild and review the exports.')
+    require(normalize(source['timing_note']) in normalize(notes), 'Speaker notes have an outdated timing note.')
+    for index, (item, slide) in enumerate(zip(slides, deck.slides), 1):
+        require(all(item.get(key) for key in ('title', 'notes', 'presenter')),
+                f'Slide {index} needs a title, notes and speaking portion.')
+        visible = normalize(' '.join(shape.text for shape in slide.shapes if shape.has_text_frame))
+        for text in [item['title'], item.get('subtitle', ''), *item.get('refs', [])]:
+            require(normalize(text) in visible, f'Slide {index} wording changed; rebuild and review the exports.')
+        recorded = normalize(slide.notes_slide.notes_text_frame.text) if slide.has_notes_slide else ''
+        for text in [item['notes'], f"Suggested speaker: {item['presenter']}",
+                     f"Suggested time: {item['seconds']} seconds (provisional)"]:
+            require(normalize(text) in recorded, f'Slide {index} PPTX notes changed; rebuild the exports.')
+        # Compare the matching Markdown section, so moving a note to another
+        # speaker's slide cannot accidentally satisfy this check.
+        heading = f"## {index}. {item['title'].replace(chr(10), ' ')}"
+        section = notes.partition(heading)[2].split('\n## ', 1)[0]
+        require(section and normalize(item['notes']) in normalize(section)
+                and f"**{item['presenter']}** · {item['seconds']} seconds" in section,
+                f'Slide {index} Markdown speaker notes are outdated; rebuild the exports.')
+
+
 def check_configuration():
     import yaml
     from scripts.build_splits import category_lookup
@@ -135,9 +170,6 @@ def check_configuration():
     for example in demo['examples']:
         require(0 <= int(example['class_id']) < len(categories['classes']), 'Invalid demo class ID')
         require(example['dataset'] in {'plantvillage', 'plantdoc'}, 'Invalid demo dataset')
-    slides = read_json(ROOT/'docs/presentation/slides.json')['slides']
-    require(len(slides) == 12 and all(s.get('title') and s.get('notes') and s.get('presenter') for s in slides),
-            'Presentation needs its twelve slides, notes and speaking portions.')
     # BaseLoader preserves the YAML key "on" instead of treating it as a boolean.
     for path in (ROOT/'.github/workflows').glob('*.y*ml'):
         flow = yaml.load(path.read_text(encoding='utf-8'), Loader=yaml.BaseLoader)
@@ -158,6 +190,7 @@ def main():
         print('Checking files, Python syntax and submission copies...', flush=True)
         names = check_files()
         check_configuration()
+        check_presentation_sources()
         require(shutil.which('node'), 'Install Node.js 22 (or compatible LTS) to check the demo JavaScript.')
         for name in names:
             if name.endswith('.js'):

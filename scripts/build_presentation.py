@@ -32,8 +32,17 @@ W,H=960,540
 INK,MUTED,GREEN,BG,LINE,LIME='17382D','52645C','176A4C','F3F6F2','D8E2D9','D8ED9D'
 FROZEN,FINE,WRONG='526D94','168468','AF4C32'
 FONT_DIR=Path('/usr/share/fonts/truetype/dejavu')
-for name,file in [('Deck','DejaVuSans.ttf'),('DeckBold','DejaVuSans-Bold.ttf')]:
-    pdfmetrics.registerFont(TTFont(name,str(FONT_DIR/file)))
+def register_fonts():
+    """Use the existing Linux fonts or Matplotlib's bundled copies on other OSes."""
+    import matplotlib
+    candidates = [FONT_DIR, Path(matplotlib.get_data_path()) / 'fonts' / 'ttf']
+    filenames = [('Deck', 'DejaVuSans.ttf'), ('DeckBold', 'DejaVuSans-Bold.ttf')]
+    for directory in candidates:
+        if all((directory / filename).is_file() for _, filename in filenames):
+            for name, filename in filenames:
+                pdfmetrics.registerFont(TTFont(name, str(directory / filename)))
+            return directory
+    raise FileNotFoundError('DejaVu Sans fonts are missing. Reinstall matplotlib in the project environment.')
 
 
 def wrap(text,width,size,bold=False):
@@ -51,6 +60,7 @@ def wrap(text,width,size,bold=False):
 
 class Deck:
     def __init__(self,manifest):
+        register_fonts()
         self.manifest=manifest
         self.ppt=Presentation();self.ppt.slide_width=Pt(W);self.ppt.slide_height=Pt(H)
         self.pdf=canvas.Canvas(str(OUT/'Phase-4-Presentation.pdf'),pagesize=(W,H))
@@ -153,7 +163,7 @@ class Deck:
     def save(self):
         self.ppt.save(OUT/'Phase-4-Presentation.pptx');self.pdf.save()
         checks=ROOT/'outputs/presentation-redesign';checks.mkdir(exist_ok=True,parents=True)
-        (checks/'layout.json').write_text(json.dumps(self.bounds,indent=2)+'\n')
+        (checks/'layout.json').write_text(json.dumps(self.bounds,indent=2)+'\n', encoding='utf-8')
 
 
 def build_slide(d,item,results):
@@ -289,9 +299,9 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--office', help='Optional LibreOffice/soffice executable to export the final PDF from the PPTX')
     args=parser.parse_args()
-    content=json.loads((OUT/'slides.json').read_text());manifest=json.loads((OUT/'assets/manifest.json').read_text())
-    results=json.loads((ROOT/'docs/evaluation/final-results.json').read_text())
-    expected=json.loads((ROOT/'demo/examples.json').read_text())['results_sha256']
+    content=json.loads((OUT/'slides.json').read_text(encoding='utf-8'));manifest=json.loads((OUT/'assets/manifest.json').read_text(encoding='utf-8'))
+    results=json.loads((ROOT/'docs/evaluation/final-results.json').read_text(encoding='utf-8'))
+    expected=json.loads((ROOT/'demo/examples.json').read_text(encoding='utf-8'))['results_sha256']
     if hashlib.sha256((ROOT/'docs/evaluation/final-results.json').read_bytes()).hexdigest()!=expected:
         raise ValueError('Original result evidence changed')
     deck=Deck(manifest);notes=['# Phase 4 speaker notes','',content['timing_note'],'',
@@ -302,7 +312,7 @@ def main():
         expanded=deck.new_slide(item,len(content['slides']));build_slide(deck,item,results);deck.finish()
         notes += [f"## {number}. {item['title'].replace(chr(10),' ')}",'',
                   f"Suggested speaker: **{item['presenter']}** · {item['seconds']} seconds (provisional).",'',expanded,'']
-    deck.save();(OUT/'speaker-notes.md').write_text('\n'.join(notes).rstrip()+'\n')
+    deck.save();(OUT/'speaker-notes.md').write_text('\n'.join(notes).rstrip()+'\n', encoding='utf-8')
     if args.office:
         # Isolate the office profile and use its headless renderer only.
         with tempfile.TemporaryDirectory(prefix='cecs-slide-render-') as directory:

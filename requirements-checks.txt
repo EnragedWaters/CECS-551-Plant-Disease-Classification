@@ -6,3 +6,7 @@ matplotlib==3.11.2
 scikit-learn==1.9.1
 playwright==1.65.2
 PyYAML==6.0.3
+
+# Exercise presentation authoring portability without Office or research data.
+python-pptx==1.0.2
+reportlab==5.1.0

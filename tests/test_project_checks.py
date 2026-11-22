@@ -13,7 +13,7 @@ class ProjectCheckTests(unittest.TestCase):
                      'saved/best.pt', 'saved/model.safetensors', 'dataset.zip',
                      'WALKTHROUGH.md', 'nested/AGENTS.local.md', '.env.production',
                      'demo-settings.local.json', 'TeamMember_Checklist.docx',
-                     'team-evaluation.pdf', 'personal-ratings.csv']:
+                     'team-evaluation.pdf', 'Phase_4_TeamMember_Evaluation.docx', 'personal-ratings.csv']:
             with self.subTest(path=path):
                 self.assertIsNotNone(private_file_reason(path, 10))
         for path in ['docs/presentation/assets/pv-apple-01.jpg', '.env.example',

@@ -80,7 +80,7 @@ python scripts/check_project.py
 ```
 
 It checks Python syntax, runtime package imports, JavaScript syntax, JSON and
-notebook structure, category/demo evidence consistency, submission copies and
+notebook structure, category/demo evidence consistency, submission copies, slide wording/speaker notes against the PowerPoint, and
 tracked-file hygiene. Then it runs the unit tests and a headless browser exercise
 of the real demo and recorded replay with invented images and tiny fixed models.
 Windows runs the real PowerShell/CMD wrappers against a stand-in Python entry;
@@ -96,8 +96,8 @@ steps; they never retrain the research models or load the real datasets.
 
 `--static-only` is a quick optional check while editing. It is not a substitute
 for the full command or the required GitHub jobs. Notebook cells are not executed
-against research datasets in automation. Optional presentation-authoring scripts
-receive syntax checks; real slide rendering and saved-model verification remain
+against research datasets in automation. Presentation-authoring checks also exercise font discovery without a Linux
+font folder. Actual slide rendering and saved-model verification remain
 separate checks documented in the presentation guide.
 
 ## Files and evidence

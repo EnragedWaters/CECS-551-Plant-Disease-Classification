@@ -54,9 +54,9 @@ this setup; a CPU-only or non-NVIDIA computer needs a different PyTorch build.
 
 ## VS Code
 
-Python, Jupyter, and WSL extensions are already present on the checked machine;
-Python and Jupyter are also present in the WSL extension installation. No extra
-AI/chat plugins are needed for this work.
+For the WSL workflow, install the Python, Jupyter and WSL extensions as needed.
+No extra AI/chat plugins are needed. Native Windows demo users can follow the
+launcher guide above without installing WSL.
 
 1. In the Command Palette, choose **WSL: Reopen Folder in WSL** to use the Linux
    environment from the editor.
@@ -87,21 +87,18 @@ separate authorized data download is now complete; see [the data guide](data-dow
 for locations, source versions, image counts, and the preparation script.
 The datasets and ImageNet weights are stored outside Git and OneDrive at
 `~/datasets/cecs551-plant-disease`. The original split and leaf-grouping metadata
-are preserved. The first real timing trial can use PlantVillage alone; PlantDoc
-test scores should not guide setup or model selection.
+are preserved. Timing trials, training and final evaluation are already complete;
+see [the recorded results](evaluation/final-results.md). Reproduction is optional
+and uses the [original code snapshot](reproduction.md). PlantDoc test scores
+should not guide new settings or model selection.
 
-The installed environment occupies about 6.6 GiB. After disk cleanup on
-October 23, Windows C: had about 117 GiB free before downloading the data.
+## Storage planning
 
-Remote GitHub file-size metadata totals about 0.79 GiB for PlantVillage's
-`raw/color` files and 0.93 GiB for the cropped PlantDoc repository: about
-1.72 GiB together, before filesystem overhead. These are remote file sizes,
-not a downloaded or quality-checked inventory. PlantVillage's author-hosted
-[Hugging Face archive](https://huggingface.co/datasets/mohanty/PlantVillage/tree/main)
-is 2.18 GB (2.03 GiB) and serves multiple image variants; its download size is
-larger than the color files we need. The downloaded PlantDoc ZIP is
-984,592,720 bytes (0.92 GiB). Keep roughly 10–15 GiB available as a planning allowance
-for archives, extracted files, metadata, and initial outputs, rather than
-treating 1.72 GiB as the peak storage requirement. Avoid full Git-history clones
-and duplicate dataset caches. The completed downloads, extracted files, and
-weights occupy about 4.9 GiB; about 111 GiB remained free after verification.
+The original environment occupied about 6.6 GiB; completed downloads, extracted
+files and starting weights occupied about 4.9 GiB. Allow roughly **10–15 GiB for
+data, archives and initial outputs**, plus the Python environment and any saved
+runs or replay exports. Check your own drive's available space before downloading.
+The ZIP archives include more than the selected color images, so the final image
+sizes alone underestimate peak storage. Avoid full dataset Git-history clones
+and duplicate caches. Exact source sizes and fingerprints are in the
+[download record](download-manifest.json).

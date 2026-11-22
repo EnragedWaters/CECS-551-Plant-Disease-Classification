@@ -87,8 +87,11 @@ The builder overwrites only the presentation PPTX/PDF and generated speaker
 notes; it does not touch the IEEE paper. Export files should be reviewed again
 after any source or layout change. Keep manual edits separately if you intend
 to rebuild: the builder cannot merge edits made in PowerPoint/Google Slides.
-PDF generation uses the DejaVu Sans fonts at the standard Ubuntu font path;
-install `fonts-dejavu-core` or adjust the font path on another platform.
+PDF generation uses the existing DejaVu Sans fonts on Linux, or the copies
+bundled with Matplotlib on Windows/macOS. No font-path edit is needed. Install
+the project environment first; presentation requirements add the authoring tools.
+Check the exported pages on the presenting computer because Office font
+substitution can still affect appearance.
 
 The committed `assets/` folder contains six small, credited photo derivatives
 and three actual model-display captures. Rebuilding slides needs no raw datasets

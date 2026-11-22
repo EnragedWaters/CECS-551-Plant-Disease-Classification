@@ -42,8 +42,9 @@ def settings_arguments(root=ROOT):
 
 def check_ready(arguments, root=ROOT):
     """Explain missing prerequisites before starting a server or opening a browser."""
-    if sys.version_info < (3, 10):
-        raise ValueError('Python 3.10 or newer is needed; the original environment uses 3.12')
+    # The evidence checks use hashlib.file_digest, introduced in Python 3.11.
+    if sys.version_info < (3, 11):
+        raise ValueError('Python 3.11 or newer is needed; install the documented Python 3.12 environment')
     # Help should remain available on a fresh clone without model packages/data.
     if '--help' in arguments or '-h' in arguments:
         return

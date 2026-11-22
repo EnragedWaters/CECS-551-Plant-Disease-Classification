@@ -55,6 +55,7 @@ explain the current status and establish which improvement is wanted.
 
 | Location | What it contains |
 | --- | --- |
+| [docs/repository-audit.md](docs/repository-audit.md) | Maintenance findings, checks and intentionally retained historical files. |
 | [Phase-4-Submission/](Phase-4-Submission/README.md) | Ready-to-use repository-link TXT, IEEE paper and presentation files. Keep copies synchronized with their sources in docs/. |
 | [ONE-CLICK-LAUNCHERS/](ONE-CLICK-LAUNCHERS/README.md) | Presenter entry point: choose your OS and start the existing demo. |
 | [docs/presentation/](docs/presentation/) | Phase 4 PowerPoint/PDF, speaker notes, demo instructions and rubric coverage. Start here for presentation work. |
@@ -168,3 +169,11 @@ datasets, research weights, GPU hardware or research training. Never treat fixtu
 scores as findings. Checkers catch common accidental local-file additions, not
 all secrets or scientific errors. Preserve the original evidence and make any
 new experiment or paper revision explicitly separate.
+
+The maintenance checks also compare slide wording and speaker notes with the
+exported PowerPoint. If those checks fail, update the source and rebuild/review
+the presentation, then refresh submission copies. Do not remove the check or
+edit an original result record. The builder can use Matplotlib's bundled fonts
+outside Linux; Office exports still need visual review. Dataset preparation now
+accepts `--data-root` and replaces each extracted file only after its checksum
+passes. Keep the historical experiment snapshot unchanged when reproducing it.

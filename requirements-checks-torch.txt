@@ -1,0 +1,4 @@
+# No CUDA runtime, pretrained downloads or research checkpoints are needed.
+--index-url https://download.pytorch.org/whl/cpu
+torch==2.13.0
+torchvision==0.28.0

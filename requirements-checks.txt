@@ -1,0 +1,8 @@
+# CPU-only automation; keep the original research environment files unchanged.
+# Install the matching CPU torch/torchvision pair from requirements-checks-torch.txt.
+numpy==2.5.2
+pillow==12.3.0
+matplotlib==3.11.2
+scikit-learn==1.9.1
+playwright==1.65.2
+PyYAML==6.0.3

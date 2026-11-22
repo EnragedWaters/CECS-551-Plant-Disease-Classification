@@ -45,6 +45,8 @@ Read [AGENTS.md](AGENTS.md) before team or AI-assisted changes. It maps the
 existing files and explains what must be preserved.
 [Reproduction instructions](docs/reproduction.md) cover the original experiment;
 [optional experiments](docs/optional-experiments.md) are separate follow-up work.
+The [repository audit](docs/repository-audit.md) records maintenance fixes and
+what was deliberately preserved.
 
 ## Submission files
 

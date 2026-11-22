@@ -4,9 +4,10 @@ import io
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 import zipfile
 
-from scripts.prepare_data import extract
+from scripts.prepare_data import download, extract
 
 
 class ExtractionTests(unittest.TestCase):
@@ -25,6 +26,17 @@ class ExtractionTests(unittest.TestCase):
     def extract(self, **kwargs):
         with contextlib.redirect_stdout(io.StringIO()):
             return extract(self.archive, self.destination, **kwargs)
+
+    def test_custom_data_folder_reuses_download_and_records_a_relative_path(self):
+        target = self.root/'custom data/archives/existing.zip'
+        target.parent.mkdir(parents=True)
+        target.write_bytes(b'already downloaded')
+        with patch('scripts.prepare_data.urllib.request.urlopen') as network, \
+                contextlib.redirect_stdout(io.StringIO()):
+            record = download('https://example.invalid/data', target, root=self.root/'custom data')
+        network.assert_not_called()
+        self.assertEqual(Path(record['path']), Path('archives/existing.zip'))
+        self.assertEqual(record['bytes'], len(b'already downloaded'))
 
     def test_original_folder_layout_and_color_selection_are_preserved(self):
         self.archive_with(['raw/color/apple/a.jpg', 'raw/grayscale/apple/a.jpg'])

@@ -13,6 +13,13 @@ from scripts import launch_demo
 
 
 class DemoLauncherTests(unittest.TestCase):
+    def test_old_python_is_rejected_before_loading_model_packages(self):
+        with patch.object(launch_demo.sys, 'version_info', (3, 10, 16)), \
+                patch.object(launch_demo.importlib, 'import_module') as imports:
+            with self.assertRaisesRegex(ValueError, 'Python 3.11 or newer'):
+                launch_demo.check_ready([])
+            imports.assert_not_called()
+
     def test_personal_settings_accept_bom_and_resolve_relative_paths(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
